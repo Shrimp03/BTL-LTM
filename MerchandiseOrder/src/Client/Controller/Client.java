@@ -1,3 +1,5 @@
+package Client.Controller;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -8,7 +10,7 @@ public class Client {
             PrintWriter writer = new PrintWriter(output, true);
 
             // Gửi dữ liệu tới server
-            writer.println("Hello from Client!");
+            writer.println("Hello from Client.Controller.Client!");
 
         } catch (IOException e) {
             e.printStackTrace();

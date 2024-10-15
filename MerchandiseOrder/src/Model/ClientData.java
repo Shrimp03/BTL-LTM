@@ -1,3 +1,5 @@
+package Model;
+
 public class ClientData {
     private String name;
     private int score;

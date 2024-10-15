@@ -1,3 +1,11 @@
+package Client.Controller;
+
+import Client.View.HomeScreen;
+import Client.View.PlayScreen;
+import Client.View.QuestionScreen;
+import Client.View.RankingScreen;
+import Model.ClientData;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -20,12 +28,12 @@ public class Main extends JFrame {
 
         // Tạo dữ liệu cho bảng xếp hạng client
         clientRanking = new ArrayList<>();
-        clientRanking.add(new ClientData("Client 1", 100));
-        clientRanking.add(new ClientData("Client 2", 200));
-        clientRanking.add(new ClientData("Client 3", 150));
+        clientRanking.add(new ClientData("Client.Controller.Client 1", 100));
+        clientRanking.add(new ClientData("Client.Controller.Client 2", 200));
+        clientRanking.add(new ClientData("Client.Controller.Client 3", 150));
 
         // Tạo các site từ các file bên ngoài
-        LobbyScreen lobbyPanel = new LobbyScreen();  // Site Sảnh
+        HomeScreen lobbyPanel = new HomeScreen();  // Site Sảnh
         RankingScreen rankingPanel = new RankingScreen(clientRanking);
         PlayScreen playScreen = new PlayScreen();
         QuestionScreen questionScreen = new QuestionScreen();
@@ -41,7 +49,7 @@ public class Main extends JFrame {
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Sites");
         JMenuItem goToLobbyItem = new JMenuItem("Go to Lobby");
-        JMenuItem goToRankingItem = new JMenuItem("Go to Client Ranking");
+        JMenuItem goToRankingItem = new JMenuItem("Go to Client.Controller.Client Ranking");
         JMenuItem goToPlayItem = new JMenuItem("Go to Play");
         JMenuItem goToQuestionItem = new JMenuItem("Go to Question");
 
@@ -68,6 +76,6 @@ public class Main extends JFrame {
         SwingUtilities.invokeLater(Main::new);
     }
 
-    // Lớp ClientData để lưu thông tin client và điểm số
+    // Lớp Model.ClientData để lưu thông tin client và điểm số
 
 }
