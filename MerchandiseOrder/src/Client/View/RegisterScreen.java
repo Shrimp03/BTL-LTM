@@ -1,48 +1,69 @@
 package Client.View;
 
+import Client.Controller.Main;
+import Server.Dal.DAO.UserDAO;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
-
-import Model.User;
-import Server.Dal.DAO.UserDAOImpl;
 
 public class RegisterScreen extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JTextField emailField;
+    private JTextField emailField; // Thêm trường nhập email
+    private UserDAO userDAO; // Đối tượng để giao tiếp với server
 
-    public RegisterScreen() {
-        usernameField = new JTextField(20);
-        passwordField = new JPasswordField(20);
-        emailField = new JTextField(20);
+    public RegisterScreen(Main mainFrame, UserDAO userDAO) {
+        this.userDAO = userDAO; // Khởi tạo userDAO
+        setLayout(null); // Để có thể thiết lập vị trí
+
+        JLabel usernameLabel = new JLabel("Username:");
+        usernameLabel.setBounds(30, 30, 80, 25);
+        add(usernameLabel);
+
+        usernameField = new JTextField();
+        usernameField.setBounds(120, 30, 150, 25);
+        add(usernameField);
+
+        JLabel passwordLabel = new JLabel("Password:");
+        passwordLabel.setBounds(30, 70, 80, 25);
+        add(passwordLabel);
+
+        passwordField = new JPasswordField();
+        passwordField.setBounds(120, 70, 150, 25);
+        add(passwordField);
+
+        // Thêm trường nhập email
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setBounds(30, 110, 80, 25);
+        add(emailLabel);
+
+        emailField = new JTextField();
+        emailField.setBounds(120, 110, 150, 25);
+        add(emailField);
+
         JButton registerButton = new JButton("Register");
+        registerButton.setBounds(30, 150, 100, 30);
+        add(registerButton);
 
+        // Action listener for register
         registerButton.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                String email = emailField.getText();
-                User user = new User(0, username, password, email, null, null); // 0 for auto-incremented ID
-                UserDAOImpl userDao = new UserDAOImpl();
-                try {
-                    userDao.addUser(user); // Thêm người dùng
-                    System.out.println("User registered successfully!");
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                    System.out.println("Registration failed!");
+                String email = emailField.getText(); // Lấy email từ trường nhập
+                // Gọi đến server để đăng ký
+                if (registerUser(username, password, email)) {
+                    JOptionPane.showMessageDialog(null, "Registration successful!");
+                    mainFrame.showLoginScreen(); // Chuyển về giao diện đăng nhập
+                } else {
+                    JOptionPane.showMessageDialog(null, "Registration failed, please try again.");
                 }
             }
         });
+    }
 
-        this.add(new JLabel("Username:"));
-        this.add(usernameField);
-        this.add(new JLabel("Password:"));
-        this.add(passwordField);
-        this.add(new JLabel("Email:"));
-        this.add(emailField);
-        this.add(registerButton);
+    private boolean registerUser(String username, String password, String email) {
+        return userDAO.register(username, password, email); // Gọi đến phương thức đăng ký trong UserDAO
     }
 }

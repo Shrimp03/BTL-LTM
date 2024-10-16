@@ -43,7 +43,8 @@ class ServerThread extends Thread {
                     String username = (String) in.readObject();
                     String password = (String) in.readObject();
                     String hashedPassword = PasswordUtil.hashPassword(password);
-                    boolean isRegistered = userDAO.register(username, hashedPassword); // Sử dụng userDAO
+                    String email = (String) in.readObject();
+                    boolean isRegistered = userDAO.register(username, hashedPassword, email); // Sử dụng userDAO
                     out.writeObject(isRegistered ? "Registration Successful" : "Registration Failed");
                 } else if (command.equals("LOGIN")) {
                     String username = (String) in.readObject();
