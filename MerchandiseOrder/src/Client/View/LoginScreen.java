@@ -1,8 +1,7 @@
 package Client.View;
 
 import Client.Controller.Main;
-import Server.Dal.DAO.UserDAO;
-
+import Client.Network.ClientSocket; // Nhập lớp ClientSocket
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -12,21 +11,16 @@ import java.sql.SQLException;
 public class LoginScreen extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private UserDAO userDAO; // Đối tượng để giao tiếp với server
+    private ClientSocket clientSocket; // Thay đổi UserDAO thành ClientSocket
 
-    public LoginScreen(Main mainFrame, UserDAO userDAO) {
-        this.userDAO = userDAO; // Khởi tạo userDAO
-        setLayout(new GridBagLayout()); // Sử dụng GridBagLayout để dễ dàng bố trí
+    public LoginScreen(Main mainFrame, ClientSocket clientSocket) {
+        this.clientSocket = clientSocket; // Khởi tạo clientSocket
+        setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // Khoảng cách giữa các thành phần
+        gbc.insets = new Insets(10, 10, 10, 10);
 
-        // Tạo và thiết lập các thành phần giao diện
         createUIComponents(gbc);
-
-        // Action listener cho nút đăng nhập
         addLoginButtonActionListener(mainFrame);
-
-        // Action listener cho nút đăng ký
         addRegisterButtonActionListener(mainFrame);
     }
 
@@ -60,25 +54,20 @@ public class LoginScreen extends JPanel {
     }
 
     private void addLoginButtonActionListener(Main mainFrame) {
-        JButton loginButton = (JButton) getComponent(4); // Lấy nút đăng nhập
+        JButton loginButton = (JButton) getComponent(4);
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
 
-                // Kiểm tra xem người dùng có nhập tên người dùng và mật khẩu không
                 if (username.isEmpty() || password.isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Username and password cannot be empty.");
-                    return; // Ngừng thực hiện nếu không hợp lệ
+                    return;
                 }
 
-                // Xác thực người dùng thông qua server
-                if (authenticateUser(username, password)) {
-                    try {
-                        mainFrame.showMainScreen(username); // Hiển thị giao diện chính với tên người dùng
-                    } catch (SQLException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                // Xác thực người dùng thông qua ClientSocket
+                if (clientSocket.authenticateUser(username, password)) {
+                    mainFrame.showMainScreen(username); // Hiển thị giao diện chính với tên người dùng
                 } else {
                     JOptionPane.showMessageDialog(null, "Username or password is incorrect, please try again.");
                 }
@@ -87,15 +76,11 @@ public class LoginScreen extends JPanel {
     }
 
     private void addRegisterButtonActionListener(Main mainFrame) {
-        JButton registerButton = (JButton) getComponent(5); // Lấy nút đăng ký
+        JButton registerButton = (JButton) getComponent(5);
         registerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 mainFrame.showRegisterScreen(); // Chuyển đến giao diện đăng ký
             }
         });
-    }
-
-    private boolean authenticateUser(String username, String password) {
-        return userDAO.login(username, password); // Gọi đến phương thức login trong UserDAO
     }
 }
