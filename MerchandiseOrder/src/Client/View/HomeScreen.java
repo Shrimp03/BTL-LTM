@@ -21,15 +21,17 @@ public class HomeScreen extends JPanel {
         profilePanel.setLayout(new BorderLayout());
 
         // Ảnh đại diện (Giả định rằng bạn có một URL hoặc file cho ảnh đại diện)
-        ImageIcon avatar = new ImageIcon("path_to_avatar_image.jpg"); // Thay đổi thành đường dẫn đến ảnh đại diện
+        ImageIcon avatar = new ImageIcon("path_to_avatar_image.jpg");
+        // Thay đổi thành đường dẫn đến ảnh đại diện làm sau vì chưa xong cloudinary
+
         JLabel avatarLabel = new JLabel(avatar);
         profilePanel.add(avatarLabel, BorderLayout.WEST);
 
         // Thông tin người dùng
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new GridLayout(2, 1));
-        usernameLabel = new JLabel("Tên người dùng: "); // Sẽ được cập nhật sau
-        scoreLabel = new JLabel("Điểm: "); // Sẽ được cập nhật sau
+        usernameLabel = new JLabel("Tên người dùng: ");
+        scoreLabel = new JLabel("Điểm: ");
         infoPanel.add(usernameLabel);
         infoPanel.add(scoreLabel);
 

@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 public class RegisterScreen extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JTextField emailField; // Thêm trường nhập email
+    private JTextField emailField;
     private UserDAO userDAO; // Đối tượng để giao tiếp với server
 
     public RegisterScreen(Main mainFrame, UserDAO userDAO) {

@@ -23,7 +23,7 @@ public class Main extends JFrame {
 
     // Danh sách client cho bảng xếp hạng
     private List<ClientData> clientRanking;
-    private UserDAO userDAO; // Đối tượng UserDAO
+    private UserDAO userDAO;
 
     public Main() {
         setTitle("Multi-site Application");

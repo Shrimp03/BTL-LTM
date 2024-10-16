@@ -29,7 +29,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
                 );
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Thay thế bằng logger trong thực tế
+            e.printStackTrace();  //sao k dùng logger nhỉ
         }
         return null; // Trả về null nếu không tìm thấy người dùng
     }
@@ -42,16 +42,16 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
         }
 
         String hashedPassword = PasswordUtil.hashPassword(password); // Mã hóa mật khẩu
-        String query = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)"; // Thêm email
+        String query = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
 
         try (Connection con = getConnection(); // Mở kết nối mới
              PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, username);
             stmt.setString(2, hashedPassword);
-            stmt.setString(3, email); // Chèn email vào câu lệnh
+            stmt.setString(3, email);
             return stmt.executeUpdate() > 0; // Trả về true nếu thêm thành công
         } catch (SQLException e) {
-            e.printStackTrace(); // Thay thế bằng logger trong thực tế
+            e.printStackTrace();
             return false; // Đăng ký thất bại
         }
     }
@@ -75,7 +75,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
                 return storedPassword.equals(hashedPassword); // So sánh với mật khẩu đã mã hóa
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Thay thế bằng logger trong thực tế
+            e.printStackTrace();
         }
         return false; // Đăng nhập thất bại
     }
@@ -92,7 +92,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
                 return rs.getInt(1) > 0; // Trả về true nếu tài khoản đã tồn tại
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Thay thế bằng logger trong thực tế
+            e.printStackTrace();
         }
         return false; // Người dùng không tồn tại
     }

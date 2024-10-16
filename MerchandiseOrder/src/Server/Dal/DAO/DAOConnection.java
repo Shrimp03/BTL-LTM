@@ -26,10 +26,7 @@
 //        }
 //    }
 //
-//    protected Connection getConnection() {
-//        return con;
-//    }
-//}
+//
 //
 //
 //
@@ -41,11 +38,12 @@ import java.sql.SQLException;
 
 public abstract class DAOConnection {
     protected Connection getConnection() throws SQLException {
+//        String jdbcUrl = "jdbc:mysql://localhost:3306/game";
         String jdbcUrl = "jdbc:mysql://localhost:4306/game";
         String username = "root";
         String password = "";
 
         System.out.println("Connected to database...");
-        return DriverManager.getConnection(jdbcUrl, username, password); // Mở kết nối mới mỗi lần gọi
+        return DriverManager.getConnection(jdbcUrl, username, password);
     }
 }
