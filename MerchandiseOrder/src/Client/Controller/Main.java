@@ -35,14 +35,14 @@ public class Main extends JFrame {
         // Tạo các site từ các file bên ngoài
         HomeScreen lobbyPanel = new HomeScreen();  // Site Sảnh
         RankingScreen rankingPanel = new RankingScreen(clientRanking);
-        PlayScreen playScreen = new PlayScreen();
+//        PlayScreen playScreen = new PlayScreen();
         QuestionScreen questionScreen = new QuestionScreen();
         // Site Bảng xếp hạng
 
         // Thêm các site vào CardLayout
         mainPanel.add(lobbyPanel, "Lobby");
         mainPanel.add(rankingPanel, "Ranking");
-        mainPanel.add(playScreen, "Play");
+//        mainPanel.add(playScreen, "Play");
         mainPanel.add(questionScreen, "Question");
 
         // Tạo thanh điều hướng
