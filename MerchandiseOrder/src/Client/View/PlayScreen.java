@@ -11,8 +11,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class PlayScreen extends JPanel {
 
@@ -24,8 +24,14 @@ public class PlayScreen extends JPanel {
     private final JLabel[][] shelfSlots;
     private int originSlotIndex;
     private int originShelfIndex;
+    private final ArrayList<Product> products;
 
     public PlayScreen(User user, ArrayList<Product> products) {
+        this.products = products;
+        ArrayList<Product> shuffledProducts = new ArrayList<>(products);
+
+        Collections.shuffle(shuffledProducts);
+
         loadBackgroundImage();
         setLayout(null);
 
@@ -42,7 +48,7 @@ public class PlayScreen extends JPanel {
 
         // Tạo và sắp xếp sàn
         floorSlots = new JLabel[12];
-        JPanel floorPanel = createFloorPanel(products);
+        JPanel floorPanel = createFloorPanel(shuffledProducts);
         add(floorPanel);
     }
 
@@ -74,7 +80,7 @@ public class PlayScreen extends JPanel {
         return shelfPanel;
     }
 
-    private JPanel createFloorPanel(ArrayList<Product> products) {
+    private JPanel createFloorPanel(ArrayList<Product> shuffledProducts) {
         JPanel floorPanel = new JPanel();
         floorPanel.setBounds(50, 500, 270, 100);
         floorPanel.setLayout(new GridLayout(2, 6, 5, 5));
@@ -83,10 +89,11 @@ public class PlayScreen extends JPanel {
         for (int i = 0; i < floorSlots.length; i++) {
             floorSlots[i] = createSlotLabel();
             floorPanel.add(floorSlots[i]);
-            if (i < products.size()) {
-                ImageIcon icon = loadImageIcon(products.get(i).getImageUrl());
+            if (i < shuffledProducts.size()) {
+                ImageIcon icon = createIconFromText(shuffledProducts.get(i).getName());
                 if (icon != null) {
                     floorSlots[i].setIcon(icon);
+                    floorSlots[i].putClientProperty("product", shuffledProducts.get(i)); // Gắn product vào label
                     addDragAndDropFunctionality(floorSlots[i], floorPanel, i, -1);
                 } else {
                     System.out.println("Failed to load image for product at index: " + i);
@@ -94,6 +101,26 @@ public class PlayScreen extends JPanel {
             }
         }
         return floorPanel;
+    }
+
+    private static ImageIcon createIconFromText(String text) {
+        int width = 50;
+        int height = 50;
+
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = image.createGraphics();
+
+        g2d.setFont(new Font("Arial", Font.BOLD, 30));
+        g2d.setColor(Color.BLACK);
+
+        FontMetrics fm = g2d.getFontMetrics();
+        int x = (width - fm.stringWidth(text)) / 2;
+        int y = ((height - fm.getHeight()) / 2) + fm.getAscent();
+        g2d.drawString(text, x, y);
+
+        g2d.dispose();
+
+        return new ImageIcon(image);
     }
 
     private void mountMotion(JLabel label) {
@@ -116,11 +143,15 @@ public class PlayScreen extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (label.getIcon() != null) {
+//                    System.out.println(label.getClientProperty("product"));
                     draggedLabel = createSlotLabel();
                     draggedLabel.setIcon(label.getIcon());
+                    draggedLabel.putClientProperty("product", label.getClientProperty("product")); // Gắn product vào draggedLabel
+
                     initialClick = e.getPoint();
 
                     label.setIcon(null);
+                    label.putClientProperty("product", null); // Xóa product khỏi label gốc
 
                     Point startPoint = SwingUtilities.convertPoint(sourcePanel, label.getLocation(), PlayScreen.this);
                     add(draggedLabel);
@@ -137,11 +168,12 @@ public class PlayScreen extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 if (draggedLabel != null) {
                     boolean placed = false;
+                    Product draggedProduct = (Product) draggedLabel.getClientProperty("product");
 
                     for (int i = 0; i < shelfPanels.length; i++) {
                         for (int j = 0; j < shelfSlots[i].length; j++) {
                             if (isWithinSlot(e, shelfSlots[i][j])) {
-                                placeItemInSlot(shelfSlots[i][j], draggedLabel);
+                                placeItemInSlot(shelfSlots[i][j], draggedLabel, draggedProduct);
                                 placed = true;
                                 break;
                             }
@@ -152,7 +184,7 @@ public class PlayScreen extends JPanel {
                     if (!placed) {
                         for (JLabel floorSlot : floorSlots) {
                             if (isWithinSlot(e, floorSlot)) {
-                                placeItemInSlot(floorSlot, draggedLabel);
+                                placeItemInSlot(floorSlot, draggedLabel, draggedProduct);
                                 placed = true;
                                 break;
                             }
@@ -162,19 +194,51 @@ public class PlayScreen extends JPanel {
                     if (!placed) {
                         if (originShelfIndex == -1) {
                             floorSlots[originSlotIndex].setIcon(draggedLabel.getIcon());
+                            floorSlots[originSlotIndex].putClientProperty("product", draggedProduct);
                         } else {
                             shelfSlots[originShelfIndex][originSlotIndex].setIcon(draggedLabel.getIcon());
+                            shelfSlots[originShelfIndex][originSlotIndex].putClientProperty("product", draggedProduct);
                         }
                     }
 
                     remove(draggedLabel);
                     repaint();
                     draggedLabel = null;
+
+                    checkIfAllShelvesFilled();
                 }
             }
         });
 
         mountMotion(label);
+    }
+
+    private void checkIfAllShelvesFilled() {
+        boolean allFilled = true;
+
+        for (JLabel[] slot : shelfSlots) {
+            for (JLabel jLabel : slot) {
+                if (jLabel.getIcon() == null) {
+                    allFilled = false;
+                    break;
+                }
+            }
+            if (!allFilled) break;
+        }
+
+        if (allFilled) {
+            ArrayList<Product> shelf = new ArrayList<>();
+            for (JLabel[] shelfSlot : shelfSlots) {
+                for (JLabel jLabel : shelfSlot) {
+                    shelf.add((Product) jLabel.getClientProperty("product"));
+                }
+            }
+
+            if (shelf.equals(this.products)) {
+                System.out.println("All shelves filled");
+            }
+
+        }
     }
 
     private boolean isWithinSlot(MouseEvent e, JLabel slot) {
@@ -183,35 +247,30 @@ public class PlayScreen extends JPanel {
         return slotBounds.contains(mouseLocation);
     }
 
-    private void placeItemInSlot(JLabel slot, JLabel item) {
+    private void placeItemInSlot(JLabel slot, JLabel item, Product product) {
         Icon currentIcon = slot.getIcon();
+        Product currentProduct = (Product) slot.getClientProperty("product");
+
         slot.setIcon(item.getIcon());
-        if (currentIcon != null) {
+        slot.putClientProperty("product", product);
+
+        if (currentIcon != null && currentProduct != null) {
             if (originShelfIndex == -1) {
                 floorSlots[originSlotIndex].setIcon(currentIcon);
+                floorSlots[originSlotIndex].putClientProperty("product", currentProduct);
             } else {
                 shelfSlots[originShelfIndex][originSlotIndex].setIcon(currentIcon);
+                shelfSlots[originShelfIndex][originSlotIndex].putClientProperty("product", currentProduct);
             }
         }
     }
 
     private JLabel createSlotLabel() {
         JLabel slotLabel = new JLabel();
-//        slotLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         slotLabel.setHorizontalAlignment(JLabel.CENTER);
         slotLabel.setVerticalAlignment(JLabel.CENTER);
         slotLabel.setPreferredSize(new Dimension(50, 50));
         return slotLabel;
-    }
-
-    private ImageIcon loadImageIcon(String url) {
-        try {
-            BufferedImage img = ImageIO.read(new URL(url));
-            return new ImageIcon(img.getScaledInstance(50, 50, Image.SCALE_SMOOTH));
-        } catch (IOException e) {
-            System.out.println("Error loading image from URL: " + url);
-            return null;
-        }
     }
 
     @Override
@@ -241,8 +300,8 @@ public class PlayScreen extends JPanel {
                 "https://img.lovepik.com/free-png/20210927/lovepik-school-supplies-school-pencil-ruler-png-image_401534722_wh1200.png"
         };
 
-        for (String url : urls) {
-            products.add(new Product(products.size(), "Product " + (products.size() + 1), url));
+        for (int i = 0; i < urls.length; ++i) {
+            products.add(new Product(products.size(), "" + (i + 1), urls[i]));
         }
 
         JFrame frame = new JFrame("PlayScreen");
