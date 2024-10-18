@@ -9,4 +9,5 @@ public interface UserDAO {
     boolean register(String username, String password, String email);
     boolean login(String username, String password);
     boolean userExists(String username);
+
 }

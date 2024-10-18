@@ -1,8 +1,7 @@
 package Client.View;
 
 import Client.Controller.Main;
-import Server.Dal.DAO.UserDAO;
-
+import Client.Network.ClientSocket; // Nhập lớp ClientSocket
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,10 +10,10 @@ public class RegisterScreen extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JTextField emailField;
-    private UserDAO userDAO; // Đối tượng để giao tiếp với server
+    private ClientSocket clientSocket; // Đối tượng để giao tiếp với server
 
-    public RegisterScreen(Main mainFrame, UserDAO userDAO) {
-        this.userDAO = userDAO; // Khởi tạo userDAO
+    public RegisterScreen(Main mainFrame, ClientSocket clientSocket) {
+        this.clientSocket = clientSocket; // Khởi tạo clientSocket
         setLayout(null); // Để có thể thiết lập vị trí
 
         JLabel usernameLabel = new JLabel("Username:");
@@ -46,12 +45,18 @@ public class RegisterScreen extends JPanel {
         registerButton.setBounds(30, 150, 100, 30);
         add(registerButton);
 
-        // Action listener for register
+        // Thêm nút Quay lại trang đăng nhập
+        JButton backButton = new JButton("Back");
+        backButton.setBounds(130, 150, 100, 30);
+        add(backButton);
+
+        // Action listener cho nút đăng ký
         registerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
                 String email = emailField.getText(); // Lấy email từ trường nhập
+
                 // Gọi đến server để đăng ký
                 if (registerUser(username, password, email)) {
                     JOptionPane.showMessageDialog(null, "Registration successful!");
@@ -61,9 +66,16 @@ public class RegisterScreen extends JPanel {
                 }
             }
         });
+
+        // Action listener cho nút Quay lại
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                mainFrame.showLoginScreen(); // Chuyển về giao diện đăng nhập
+            }
+        });
     }
 
     private boolean registerUser(String username, String password, String email) {
-        return userDAO.register(username, password, email); // Gọi đến phương thức đăng ký trong UserDAO
+        return clientSocket.registerUser(username, password, email); // Gọi đến phương thức đăng ký trong ClientSocket
     }
 }

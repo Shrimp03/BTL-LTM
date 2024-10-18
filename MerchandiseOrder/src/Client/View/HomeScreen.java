@@ -1,6 +1,7 @@
 package Client.View;
 
 import Client.Controller.Main;
+import Client.Network.ClientSocket; // Nhập lớp ClientSocket
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -11,8 +12,10 @@ public class HomeScreen extends JPanel {
     private JLabel scoreLabel;
     private JButton startButton;
     private JButton rankingButton;
+    private ClientSocket clientSocket; // Đối tượng để giao tiếp với server
 
-    public HomeScreen(Main mainFrame) {
+    public HomeScreen(Main mainFrame, ClientSocket clientSocket) {
+        this.clientSocket = clientSocket; // Khởi tạo clientSocket
         setLayout(null); // Sử dụng layout null để tự thiết lập vị trí
 
         // Phần hồ sơ
@@ -43,7 +46,7 @@ public class HomeScreen extends JPanel {
         startButton.setBounds(300, 150, 200, 50);
         startButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mainFrame.showPlayScreen(); // Cần có phương thức này trong Main
+                mainFrame.showPlayScreen(); // Chuyển đến giao diện chơi
             }
         });
         add(startButton);
@@ -53,15 +56,15 @@ public class HomeScreen extends JPanel {
         rankingButton.setBounds(300, 220, 200, 50);
         rankingButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mainFrame.showRankingScreen(); // Cần có phương thức này trong Main
+                mainFrame.showRankingScreen(); // Chuyển đến giao diện bảng xếp hạng
             }
         });
         add(rankingButton);
     }
 
-    // Phương thức cập nhật thông tin người dùng
     public void updateUserInfo(String username, String points) {
         usernameLabel.setText("Tên người dùng: " + username);
         scoreLabel.setText("Điểm: " + points);
     }
+
 }

@@ -29,13 +29,28 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
                 );
             }
         } catch (SQLException e) {
-            e.printStackTrace();  //sao k dùng logger nhỉ
+            e.printStackTrace();  //Sao k dùng logger nhỉ
         }
         return null; // Trả về null nếu không tìm thấy người dùng
     }
 
     @Override
     public boolean register(String username, String password, String email) {
+        // Kiểm tra thông tin không được trống
+        if (username == null || username.trim().isEmpty() ||
+                password == null || password.trim().isEmpty() ||
+                email == null || email.trim().isEmpty()) {
+            System.out.println("Username, password, and email cannot be empty.");
+            return false; // Không cho phép đăng ký nếu thông tin trống
+        }
+
+        // Kiểm tra định dạng email
+        if (!isValidEmail(email)) {
+            System.out.println("Invalid email format.");
+            return false; // Không cho phép đăng ký nếu email không đúng định dạng
+        }
+
+        // Kiểm tra xem tài khoản đã tồn tại
         if (userExists(username)) {
             System.out.println("Username already exists.");
             return false; // Tài khoản đã tồn tại, không cho phép đăng ký
@@ -54,6 +69,12 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             e.printStackTrace();
             return false; // Đăng ký thất bại
         }
+    }
+
+    // Phương thức kiểm tra định dạng email
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"; // Biểu thức chính quy kiểm tra email
+        return email.matches(emailRegex); // Trả về true nếu email hợp lệ
     }
 
 
@@ -96,6 +117,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
         }
         return false; // Người dùng không tồn tại
     }
+
 
 
 

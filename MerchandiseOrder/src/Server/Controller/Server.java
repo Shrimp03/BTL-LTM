@@ -1,7 +1,7 @@
 package Server.Controller;
 
-import Server.Dal.DAO.UserDAO;  // Import đúng UserDAO
-import Server.Dal.DAO.UserDAOImpl; // Import đúng UserDAOImpl
+import Server.Dal.DAO.UserDAO;
+import Server.Dal.DAO.UserDAOImpl;
 import Utils.PasswordUtil;
 
 import java.io.*;
@@ -32,29 +32,26 @@ class ServerThread extends Thread {
 
     public void run() {
         try (InputStream input = socket.getInputStream();
-             ObjectInputStream in = new ObjectInputStream(input);
-             OutputStream output = socket.getOutputStream();
-             ObjectOutputStream out = new ObjectOutputStream(output)) {
+             BufferedReader in = new BufferedReader(new InputStreamReader(input));
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
             String command;
-            while ((command = (String) in.readObject()) != null) {
+            while ((command = in.readLine()) != null) {
                 System.out.println("Received command: " + command);
                 if (command.equals("REGISTER")) {
-                    String username = (String) in.readObject();
-                    String password = (String) in.readObject();
-                    String hashedPassword = PasswordUtil.hashPassword(password);
-                    String email = (String) in.readObject();
-                    boolean isRegistered = userDAO.register(username, hashedPassword, email); // Sử dụng userDAO
-                    out.writeObject(isRegistered ? "Registration Successful" : "Registration Failed");
+                    String username = in.readLine();
+                    String password = in.readLine();
+                    String email = in.readLine();
+                    boolean isRegistered = userDAO.register(username, password, email); // Sử dụng userDAO
+                    out.println(isRegistered ? "Registration Successful" : "Registration Failed");
                 } else if (command.equals("LOGIN")) {
-                    String username = (String) in.readObject();
-                    String password = (String) in.readObject();
-                    String hashedPassword = PasswordUtil.hashPassword(password); // Mã hóa mật khẩu
-                    boolean isLoggedIn = userDAO.login(username, hashedPassword); // Sử dụng userDAO
-                    out.writeObject(isLoggedIn ? "Login Successful" : "Login Failed");
+                    String username = in.readLine();
+                    String password = in.readLine();
+                    boolean isLoggedIn = userDAO.login(username, password); // Sử dụng userDAO
+                    out.println(isLoggedIn ? "Login Successful" : "Login Failed");
                 }
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {

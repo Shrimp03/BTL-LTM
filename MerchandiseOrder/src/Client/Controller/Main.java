@@ -6,13 +6,13 @@ import Client.View.QuestionScreen;
 import Client.View.RankingScreen;
 import Client.View.LoginScreen;
 import Client.View.RegisterScreen;
+import Client.Network.ClientSocket; // Nhập lớp ClientSocket
 import Model.ClientData;
-import Server.Dal.DAO.UserDAO;
-import Server.Dal.DAO.UserDAOImpl;
 import Model.User; // Thêm import cho lớp User
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,15 +20,22 @@ import java.util.List;
 public class Main extends JFrame {
     private JPanel mainPanel;
     private CardLayout cardLayout;
+    private ClientSocket clientSocket; // Thêm biến ClientSocket
 
     // Danh sách client cho bảng xếp hạng
     private List<ClientData> clientRanking;
-    private UserDAO userDAO;
 
     public Main() {
         setTitle("Multi-site Application");
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Kết nối đến server
+        try {
+            clientSocket = new ClientSocket("localhost", 1234); // Kết nối tới server
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
@@ -39,16 +46,13 @@ public class Main extends JFrame {
         clientRanking.add(new ClientData("Client.Controller.Client 2", 200));
         clientRanking.add(new ClientData("Client.Controller.Client 3", 150));
 
-        // Khởi tạo UserDAO
-        userDAO = new UserDAOImpl();
-
         // Tạo các site từ các file bên ngoài
-        HomeScreen homeScreen = new HomeScreen(this);  // Trang chính
+        HomeScreen homeScreen = new HomeScreen(this,clientSocket);  // Trang chính
         RankingScreen rankingPanel = new RankingScreen(clientRanking); // Trang bảng xếp hạng
         PlayScreen playScreen = new PlayScreen(); // Trang chơi game
         QuestionScreen questionScreen = new QuestionScreen(); // Trang câu hỏi
-        RegisterScreen registerScreen = new RegisterScreen(this, userDAO); // Thêm giao diện đăng ký
-        LoginScreen loginScreen = new LoginScreen(this, userDAO); // Thêm giao diện đăng nhập
+        RegisterScreen registerScreen = new RegisterScreen(this, clientSocket); // Thay đổi sang ClientSocket
+        LoginScreen loginScreen = new LoginScreen(this, clientSocket); // Thay đổi sang ClientSocket
 
         // Thêm các site vào CardLayout
         mainPanel.add(loginScreen, "Login"); // Thêm trang đăng nhập
@@ -68,12 +72,9 @@ public class Main extends JFrame {
     }
 
     // Phương thức hiển thị giao diện chính khi đăng nhập thành công
-    public void showMainScreen(String username) throws SQLException {
-        User user = userDAO.getUser(username); // Lấy thông tin người dùng
-        if (user != null) {
-            HomeScreen homeScreen = (HomeScreen) mainPanel.getComponent(2); // Giả sử HomeScreen là trang thứ ba
-            homeScreen.updateUserInfo(user.getUsername(), user.getPoints()); // Cập nhật thông tin người dùng
-        }
+    public void showMainScreen(String username) {
+        // Cập nhật thông tin người dùng hoặc chuyển đến giao diện chính
+        JOptionPane.showMessageDialog(this, "Welcome, " + username + "!");
         cardLayout.show(mainPanel, "Home"); // Chuyển đến giao diện chính
     }
 
