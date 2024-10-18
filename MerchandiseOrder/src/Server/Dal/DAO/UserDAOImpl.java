@@ -13,8 +13,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     @Override
     public User getUser(String username) {
         String query = "SELECT * FROM users WHERE username = ?";
-        try (Connection con = getConnection(); // Mở kết nối mới
-             PreparedStatement ps = con.prepareStatement(query)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(query)) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
 
@@ -29,14 +28,13 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
                 );
             }
         } catch (SQLException e) {
-            e.printStackTrace();  //Sao k dùng logger nhỉ
+            e.printStackTrace();  // Sử dụng logger ở đây sẽ tốt hơn
         }
         return null; // Trả về null nếu không tìm thấy người dùng
     }
 
     @Override
     public boolean register(String username, String password, String email) {
-        // Kiểm tra thông tin không được trống
         if (username == null || username.trim().isEmpty() ||
                 password == null || password.trim().isEmpty() ||
                 email == null || email.trim().isEmpty()) {
@@ -44,23 +42,20 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             return false; // Không cho phép đăng ký nếu thông tin trống
         }
 
-        // Kiểm tra định dạng email
         if (!isValidEmail(email)) {
             System.out.println("Invalid email format.");
             return false; // Không cho phép đăng ký nếu email không đúng định dạng
         }
 
-        // Kiểm tra xem tài khoản đã tồn tại
         if (userExists(username)) {
             System.out.println("Username already exists.");
             return false; // Tài khoản đã tồn tại, không cho phép đăng ký
         }
 
-        String hashedPassword = PasswordUtil.hashPassword(password); // Mã hóa mật khẩu
+        String hashedPassword = PasswordUtil.hashPassword(password);
         String query = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
 
-        try (Connection con = getConnection(); // Mở kết nối mới
-             PreparedStatement stmt = con.prepareStatement(query)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(query)) {
             stmt.setString(1, username);
             stmt.setString(2, hashedPassword);
             stmt.setString(3, email);
@@ -71,12 +66,10 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
         }
     }
 
-    // Phương thức kiểm tra định dạng email
     private boolean isValidEmail(String email) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"; // Biểu thức chính quy kiểm tra email
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         return email.matches(emailRegex); // Trả về true nếu email hợp lệ
     }
-
 
     @Override
     public boolean login(String username, String password) {
@@ -84,11 +77,11 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             System.out.println("Username does not exist.");
             return false;
         }
-        String hashedPassword = PasswordUtil.hashPassword(password); // Mã hóa mật khẩu
+
+        String hashedPassword = PasswordUtil.hashPassword(password);
         String query = "SELECT password FROM users WHERE username = ?";
 
-        try (Connection con = getConnection(); // Mở kết nối mới
-             PreparedStatement stmt = con.prepareStatement(query)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(query)) {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -105,8 +98,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     public boolean userExists(String username) {
         String query = "SELECT COUNT(*) FROM users WHERE username = ?";
 
-        try (Connection con = getConnection(); // Mở kết nối mới
-             PreparedStatement stmt = con.prepareStatement(query)) {
+        try (PreparedStatement stmt = getConnection().prepareStatement(query)) {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -118,11 +110,9 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
         return false; // Người dùng không tồn tại
     }
 
-
-
-
     public static void main(String[] args) {
         UserDAOImpl dao = new UserDAOImpl();
-
+        // Kiểm tra các phương thức
+        // ví dụ: dao.register("username", "password", "email@example.com");
     }
 }

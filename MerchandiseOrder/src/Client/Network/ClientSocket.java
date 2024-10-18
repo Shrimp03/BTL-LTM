@@ -9,7 +9,7 @@ public class ClientSocket {
     private BufferedReader in;
 
     public ClientSocket(String host, int port) throws IOException {
-        socket = new Socket(host, port);
+        socket = new Socket("localhost", 1234);
         out = new PrintWriter(socket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
