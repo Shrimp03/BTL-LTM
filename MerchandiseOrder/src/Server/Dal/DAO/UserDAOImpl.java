@@ -13,7 +13,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     @Override
     public User getUser(String username) {
         String query = "SELECT * FROM users WHERE username = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(query)) {
+        try (PreparedStatement ps = con.prepareStatement(query)) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
 
@@ -55,7 +55,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
         String hashedPassword = PasswordUtil.hashPassword(password);
         String query = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
 
-        try (PreparedStatement stmt = getConnection().prepareStatement(query)) {
+        try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, username);
             stmt.setString(2, hashedPassword);
             stmt.setString(3, email);
@@ -81,7 +81,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
         String hashedPassword = PasswordUtil.hashPassword(password);
         String query = "SELECT password FROM users WHERE username = ?";
 
-        try (PreparedStatement stmt = getConnection().prepareStatement(query)) {
+        try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -98,7 +98,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     public boolean userExists(String username) {
         String query = "SELECT COUNT(*) FROM users WHERE username = ?";
 
-        try (PreparedStatement stmt = getConnection().prepareStatement(query)) {
+        try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {

@@ -1,12 +1,11 @@
 package Client.View;
 
 import Client.Controller.Main;
-import Client.Network.ClientSocket; // Nhập lớp ClientSocket
+import Client.Controller.ClientSocket; // Nhập lớp ClientSocket
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 
 public class LoginScreen extends JPanel {
     private JTextField usernameField;

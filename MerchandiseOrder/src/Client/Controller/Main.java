@@ -6,14 +6,11 @@ import Client.View.QuestionScreen;
 import Client.View.RankingScreen;
 import Client.View.LoginScreen;
 import Client.View.RegisterScreen;
-import Client.Network.ClientSocket; // Nhập lớp ClientSocket
 import Model.ClientData;
-import Model.User; // Thêm import cho lớp User
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
