@@ -1,7 +1,8 @@
 package Client.View;
 
+import Client.Controller.Client;
 import Client.Controller.Main;
-import Client.Controller.ClientSocket; // Nhập lớp ClientSocket
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,9 +11,9 @@ import java.awt.event.ActionListener;
 public class LoginScreen extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private ClientSocket clientSocket; // Thay đổi UserDAO thành ClientSocket
+    private Client clientSocket; // Thay đổi UserDAO thành ClientSocket
 
-    public LoginScreen(Main mainFrame, ClientSocket clientSocket) {
+    public LoginScreen(Main mainFrame, Client clientSocket) {
         this.clientSocket = clientSocket; // Khởi tạo clientSocket
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();

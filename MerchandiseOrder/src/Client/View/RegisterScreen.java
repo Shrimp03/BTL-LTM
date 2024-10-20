@@ -1,7 +1,7 @@
 package Client.View;
 
+import Client.Controller.Client;
 import Client.Controller.Main;
-import Client.Controller.ClientSocket; // Nhập lớp ClientSocket
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,9 +10,9 @@ public class RegisterScreen extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JTextField emailField;
-    private ClientSocket clientSocket; // Đối tượng để giao tiếp với server
+    private Client clientSocket; // Đối tượng để giao tiếp với server
 
-    public RegisterScreen(Main mainFrame, ClientSocket clientSocket) {
+    public RegisterScreen(Main mainFrame, Client clientSocket) {
         this.clientSocket = clientSocket; // Khởi tạo clientSocket
         setLayout(null); // Để có thể thiết lập vị trí
 

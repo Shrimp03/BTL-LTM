@@ -1,7 +1,7 @@
 package Client.View;
 
+import Client.Controller.Client;
 import Client.Controller.Main;
-import Client.Controller.ClientSocket; // Nhập lớp ClientSocket
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -12,9 +12,9 @@ public class HomeScreen extends JPanel {
     private JLabel scoreLabel;
     private JButton startButton;
     private JButton rankingButton;
-    private ClientSocket clientSocket; // Đối tượng để giao tiếp với server
+    private Client clientSocket; // Đối tượng để giao tiếp với server
 
-    public HomeScreen(Main mainFrame, ClientSocket clientSocket) {
+    public HomeScreen(Main mainFrame, Client clientSocket) {
         this.clientSocket = clientSocket; // Khởi tạo clientSocket
         setLayout(null); // Sử dụng layout null để tự thiết lập vị trí
 
@@ -66,5 +66,6 @@ public class HomeScreen extends JPanel {
         usernameLabel.setText("Tên người dùng: " + username);
         scoreLabel.setText("Điểm: " + points);
     }
+
 
 }

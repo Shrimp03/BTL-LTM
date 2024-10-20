@@ -17,7 +17,7 @@ import java.util.List;
 public class Main extends JFrame {
     private JPanel mainPanel;
     private CardLayout cardLayout;
-    private ClientSocket clientSocket; // Thêm biến ClientSocket
+    private Client clientSocket; // Thêm biến ClientSocket
 
     // Danh sách client cho bảng xếp hạng
     private List<ClientData> clientRanking;
@@ -29,7 +29,7 @@ public class Main extends JFrame {
 
         // Kết nối đến server
         try {
-            clientSocket = new ClientSocket("localhost", 1234); // Kết nối tới server
+            clientSocket = new Client("localhost", 1234); // Kết nối tới server
         } catch (IOException e) {
             e.printStackTrace();
         }
