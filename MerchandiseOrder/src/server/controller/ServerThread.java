@@ -15,23 +15,40 @@ public class ServerThread implements Runnable {
     @Override
     public void run() {
         try (
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())
         ) {
-            DataTransferObject<?> request = (DataTransferObject<?>) ois.readObject();
-//            System.out.println(request);
+            while (true) {
+                try {
+                    DataTransferObject<?> request = (DataTransferObject<?>) ois.readObject();
+                    System.out.println("Received request from client: " + request);
 
-            DataTransferObject<?> response = RequestDispatcher.dispatch(request);
+                    // TODO: Kiểm tra nếu client yêu cầu ngắt kết nối
+                    if ("DISCONNECT".equals(request.getType())) {
+                        System.out.println("Client requested to disconnect.");
+                        break;
+                    }
 
-            oos.writeObject(response);
-            oos.flush();
+                    DataTransferObject<?> response = RequestDispatcher.dispatch(request);
+                    oos.writeObject(response);
+                    oos.flush();
+                    System.out.println("Response sent to client");
+                } catch (EOFException e) {
+                    System.out.println("Client has closed the connection unexpectedly.");
+                    break;
+                }
+            }
         } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error during communication with client: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
-                socket.close();
+                if (socket != null && !socket.isClosed()) {
+                    socket.close();
+                    System.out.println("Server socket closed");
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("Error closing socket: " + e.getMessage());
             }
         }
     }
