@@ -1,8 +1,7 @@
-package Server.Controller;
+package server.controller;
 
-import Server.Dal.DAO.UserDAO;
-import Server.Dal.DAO.UserDAOImpl;
-import Utils.PasswordUtil;
+import server.dal.dao.UserDAO;
+import server.dal.dao.UserDAOImpl;
 
 import java.io.*;
 import java.net.*;

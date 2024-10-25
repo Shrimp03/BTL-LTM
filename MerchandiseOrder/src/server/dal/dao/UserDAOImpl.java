@@ -1,7 +1,7 @@
-package Server.Dal.DAO;
+package server.dal.dao;
 
-import Model.User;
-import Utils.PasswordUtil;
+import model.User;
+import utils.PasswordUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

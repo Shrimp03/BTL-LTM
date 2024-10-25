@@ -1,6 +1,6 @@
-package Client.View;
+package client.view;
 
-import Model.ClientData;
+import model.ClientData;
 
 import javax.swing.*;
 import java.awt.*;

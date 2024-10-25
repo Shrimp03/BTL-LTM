@@ -1,6 +1,6 @@
-package Server.Dal.DAO;
+package server.dal.dao;
 
-import Model.User;
+import model.User;
 
 import java.sql.SQLException;
 

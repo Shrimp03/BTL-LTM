@@ -1,7 +1,7 @@
-package Client.View;
+package client.view;
 
-import Client.Controller.Main;
-import Client.Network.ClientSocket; // Nhập lớp ClientSocket
+import client.controller.Main;
+import client.controller.ClientSocket; // Nhập lớp ClientSocket
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
