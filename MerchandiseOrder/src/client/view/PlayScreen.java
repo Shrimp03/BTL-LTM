@@ -1,7 +1,8 @@
-package Client.View;
+package client.view;
 
-import Model.Product;
-import Model.User;
+import client.controller.ClientSocket;
+import model.Product;
+import model.User;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -15,19 +16,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class PlayScreen extends JPanel {
-
+    private User user;
+    private ArrayList<Product> products;
+    private ClientSocket clientSocket;
     private BufferedImage backgroundImage;
     private JLabel draggedLabel = null;
     private Point initialClick;
-    private final JPanel[] shelfPanels;
-    private final JLabel[] floorSlots;
-    private final JLabel[][] shelfSlots;
+    private JPanel[] shelfPanels;
+    private JLabel[] floorSlots;
+    private JLabel[][] shelfSlots;
     private int originSlotIndex;
     private int originShelfIndex;
-    private final ArrayList<Product> products;
+
+    public PlayScreen() {}
 
     public PlayScreen(User user, ArrayList<Product> products) {
+        this.user = user;
         this.products = products;
+        this.clientSocket = new ClientSocket();
         ArrayList<Product> shuffledProducts = new ArrayList<>(products);
 
         Collections.shuffle(shuffledProducts);
@@ -51,6 +57,7 @@ public class PlayScreen extends JPanel {
         JPanel floorPanel = createFloorPanel(shuffledProducts);
         add(floorPanel);
     }
+
 
     private void loadBackgroundImage() {
         try {
@@ -235,7 +242,15 @@ public class PlayScreen extends JPanel {
             }
 
             if (shelf.equals(this.products)) {
-                System.out.println("All shelves filled");
+                this.user.setPoints(this.user.getPoints() + " 200");
+                boolean update = clientSocket.updateUser(this.user);
+                if (update) {
+
+                } else {
+
+                }
+            } else {
+                System.out.println("Sai");
             }
 
         }
@@ -279,38 +294,5 @@ public class PlayScreen extends JPanel {
         if (backgroundImage != null) {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
-    }
-
-    public static void main(String[] args) {
-        User user = new User(1, "testUser", "password", "test@example.com", "10 20 30", "C:/full/path/to/your/image/avatar.png");
-
-        ArrayList<Product> products = new ArrayList<>();
-        String[] urls = {
-                "https://img5.thuthuatphanmem.vn/uploads/2021/11/09/anh-do-an-doc-dao-dep-nhat_095145309.jpg",
-                "https://th.bing.com/th/id/OIP.r0X-CYZvvYM71ZdNU4LXQQHaE8?pid=ImgDet&w=474&h=316&rs=1",
-                "https://th.bing.com/th/id/OIP.2dpZ2lPu39T_WCBOZEOZFgHaI7?pid=ImgDet&w=474&h=571&rs=1",
-                "https://phunugioi.com/wp-content/uploads/2022/02/Anh-Do-An-Cute-2.jpg",
-                "https://img5.thuthuatphanmem.vn/uploads/2021/11/09/hinh-anh-do-an-cuc-de-thuong_095148496.png",
-                "https://img5.thuthuatphanmem.vn/uploads/2021/11/09/hinh-anh-do-an-picnic-de-thuong_095150617.jpg",
-                "https://img6.thuthuatphanmem.vn/uploads/2022/11/17/anh-chibi-cute_014001732.png",
-                "https://img5.thuthuatphanmem.vn/uploads/2021/11/09/hinh-anh-do-an-cute-de-thuong_095148049.jpg",
-                "https://img.lovepik.com/free-png/20210924/lovepik-cute-jane-food-png-image_401296684_wh1200.png",
-                "https://img5.thuthuatphanmem.vn/uploads/2021/11/09/hinh-anh-do-an-ngo-nghinh-dep-nhat_095150416.jpg",
-                "https://img5.thuthuatphanmem.vn/uploads/2021/11/09/hinh-anh-do-an-cute_095148385.jpg",
-                "https://img.lovepik.com/free-png/20210927/lovepik-school-supplies-school-pencil-ruler-png-image_401534722_wh1200.png"
-        };
-
-        for (int i = 0; i < urls.length; ++i) {
-            products.add(new Product(products.size(), "" + (i + 1), urls[i]));
-        }
-
-        JFrame frame = new JFrame("PlayScreen");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(380, 685);
-        frame.setLocationRelativeTo(null);
-
-        PlayScreen playScreen = new PlayScreen(user, products);
-        frame.add(playScreen);
-        frame.setVisible(true);
     }
 }

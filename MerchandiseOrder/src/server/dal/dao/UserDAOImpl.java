@@ -1,6 +1,6 @@
-package Server.Dal.DAO;
+package server.dal.dao;
 
-import Model.User;
+import model.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,6 +27,25 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
 //            throw new RuntimeException(e);
         }
         return null;
+    }
+
+    @Override
+    public boolean updateUser(User user) {
+        String query = "UPDATE users SET email = ?, points = ?, avatar = ? WHERE id = ?";
+        try (PreparedStatement ps = con.prepareStatement(query)) {
+            ps.setString(1, user.getEmail());
+            ps.setString(2, user.getPoints());
+            ps.setString(3, user.getAvatar());
+            ps.setInt(4, user.getId());
+
+            int rowsAffected = ps.executeUpdate();
+
+            // If at least one row was updated, return true
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 
     public static void main(String[] args) {
