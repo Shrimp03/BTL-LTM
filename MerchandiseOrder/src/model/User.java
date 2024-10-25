@@ -1,8 +1,8 @@
 package model;
 
-import utils.PasswordUtil;
+import java.io.Serializable;
 
-public class User {
+public class User implements Serializable {
     private int id;
     private String username;
     private String password;
@@ -13,7 +13,7 @@ public class User {
     public User(int id, String username, String password, String email, String points, String avatar) {
         this.id = id;
         this.username = username;
-        this.password = PasswordUtil.hashPassword(password);
+        this.password = password;
         this.email = email;
         this.points = points;
         this.avatar = avatar;
@@ -25,6 +25,10 @@ public class User {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public String getEmail() {
@@ -61,10 +65,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public int getHighScore() {

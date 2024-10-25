@@ -1,15 +1,17 @@
 package model;
 
-public class Product {
+import java.io.Serializable;
+
+public class Product implements Serializable {
 
     private int id;
     private String name;
-    private String img_url;
+    private String imageUrl;
 
-    public Product(int id, String name, String img_url) {
+    public Product(int id, String name, String imageUrl) {
         this.id = id;
         this.name = name;
-        this.img_url = img_url;
+        this.imageUrl = imageUrl;
     }
 
     public int getId() {
@@ -28,11 +30,11 @@ public class Product {
         this.name = name;
     }
 
-    public String getImg_url() {
-        return img_url;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImg_url(String img_url) {
-        this.img_url = img_url;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
