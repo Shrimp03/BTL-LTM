@@ -15,7 +15,7 @@ public class QuestionScreen extends JPanel{
     private JButton btnGoToPlay;
 
     public QuestionScreen() {
-        this.user = new User(5, "user5", "password123", "user5@example.com", "10 20 30", "C:/full/path/to/your/image/avatar.png");
+        this.user = new User(5, "user5", "password123", "user5@example.com", "10 20 30 40", "C:/full/path/to/your/image/avatar.png");
 
         ArrayList<Product> products = new ArrayList<>();
         String[] urls = {

@@ -46,10 +46,11 @@ public class Client extends JFrame {
 
     public static void connectToServer() {
         try {
-            if (socket == null) {
+            if (socket == null || socket.isClosed()) {
                 socket = new Socket(serverHost, serverPort);
                 oos = new ObjectOutputStream(socket.getOutputStream());
                 ois = new ObjectInputStream(socket.getInputStream());
+                System.out.println("Connected to server");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,7 +60,17 @@ public class Client extends JFrame {
     public static void closeConnection() {
         try {
             if (ois != null) ois.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
             if (oos != null) oos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
             if (socket != null) socket.close();
             System.out.println("Connection closed");
         } catch (IOException e) {
