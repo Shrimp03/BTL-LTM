@@ -31,7 +31,7 @@ public class Client extends JFrame {
         this.add(cardPanel);
 
         setTitle("Merchandise Order");
-        setSize(380, 685);
+        setSize(385, 685);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);

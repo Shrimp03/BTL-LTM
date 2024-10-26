@@ -44,7 +44,7 @@ public class PlayScreen extends JPanel {
         // Tạo và sắp xếp các kệ
         shelfPanels = new JPanel[4];
         shelfSlots = new JLabel[4][3];
-        int[] xPositions = {2, 205, 2, 205};
+        int[] xPositions = {2, 207, 2, 207};
         int[] yPositions = {230, 230, 305, 305};
 
         for (int i = 0; i < shelfPanels.length; i++) {
@@ -89,7 +89,7 @@ public class PlayScreen extends JPanel {
 
     private JPanel createFloorPanel(ArrayList<Product> shuffledProducts) {
         JPanel floorPanel = new JPanel();
-        floorPanel.setBounds(50, 500, 270, 100);
+        floorPanel.setBounds(20, 500, 320, 100);
         floorPanel.setLayout(new GridLayout(2, 6, 5, 5));
         floorPanel.setOpaque(false);
 
@@ -97,10 +97,12 @@ public class PlayScreen extends JPanel {
             floorSlots[i] = createSlotLabel();
             floorPanel.add(floorSlots[i]);
             if (i < shuffledProducts.size()) {
-                ImageIcon icon = createIconFromText(shuffledProducts.get(i).getName());
+                String imagePath = "/static/item/" + products.get(i).getImageUrl();
+                ImageIcon icon = createIconFromResource(imagePath);
+
                 if (icon != null) {
                     floorSlots[i].setIcon(icon);
-                    floorSlots[i].putClientProperty("product", shuffledProducts.get(i)); // Gắn product vào label
+                    floorSlots[i].putClientProperty("product", shuffledProducts.get(i));
                     addDragAndDropFunctionality(floorSlots[i], floorPanel, i, -1);
                 } else {
                     System.out.println("Failed to load image for product at index: " + i);
@@ -110,24 +112,22 @@ public class PlayScreen extends JPanel {
         return floorPanel;
     }
 
-    private static ImageIcon createIconFromText(String text) {
-        int width = 50;
-        int height = 50;
-
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = image.createGraphics();
-
-        g2d.setFont(new Font("Arial", Font.BOLD, 30));
-        g2d.setColor(Color.BLACK);
-
-        FontMetrics fm = g2d.getFontMetrics();
-        int x = (width - fm.stringWidth(text)) / 2;
-        int y = ((height - fm.getHeight()) / 2) + fm.getAscent();
-        g2d.drawString(text, x, y);
-
-        g2d.dispose();
-
-        return new ImageIcon(image);
+    private ImageIcon createIconFromResource(String path) {
+        java.net.URL imgURL = getClass().getResource(path);
+        if (imgURL != null) {
+            try {
+                BufferedImage img = ImageIO.read(imgURL);
+                // Thay đổi kích thước hình ảnh theo kích thước của slot (ví dụ: 50x50)
+                Image scaledImg = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                return new ImageIcon(scaledImg);
+            } catch (IOException e) {
+                System.err.println("Couldn't load image: " + path);
+                return null;
+            }
+        } else {
+            System.err.println("Couldn't find file: " + path);
+            return null;
+        }
     }
 
     private void mountMotion(JLabel label) {
