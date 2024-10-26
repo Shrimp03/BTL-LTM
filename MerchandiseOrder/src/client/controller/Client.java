@@ -44,6 +44,18 @@ public class Client extends JFrame {
         cardLayout.show(cardPanel, "PlayScreen");
     }
 
+    public void showQuestionScreen() { // TODO: Sau sửa: thêm tham số user
+        QuestionScreen questionScreen = new QuestionScreen();
+        cardPanel.add(questionScreen, "QuestionScreen");
+        cardLayout.show(cardPanel, "QuestionScreen");
+    }
+
+    public void showHomeScreen() { // TODO: Sau sửa: thêm tham số user
+        HomeScreen homeScreen = new HomeScreen();
+        cardPanel.add(homeScreen, "HomeScreen");
+        cardLayout.show(cardPanel, "HomeScreen");
+    }
+
     public static void connectToServer() {
         try {
             if (socket == null || socket.isClosed()) {
