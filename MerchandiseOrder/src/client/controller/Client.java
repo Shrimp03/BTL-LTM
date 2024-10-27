@@ -31,7 +31,7 @@ public class Client extends JFrame {
         this.add(cardPanel);
 
         setTitle("Merchandise Order");
-        setSize(380, 685);
+        setSize(385, 685);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -42,6 +42,18 @@ public class Client extends JFrame {
         PlayScreen playScreen = new PlayScreen(user, products);
         cardPanel.add(playScreen, "PlayScreen");
         cardLayout.show(cardPanel, "PlayScreen");
+    }
+
+    public void showQuestionScreen() { // TODO: Sau sửa: thêm tham số user
+        QuestionScreen questionScreen = new QuestionScreen();
+        cardPanel.add(questionScreen, "QuestionScreen");
+        cardLayout.show(cardPanel, "QuestionScreen");
+    }
+
+    public void showHomeScreen() { // TODO: Sau sửa: thêm tham số user
+        HomeScreen homeScreen = new HomeScreen();
+        cardPanel.add(homeScreen, "HomeScreen");
+        cardLayout.show(cardPanel, "HomeScreen");
     }
 
     public static void connectToServer() {
