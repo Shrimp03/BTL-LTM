@@ -1,7 +1,7 @@
-package Client.View;
+package client.view;
 
-import Client.Controller.Client;
-import Client.Controller.Main;
+import client.controller.Client;
+import client.controller.Main;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
