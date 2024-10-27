@@ -1,6 +1,6 @@
 package model;
 
-import Utils.PasswordUtil;
+import utils.PasswordUtil;
 
 public class User {
     private int id;

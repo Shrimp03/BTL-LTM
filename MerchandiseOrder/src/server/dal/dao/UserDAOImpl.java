@@ -1,7 +1,7 @@
 package server.dal.dao;
 
 import model.User;
-import Utils.PasswordUtil;
+import utils.PasswordUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
