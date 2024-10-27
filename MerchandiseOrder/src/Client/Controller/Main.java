@@ -27,9 +27,9 @@ public class Main extends JFrame {
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Kết nối đến server
+        // Kết nối đến Server
         try {
-            clientSocket = new Client("localhost", 1234); // Kết nối tới server
+            clientSocket = new Client("localhost", 1234); // Kết nối tới Server
         } catch (IOException e) {
             e.printStackTrace();
         }

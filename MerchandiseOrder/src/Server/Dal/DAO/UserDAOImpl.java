@@ -113,6 +113,6 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     public static void main(String[] args) {
         UserDAOImpl dao = new UserDAOImpl();
         // Kiểm tra các phương thức
-        // ví dụ: dao.register("username", "password", "email@example.com");
+        // ví dụ: DAO.register("username", "password", "email@example.com");
     }
 }

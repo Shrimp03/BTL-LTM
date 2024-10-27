@@ -2,7 +2,6 @@ package Server.Controller;
 
 import Server.Dal.DAO.UserDAO;
 import Server.Dal.DAO.UserDAOImpl;
-import Utils.PasswordUtil;
 
 import java.io.*;
 import java.net.*;
