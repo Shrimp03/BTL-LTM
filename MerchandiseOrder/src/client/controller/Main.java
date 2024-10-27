@@ -6,7 +6,7 @@ import client.view.QuestionScreen;
 import client.view.RankingScreen;
 import client.view.LoginScreen;
 import client.view.RegisterScreen;
-import Model.ClientData;
+import model.ClientData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,9 +27,9 @@ public class Main extends JFrame {
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Kết nối đến Server
+        // Kết nối đến server
         try {
-            clientSocket = new Client("localhost", 1234); // Kết nối tới Server
+            clientSocket = new Client("localhost", 1234); // Kết nối tới server
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -39,9 +39,9 @@ public class Main extends JFrame {
 
         // Tạo dữ liệu cho bảng xếp hạng client
         clientRanking = new ArrayList<>();
-        clientRanking.add(new ClientData("Client.Controller.Client 1", 100));
-        clientRanking.add(new ClientData("Client.Controller.Client 2", 200));
-        clientRanking.add(new ClientData("Client.Controller.Client 3", 150));
+        clientRanking.add(new ClientData("client.controller.client 1", 100));
+        clientRanking.add(new ClientData("client.controller.client 2", 200));
+        clientRanking.add(new ClientData("client.controller.client 3", 150));
 
         // Tạo các site từ các file bên ngoài
         HomeScreen homeScreen = new HomeScreen(this,clientSocket);  // Trang chính

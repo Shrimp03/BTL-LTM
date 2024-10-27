@@ -1,4 +1,4 @@
-//package Client.Controller;
+//package client.controller;
 //
 //import java.io.*;
 //import java.net.Socket;
@@ -16,12 +16,12 @@
 //
 //    public boolean authenticateUser(String username, String password) {
 //        try {
-//            // Gửi yêu cầu đăng nhập đến Server
+//            // Gửi yêu cầu đăng nhập đến server
 //            out.println("LOGIN");
 //            out.println(username);
 //            out.println(password);
 //            String response = in.readLine();
-//            return "Login Successful".equals(response); // Kiểm tra phản hồi từ Server
+//            return "Login Successful".equals(response); // Kiểm tra phản hồi từ server
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //            return false;
@@ -30,13 +30,13 @@
 //
 //    public boolean registerUser(String username, String password, String email) {
 //        try {
-//            // Gửi yêu cầu đăng ký đến Server
+//            // Gửi yêu cầu đăng ký đến server
 //            out.println("REGISTER");
 //            out.println(username);
 //            out.println(password);
 //            out.println(email);
 //            String response = in.readLine();
-//            return "Registration Successful".equals(response); // Kiểm tra phản hồi từ Server
+//            return "Registration Successful".equals(response); // Kiểm tra phản hồi từ server
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //            return false;

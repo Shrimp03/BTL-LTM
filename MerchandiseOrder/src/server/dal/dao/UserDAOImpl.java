@@ -1,9 +1,8 @@
-package Server.Dal.DAO;
+package server.dal.dao;
 
-import Model.User;
+import model.User;
 import Utils.PasswordUtil;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -113,6 +112,6 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     public static void main(String[] args) {
         UserDAOImpl dao = new UserDAOImpl();
         // Kiểm tra các phương thức
-        // ví dụ: DAO.register("username", "password", "email@example.com");
+        // ví dụ: dao.register("username", "password", "email@example.com");
     }
 }

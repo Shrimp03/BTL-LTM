@@ -1,6 +1,6 @@
 package client.view;
 
-import Model.ClientData;
+import model.ClientData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +11,7 @@ public class RankingScreen extends JPanel {
     public RankingScreen(List<ClientData> clientRanking) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        JLabel titleLabel = new JLabel("Client.Controller.Client Ranking");
+        JLabel titleLabel = new JLabel("Client.controller.Client Ranking");
         titleLabel.setFont(new Font("Serif", Font.BOLD, 20));
         this.add(titleLabel);
 

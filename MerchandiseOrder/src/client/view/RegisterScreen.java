@@ -10,7 +10,7 @@ public class RegisterScreen extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JTextField emailField;
-    private Client clientSocket; // Đối tượng để giao tiếp với Server
+    private Client clientSocket; // Đối tượng để giao tiếp với server
 
     public RegisterScreen(Main mainFrame, Client clientSocket) {
         this.clientSocket = clientSocket; // Khởi tạo clientSocket
@@ -57,7 +57,7 @@ public class RegisterScreen extends JPanel {
                 String password = new String(passwordField.getPassword());
                 String email = emailField.getText(); // Lấy email từ trường nhập
 
-                // Gọi đến Server để đăng ký
+                // Gọi đến server để đăng ký
                 if (registerUser(username, password, email)) {
                     JOptionPane.showMessageDialog(null, "Registration successful!");
                     mainFrame.showLoginScreen(); // Chuyển về giao diện đăng nhập

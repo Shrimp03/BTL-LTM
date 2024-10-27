@@ -12,7 +12,7 @@ public class HomeScreen extends JPanel {
     private JLabel scoreLabel;
     private JButton startButton;
     private JButton rankingButton;
-    private Client clientSocket; // Đối tượng để giao tiếp với Server
+    private Client clientSocket; // Đối tượng để giao tiếp với server
 
     public HomeScreen(Main mainFrame, Client clientSocket) {
         this.clientSocket = clientSocket; // Khởi tạo clientSocket

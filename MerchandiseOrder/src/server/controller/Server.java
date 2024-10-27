@@ -1,7 +1,7 @@
-package Server.Controller;
+package server.controller;
 
-import Server.Dal.DAO.UserDAO;
-import Server.Dal.DAO.UserDAOImpl;
+import server.dal.dao.UserDAO;
+import server.dal.dao.UserDAOImpl;
 
 import java.io.*;
 import java.net.*;
@@ -9,7 +9,7 @@ import java.net.*;
 public class Server {
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(1234)) {
-            System.out.println("Server is running...");
+            System.out.println("server is running...");
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 new ServerThread(clientSocket).start(); // Khởi động luồng cho mỗi client kết nối
