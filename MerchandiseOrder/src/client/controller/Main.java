@@ -1,11 +1,11 @@
-package Client.Controller;
+package client.controller;
 
-import Client.View.HomeScreen;
-import Client.View.PlayScreen;
-import Client.View.QuestionScreen;
-import Client.View.RankingScreen;
-import Client.View.LoginScreen;
-import Client.View.RegisterScreen;
+import client.view.HomeScreen;
+import client.view.PlayScreen;
+import client.view.QuestionScreen;
+import client.view.RankingScreen;
+import client.view.LoginScreen;
+import client.view.RegisterScreen;
 import Model.ClientData;
 
 import javax.swing.*;
