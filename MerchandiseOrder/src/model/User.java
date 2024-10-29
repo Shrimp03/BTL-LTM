@@ -19,6 +19,18 @@ public class User implements Serializable {
         this.avatar = avatar;
     }
 
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+
+    }
+
+    public User(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
+
     public int getId() {
         return id;
     }
@@ -87,5 +99,7 @@ public class User implements Serializable {
         }
         return result;
     }
+
+
 
 }

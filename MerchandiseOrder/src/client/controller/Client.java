@@ -22,11 +22,17 @@ public class Client extends JFrame {
     private CardLayout cardLayout;
     private QuestionScreen questionScreen; // TODO: sau sửa lại
 
+    private User currentUser;
     public Client() {
         this.cardLayout = new CardLayout();
         this.cardPanel = new JPanel(cardLayout);
         this.questionScreen = new QuestionScreen();
 
+        LoginScreen loginScreen = new LoginScreen(this);
+        RegisterScreen registerScreen = new RegisterScreen(this);
+//        HomeScreen homeScreen = new HomeScreen(currentUser);
+        cardPanel.add(loginScreen, "LoginScreen");
+        cardPanel.add(registerScreen, "RegisterScreen");
         cardPanel.add(questionScreen, "QuestionScreen");
         this.add(cardPanel);
 
@@ -36,7 +42,32 @@ public class Client extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setVisible(true);
+        showLoginScreen();
     }
+
+    // Thêm phương thức điều hướng giữa các màn hình
+    public void showLoginScreen() {
+        cardLayout.show(cardPanel, "LoginScreen");
+    }
+
+    public void showRegisterScreen() {
+        cardLayout.show(cardPanel, "RegisterScreen");
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+    }
+
+    public void showHomeScreen() {
+        HomeScreen homeScreen = new HomeScreen(this);  // Truyền đối tượng Client để lấy thông tin người dùng
+        cardPanel.add(homeScreen, "HomeScreen");
+        cardLayout.show(cardPanel, "HomeScreen");
+    }
+
 
     public void showPlayScreen(User user, ArrayList<Product> products) {
         PlayScreen playScreen = new PlayScreen(user, products);
@@ -50,11 +81,6 @@ public class Client extends JFrame {
         cardLayout.show(cardPanel, "QuestionScreen");
     }
 
-    public void showHomeScreen() { // TODO: Sau sửa: thêm tham số user
-        HomeScreen homeScreen = new HomeScreen();
-        cardPanel.add(homeScreen, "HomeScreen");
-        cardLayout.show(cardPanel, "HomeScreen");
-    }
 
     public static void connectToServer() {
         try {

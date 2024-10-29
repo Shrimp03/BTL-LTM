@@ -12,7 +12,7 @@ public abstract class DAOConnection {
         if(con==null){
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
-                String jdbcUrl = "jdbc:mysql://localhost:3306/game";
+                String jdbcUrl = "jdbc:mysql://localhost:3307/game";
                 String username = "root";
                 String password = "";
                 System.out.println("Connected to database...");
