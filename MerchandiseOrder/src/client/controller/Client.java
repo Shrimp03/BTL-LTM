@@ -26,7 +26,11 @@ public class Client extends JFrame {
     public Client() {
         this.cardLayout = new CardLayout();
         this.cardPanel = new JPanel(cardLayout);
-        this.questionScreen = new QuestionScreen();
+
+//        this.questionScreen = new QuestionScreen();
+        // Truyền đúng các tham số khi gọi constructor
+        User user = getCurrentUser();
+        QuestionScreen questionScreen = new QuestionScreen(this, user);
 
         LoginScreen loginScreen = new LoginScreen(this);
         RegisterScreen registerScreen = new RegisterScreen(this);
@@ -77,7 +81,7 @@ public class Client extends JFrame {
 
     // Chuyển sang màn hình "Phòng ra đề"
     public void showPlayScreen() {
-        QuestionScreen questionScreen = new QuestionScreen();
+        QuestionScreen questionScreen = new QuestionScreen(this, currentUser);
         cardPanel.add(questionScreen, "PlayScreen");
         cardLayout.show(cardPanel, "PlayScreen");
     }
@@ -88,12 +92,12 @@ public class Client extends JFrame {
         cardLayout.show(cardPanel, "PlayScreen");
     }
 
-    public void showQuestionScreen() { // TODO: Sau sửa: thêm tham số user
-        QuestionScreen questionScreen = new QuestionScreen();
-        cardPanel.add(questionScreen, "QuestionScreen");
-        cardLayout.show(cardPanel, "QuestionScreen");
+    public void showQuestionScreen(User user) {
+        QuestionScreen questionScreen = new QuestionScreen(this, user);  // Truyền user vào QuestionScreen
+        setContentPane(questionScreen);  // Hiển thị QuestionScreen
+        revalidate();  // Làm mới giao diện
+        repaint();     // Vẽ lại giao diện
     }
-
 
     public static void connectToServer() {
         try {
