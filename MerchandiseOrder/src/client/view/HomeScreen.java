@@ -68,11 +68,9 @@ public class HomeScreen extends JPanel {
         playButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Truyền user từ HomeScreen sang QuestionScreen
-                client.showQuestionScreen(user);  // Gọi phương thức hiển thị QuestionScreen với user
+                client.showQuestionScreen();
             }
         });
-
 
         // Thêm sự kiện cho nút "Bảng xếp hạng"
         rankingButton.addActionListener(new ActionListener() {

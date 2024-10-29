@@ -14,7 +14,7 @@ public class QuestionScreen extends JPanel{
     private ArrayList<Product> products;
     private JButton btnGoToPlay;
 
-    public QuestionScreen(Client client, User user) {
+    public QuestionScreen() {
         this.user = user;
         ArrayList<Product> products = new ArrayList<>();
         String[] urls = {
