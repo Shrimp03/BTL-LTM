@@ -68,6 +68,19 @@ public class Client extends JFrame {
         cardLayout.show(cardPanel, "HomeScreen");
     }
 
+    // Chuyển sang màn hình "Bảng xếp hạng"
+    public void showRankingScreen() {
+        RankingScreen rankingScreen = new RankingScreen();
+        cardPanel.add(rankingScreen, "RankingScreen");
+        cardLayout.show(cardPanel, "RankingScreen");
+    }
+
+    // Chuyển sang màn hình "Phòng ra đề"
+    public void showPlayScreen() {
+        QuestionScreen questionScreen = new QuestionScreen();
+        cardPanel.add(questionScreen, "PlayScreen");
+        cardLayout.show(cardPanel, "PlayScreen");
+    }
 
     public void showPlayScreen(User user, ArrayList<Product> products) {
         PlayScreen playScreen = new PlayScreen(user, products);
