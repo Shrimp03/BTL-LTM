@@ -11,6 +11,10 @@ public class DataTransferObject<T> implements Serializable {
         this.data = data;
     }
 
+    public DataTransferObject(String type) {
+        this.type = type;
+    }
+
     public String getType() {
         return type;
     }

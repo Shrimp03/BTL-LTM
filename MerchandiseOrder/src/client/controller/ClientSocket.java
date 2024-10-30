@@ -1,6 +1,7 @@
 package client.controller;
 
 import model.DataTransferObject;
+import model.Product;
 import model.User;
 
 import java.io.IOException;
@@ -23,6 +24,24 @@ public class ClientSocket {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public Product getProduct() {
+        try{
+            DataTransferObject<?> dto = new DataTransferObject<>("GetProduct" );
+
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+            DataTransferObject<Product> res = (DataTransferObject<Product>) Client.ois.readObject();
+
+            if (!res.getType().equals("GetProductResponse"))
+                return null;
+            return res.getData();
+        } catch (IOException | ClassNotFoundException e){
+            e.printStackTrace();
+            return null;
         }
     }
 }

@@ -9,6 +9,11 @@ public class RequestDispatcher {
         switch (request.getType()) {
             case "UpdateUser":
                 return UserHandler.updateUser(request);
+            case "GetProduct":
+                Product product = new Product("Product1", 123.45);
+                System.out.println("Sending product: " + product);
+
+
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }
