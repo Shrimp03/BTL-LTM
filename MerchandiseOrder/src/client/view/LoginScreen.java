@@ -15,10 +15,8 @@ public class LoginScreen extends JPanel {
     private JButton loginButton;
     private JButton registerButton;  // Thêm nút Register
 
-    private Client client;  // Dùng để điều hướng giữa các màn hình
 
-    public LoginScreen(Client client) {
-        this.client = client;
+    public LoginScreen() {
         setLayout(new GridLayout(4, 2, 10, 10));
         setPreferredSize(new Dimension(385, 685));  // Kích thước khung giống PlayScreen
 
@@ -46,8 +44,8 @@ public class LoginScreen extends JPanel {
                 User user = clientSocket.loginUser(username, password);
                 if (user != null) {
                     JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");
-                    client.setCurrentUser(user);  // Lưu thông tin người dùng
-                    client.showHomeScreen();  // Chuyển sang màn hình HomeScreen nếu đăng nhập thành công
+                    getClientFrame().setCurrentUser(user);  // Lưu thông tin người dùng
+                    getClientFrame().showHomeScreen(user);  // Chuyển sang màn hình HomeScreen nếu đăng nhập thành công
                 } else {
                     JOptionPane.showMessageDialog(null, "Tên đăng nhập hoặc mật khẩu không đúng");
                 }
@@ -58,8 +56,12 @@ public class LoginScreen extends JPanel {
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.showRegisterScreen();  // Chuyển sang màn hình đăng ký
+                getClientFrame().showRegisterScreen();  // Chuyển sang màn hình đăng ký
             }
         });
+    }
+
+    private Client getClientFrame() {
+        return (Client) SwingUtilities.getWindowAncestor(this);
     }
 }

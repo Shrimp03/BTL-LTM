@@ -17,6 +17,8 @@ public class RequestDispatcher {
                 return UserHandler.loginUser(request);  // Thêm xử lý login
             case "Register":
                 return UserHandler.registerUser(request);
+            case "GetUsers":
+                return UserHandler.getAllUsers(request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }
