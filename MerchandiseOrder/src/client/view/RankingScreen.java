@@ -21,10 +21,10 @@ public class RankingScreen extends JPanel {
     private JTable leaderboardTable;
     private JScrollPane leaderboardScrollPane;
     private JButton backButton;
-    private User user;
+    private User currentUser;
     private ClientSocket clientSocket;
-    public RankingScreen() {
-//        this.user = user;
+    public RankingScreen(User currentUser ) {
+        this.currentUser = currentUser;
         this.clientSocket = new ClientSocket();
         this.userList = new ArrayList<>(clientSocket.getAllUsers());
         System.out.println(clientSocket.getAllUsers().get(0).getPoints());
@@ -101,7 +101,7 @@ public class RankingScreen extends JPanel {
         leaderboardScrollPane.setOpaque(false);
         leaderboardScrollPane.getViewport().setOpaque(false);
         leaderboardScrollPane.setBorder(BorderFactory.createEmptyBorder());
-        leaderboardScrollPane.setBounds(10, 60, 365, 500);
+        leaderboardScrollPane.setBounds(0, 185, 365, 500);
         add(leaderboardScrollPane);
 
         // Tạo nút quay lại
@@ -114,7 +114,7 @@ public class RankingScreen extends JPanel {
 
         backButton.addActionListener(e -> {
             // Quay lại màn hình chính
-            getClientFrame().showHomeScreen(user);
+            getClientFrame().showHomeScreen(currentUser);
         });
 
         add(backButton);

@@ -65,8 +65,8 @@ public class Client extends JFrame {
     }
 
     // Chuyển sang màn hình "Bảng xếp hạng"
-    public void showRankingScreen() {
-        RankingScreen rankingScreen = new RankingScreen();
+    public void showRankingScreen(User user) {
+        RankingScreen rankingScreen = new RankingScreen(user);
         cardPanel.add(rankingScreen, "RankingScreen");
         cardLayout.show(cardPanel, "RankingScreen");
     }
