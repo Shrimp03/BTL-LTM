@@ -41,6 +41,7 @@ public class PlayScreen extends JPanel {
 
     public PlayScreen(User user, ArrayList<Product> products) {
         this.user = user;
+        System.out.println(user);
         this.products = products;
         this.correctOrder = new ArrayList<>(products); // Lưu trữ thứ tự đúng
         this.points = 500; // Điểm ban đầu
@@ -194,7 +195,8 @@ public class PlayScreen extends JPanel {
 
         homeButton.addActionListener(e -> {
             gameTimer.stop();  // Dừng bộ đếm thời gian
-            getClientFrame().showHomeScreen();  // Quay lại màn hình chính
+            System.out.println(user.getUsername());
+            getClientFrame().showHomeScreen(user);  // Quay lại màn hình chính
         });
 
         add(homeButton);
@@ -504,7 +506,7 @@ public class PlayScreen extends JPanel {
         mainMenuButton.setFocusPainted(false);
         mainMenuButton.addActionListener(e -> {
             dialog.dispose();
-            getClientFrame().showHomeScreen();  // Quay lại màn hình chính
+            getClientFrame().showHomeScreen(user);  // Quay lại màn hình chính
         });
 
         JPanel buttonPanel = new JPanel();
@@ -540,7 +542,7 @@ public class PlayScreen extends JPanel {
         okButton.setFocusPainted(false);
         okButton.addActionListener(e -> {
             dialog.dispose();
-            getClientFrame().showHomeScreen();
+            getClientFrame().showHomeScreen(user);
         });
 
         JPanel buttonPanel = new JPanel();

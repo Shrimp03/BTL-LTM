@@ -1,10 +1,16 @@
 package server.controller.handler;
 
 import model.DataTransferObject;
+import model.Product;
 import model.User;
+import server.dal.dao.ProductDAO;
+import server.dal.dao.ProductDAOImpl;
 import server.dal.dao.UserDAO;
 import server.dal.dao.UserDAOImpl;
 import utils.PasswordUtil;
+
+import java.util.Collections;
+import java.util.List;
 
 public class UserHandler {
 
@@ -50,6 +56,14 @@ public class UserHandler {
         } else {
             return new DataTransferObject<>("FAIL", null);  // Trả về thất bại nếu sai
         }
+    }
+
+    public static DataTransferObject<List<User>> getAllUsers(DataTransferObject<?> request) {
+       UserDAO userDAO = new UserDAOImpl();
+       List<User> users = userDAO.getAllUsers();
+        System.out.println(users.get(0).getUsername());
+
+        return new DataTransferObject<>("GetUsersResponse", users);
     }
 
 
