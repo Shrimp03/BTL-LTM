@@ -3,13 +3,13 @@ package client.view;
 import client.controller.Client;
 import model.Product;
 import model.User;
+import utils.RoundedBorder;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -19,16 +19,17 @@ public class QuestionScreen extends JPanel{
     private User user;
     private ArrayList<Product> products;
     private JButton btnGoToPlay;
-    private int animatedBarWidth = 15; // Initial width of the white bar
+    private int animatedBarWidth = 10; // Initial width of the white bar
     private Timer animationTimer;
-    private JLabel[] floorSlots;
-    private int originSlotIndex;
-    private int originShelfIndex;
     private JLabel[][] shelfSlots;
     private JPanel[] shelfPanels;
+    private JPanel shelfMechandise;
+    private int countdownSeconds = 5; // Set the countdown time to 15 seconds
+    private JLabel countdownLabel;
+    private Timer countdownTimer;
 
-    public QuestionScreen() {
-        this.user = new User(5, "user5", "password123", "user5@example.com", "10 20 30 40", "C:/full/path/to/your/image/avatar.png");
+    public QuestionScreen(User user) {
+
 
         ArrayList<Product> products = new ArrayList<>();
         String[] urls = {
@@ -50,19 +51,8 @@ public class QuestionScreen extends JPanel{
         }
         this.products = products;
 
-        shelfPanels = new JPanel[4];
-        shelfSlots = new JLabel[4][3];
-        int[] xPositions = {2, 207, 2, 207};
-        int[] yPositions = {230, 230, 305, 305};
-
-        System.out.println(shelfPanels.length);
-
-        for (int i = 0; i < shelfPanels.length; i++) {
-            shelfPanels[i] = createShelfPanel(xPositions[i], yPositions[i], i, products);
-            add(shelfPanels[i]);
-        }
-
-        btnGoToPlay = new JButton("Go to Play");
+        btnGoToPlay = new JButton("Open the door!");
+        styleButton(btnGoToPlay);
         btnGoToPlay.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -75,18 +65,16 @@ public class QuestionScreen extends JPanel{
     }
 
     private void startBarAnimation() {
-        int delay = 10; // Speed of animation (lower is faster)
-        animatedBarWidth = 15; // Reset bar width at the start
+        animatedBarWidth = 15;
 
-        animationTimer = new Timer(delay, new ActionListener() {
+        animationTimer = new Timer(30,new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                animatedBarWidth += 5; // Increase the width gradually
+                animatedBarWidth += 10;
                 if (animatedBarWidth >= getWidth()) {
-                    animatedBarWidth = getWidth(); // Ensure it covers the panel
+                    animatedBarWidth = getWidth();
                     animationTimer.stop();
                     addShelfScreen();
-
                 }
                 repaint(); // Repaint panel to update the bar width
             }
@@ -95,17 +83,67 @@ public class QuestionScreen extends JPanel{
         animationTimer.start();
     }
 
+
     private void addShelfScreen() {
         // Xóa nội dung hiện tại của QuestionScreen để thêm màn mới
         this.removeAll();
         this.revalidate();
         this.repaint();
 
-        // Tạo và thêm kệ sản phẩm vào panel
-        ArrayList<Product> products = this.products; // Sử dụng danh sách sản phẩm đã có
-        JPanel shelfPanel = createShelfPanel(200, 100, 0, products); // Điều chỉnh tọa độ theo mong muốn
-        this.add(shelfPanel);
+        ArrayList<Product> products = this.products;
+
+        // Sử dụng layout null để có thể tùy chỉnh vị trí của các thành phần
+        this.setLayout(null);
+
+        // Tạo panel chứa các kệ hàng (shelf) với GridLayout (2 hàng và 2 cột)
+        shelfMechandise = new JPanel();
+        shelfMechandise.setLayout(new GridLayout(2, 2, 10, 10));
+        shelfMechandise.setOpaque(false);
+
+        shelfPanels = new JPanel[4];
+        shelfSlots = new JLabel[4][3];
+
+        // Thêm từng kệ hàng vào panel shelfMechandise
+        for (int i = 0; i < shelfPanels.length; i++) {
+            shelfPanels[i] = createShelfPanel(0, 0, i, products);
+            shelfMechandise.add(shelfPanels[i]);
+        }
+
+        shelfMechandise.setBounds(0, 225, getWidth(), 150); // X: 0, Y: 200, chiều cao 200px (tùy theo bạn cần)
+
+        add(shelfMechandise);
+
+        countdownLabel = new JLabel("Time left: " + countdownSeconds + "s");
+        countdownLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        countdownLabel.setForeground(Color.RED);
+        countdownLabel.setBounds(10, 10, 200, 50);  // Vị trí của label đếm ngược
+        add(countdownLabel);
+
+        startCountdownTimer();
+
+        revalidate();
+        repaint();
     }
+    private void startCountdownTimer() {
+        countdownSeconds = 5; // Set lại thời gian đếm ngược
+
+        countdownTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                countdownSeconds--;
+                countdownLabel.setText("Time left: " + countdownSeconds + "s");
+
+                if (countdownSeconds <= 0) {
+                    countdownTimer.stop();
+
+                    getClientFrame().showPlayScreen(user, products); // Chuyển đến màn hình PlayScreen sau 15 giây
+                }
+            }
+        });
+        countdownTimer.start();
+    }
+
+
 
     // Vẽ hình nền
     @Override
@@ -130,8 +168,8 @@ public class QuestionScreen extends JPanel{
 
         if (animatedBarWidth < getWidth()) {
 
-            g.fillRect(barX-10, barY, barWidth, barHeight);
-            g.fillRect(barX+10, barY, barWidth, barHeight);
+            g.fillRect(barX - animatedBarWidth, barY, barWidth, barHeight);
+            g.fillRect(barX + animatedBarWidth, barY, barWidth, barHeight);
 
             Color overlayColor = new Color(255, 255, 255, 128); // Semi-transparent white
             g.setColor(overlayColor);
@@ -146,25 +184,22 @@ public class QuestionScreen extends JPanel{
 
     private JPanel createShelfPanel(int x, int y, int shelfIndex, ArrayList<Product> products) {
         JPanel shelfPanel = new JPanel();
-        shelfPanel.setBounds(x, y, 160, 60);
+        shelfPanel.setBounds(x, y, 160, 50);
         shelfPanel.setLayout(new GridLayout(1, 3, 5, 5));
         shelfPanel.setOpaque(false);
 
-
-        System.out.println(shelfIndex);
+        int img_index = shelfIndex*3;
 
         for (int i = 0; i < shelfSlots[shelfIndex].length; i++) {
             shelfSlots[shelfIndex][i] = createSlotLabel();
-            // Nếu sản phẩm tồn tại, đặt icon và gán sản phẩm cho slot
-                String imagePath = "/static/item/" + products.get(i).getImageUrl();
-                ImageIcon icon = showImage(imagePath, 50, 50);
-                if (icon != null) {
-                    shelfSlots[shelfIndex][i].setIcon(icon);
-                    shelfSlots[shelfIndex][i].putClientProperty("product", products.get(i));
-                }
+            String imagePath = "/static/item/" + products.get(img_index + i).getImageUrl();
+            ImageIcon icon = showImage(imagePath, 50, 50);
+            if (icon != null) {
+                shelfSlots[shelfIndex][i].setIcon(icon);
+                shelfSlots[shelfIndex][i].putClientProperty("product", products.get(i));
+            }
             shelfPanel.add(shelfSlots[shelfIndex][i]);
         }
-
         return shelfPanel;
     }
 
@@ -201,13 +236,19 @@ public class QuestionScreen extends JPanel{
 
         // Tạo đường viền bằng cách kết hợp với EmptyBorder
         button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.WHITE, 3), // Đường viền trắng 3px
-                BorderFactory.createEmptyBorder(15, 15, 15, 15) // Đệm bên trong
+                new RoundedBorder(15),
+                BorderFactory.createLineBorder(Color.WHITE, 1)
+//                BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
-
+        button.setBorderPainted(false);
         button.setFocusPainted(false); // Không hiển thị viền khi chọn
-        button.setPreferredSize(new Dimension(100, 50)); // Kích thước nút
+        button.setPreferredSize(new Dimension(150, 50)); // Kích thước nút
     }
 
+
+
+    private Client getClientFrame() {
+        return (Client) SwingUtilities.getWindowAncestor(this);
+    }
 
 }

@@ -20,14 +20,14 @@ public class Client extends JFrame {
     protected static ObjectOutputStream oos;
     private JPanel cardPanel;
     private CardLayout cardLayout;
-    private QuestionScreen questionScreen; // TODO: sau sửa lại
+    private HomeScreen homeScreen;
 
     public Client() {
         this.cardLayout = new CardLayout();
         this.cardPanel = new JPanel(cardLayout);
-        this.questionScreen = new QuestionScreen();
+        homeScreen = new HomeScreen();
+        cardPanel.add(homeScreen, "home");
 
-        cardPanel.add(questionScreen, "QuestionScreen");
         this.add(cardPanel);
 
         setTitle("Merchandise Order");
@@ -44,8 +44,8 @@ public class Client extends JFrame {
         cardLayout.show(cardPanel, "PlayScreen");
     }
 
-    public void showQuestionScreen() { // TODO: Sau sửa: thêm tham số user
-        QuestionScreen questionScreen = new QuestionScreen();
+    public void showQuestionScreen(User user) { // TODO: Sau sửa: thêm tham số user
+        QuestionScreen questionScreen = new QuestionScreen(user);
         cardPanel.add(questionScreen, "QuestionScreen");
         cardLayout.show(cardPanel, "QuestionScreen");
     }
