@@ -3,22 +3,27 @@ package client.view;
 import client.controller.Client;
 import client.controller.ClientSocket;
 import model.User;
+import model.Product;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 public class HomeScreen extends JPanel {
     private JLabel nameLabel;
     private JLabel pointsLabel;
     private JButton playButton;
     private JButton rankingButton;
+    private User user;
+    private ArrayList<Product> products;
 
     private Client client;
 
     public HomeScreen(Client client) {
         this.client = client;
+        this.user = new User(5, "user5", "password123", "user5@example.com", "10 20 30 40", "C:/full/path/to/your/image/avatar.png");
 
         // Thiết lập layout cho toàn bộ màn hình
         setLayout(new BorderLayout(20, 20)); // Thêm khoảng cách giữa các thành phần
@@ -68,7 +73,7 @@ public class HomeScreen extends JPanel {
         playButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.showQuestionScreen();
+                client.showQuestionScreen(user);
             }
         });
 

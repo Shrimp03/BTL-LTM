@@ -494,7 +494,7 @@ public class PlayScreen extends JPanel {
         replayButton.setFocusPainted(false);
         replayButton.addActionListener(e -> {
             dialog.dispose();
-            getClientFrame().showQuestionScreen();  // Gọi màn hình câu hỏi để chơi lại
+            getClientFrame().showQuestionScreen(user);  // Gọi màn hình câu hỏi để chơi lại
         });
 
         JButton mainMenuButton = new JButton("Màn hình chính");

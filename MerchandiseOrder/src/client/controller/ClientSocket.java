@@ -1,9 +1,11 @@
 package client.controller;
 
 import model.DataTransferObject;
+import model.Product;
 import model.User;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Objects;
 
 public class ClientSocket {
@@ -24,6 +26,30 @@ public class ClientSocket {
             return false;
         }
     }
+
+    public Optional<Product[]> getProduct() {
+        try {
+            DataTransferObject<?> dto = new DataTransferObject<>("GetProduct");
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+            Object response = Client.ois.readObject();
+            if (response instanceof DataTransferObject<?>) {
+                DataTransferObject<Product[]> res = (DataTransferObject<Product[]>) response;
+                if (!res.getType().equals("GetProductResponse"))
+                    return Optional.empty();
+                System.out.println(res.getData());
+                return Optional.of(res.getData());
+            } else {
+                System.err.println("Phản hồi không đúng kiểu: " + response.getClass().getName());
+                return Optional.empty();
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
 
     public Boolean registerUser(User user) {
         try {

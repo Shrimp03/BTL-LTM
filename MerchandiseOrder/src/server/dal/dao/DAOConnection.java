@@ -14,7 +14,7 @@ public abstract class DAOConnection {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 String jdbcUrl = "jdbc:mysql://localhost:3307/game";
                 String username = "root";
-                String password = "";
+                String password = "1234";
                 System.out.println("Connected to database...");
                 this.con =  DriverManager.getConnection(jdbcUrl, username, password);
             } catch (ClassNotFoundException | SQLException e) {

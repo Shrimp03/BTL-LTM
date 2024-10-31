@@ -26,7 +26,7 @@ public class Client extends JFrame {
     public Client() {
         this.cardLayout = new CardLayout();
         this.cardPanel = new JPanel(cardLayout);
-        this.questionScreen = new QuestionScreen();
+        this.questionScreen = new QuestionScreen(currentUser);
 
         LoginScreen loginScreen = new LoginScreen(this);
         RegisterScreen registerScreen = new RegisterScreen(this);
@@ -84,8 +84,8 @@ public class Client extends JFrame {
         cardLayout.show(cardPanel, "PlayScreen");
     }
 
-    public void showQuestionScreen() { // TODO: Sau sửa: thêm tham số user
-        QuestionScreen questionScreen = new QuestionScreen();
+    public void showQuestionScreen(User user) { // TODO: Sau sửa: thêm tham số user
+        QuestionScreen questionScreen = new QuestionScreen(user);
         cardPanel.add(questionScreen, "QuestionScreen");
         cardLayout.show(cardPanel, "QuestionScreen");
     }
