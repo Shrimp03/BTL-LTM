@@ -34,6 +34,11 @@ public class User implements Serializable {
         this.email = email;
     }
 
+    public User() {
+        this.username = username;
+        this.points = points;
+    }
+
     public int getId() {
         return id;
     }
