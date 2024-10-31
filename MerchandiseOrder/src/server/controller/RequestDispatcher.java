@@ -1,6 +1,8 @@
 package server.controller;
 
 import model.DataTransferObject;
+import model.Product;
+import server.controller.handler.ProductHandler;
 import server.controller.handler.UserHandler;
 
 public class RequestDispatcher {
@@ -10,10 +12,7 @@ public class RequestDispatcher {
             case "UpdateUser":
                 return UserHandler.updateUser(request);
             case "GetProduct":
-                Product product = new Product("Product1", 123.45);
-                System.out.println("Sending product: " + product);
-
-
+                return ProductHandler.getProduct(request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }

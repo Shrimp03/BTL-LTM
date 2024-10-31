@@ -1,6 +1,7 @@
 package client.view;
 
 import client.controller.Client;
+import client.controller.ClientSocket;
 import model.Product;
 import model.User;
 import utils.RoundedBorder;
@@ -11,12 +12,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-
+import java.util.Optional;
 
 
 public class QuestionScreen extends JPanel{
     private User user;
+    private ClientSocket clientSocket;
     private ArrayList<Product> products;
     private JButton btnGoToPlay;
     private int animatedBarWidth = 10; // Initial width of the white bar
@@ -30,26 +33,19 @@ public class QuestionScreen extends JPanel{
 
     public QuestionScreen(User user) {
 
-
+        this.clientSocket = new ClientSocket();
         ArrayList<Product> products = new ArrayList<>();
-        String[] urls = {
-                "chuoi.png",
-                "coca.png",
-                "hamber.png",
-                "le.png",
-                "nctangluc.png",
-                "ngucocxanh.png",
-                "nuocgiatcam.png",
-                "nuocgiattrang.png",
-                "quadao.png",
-                "sua.png",
-                "tomato.png",
-                "xanh.png"
-        };
-        for (int i = 0; i < urls.length; ++i) {
-            products.add(new Product(products.size(), "" + (i + 1), urls[i]));
+
+        Optional<Product[]> optionalProducts = clientSocket.getProduct();
+        if(optionalProducts.isPresent()) {
+            Product[] productsArray = optionalProducts.get();
+            for(Product product : productsArray) {
+                products.add(product);
+            }
         }
+
         this.products = products;
+
 
         btnGoToPlay = new JButton("Open the door!");
         styleButton(btnGoToPlay);

@@ -15,7 +15,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             ps.setString(1, username);
             ps.setString(2, password);
             ResultSet rs = ps.executeQuery();
-            System.out.println(rs);
+            System.out.println(rs.toString() + "jfkdjkdjkf");
             while (rs.next()) {
                 return new User(rs.getInt("id"), rs.getString("username"),
                         rs.getString("password"), rs.getString("email"),

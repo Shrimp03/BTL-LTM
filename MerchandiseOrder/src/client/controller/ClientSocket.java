@@ -5,6 +5,7 @@ import model.Product;
 import model.User;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class ClientSocket {
     public ClientSocket() {}
@@ -27,21 +28,27 @@ public class ClientSocket {
         }
     }
 
-    public Product getProduct() {
-        try{
-            DataTransferObject<?> dto = new DataTransferObject<>("GetProduct" );
-
+    public Optional<Product[]> getProduct() {
+        try {
+            DataTransferObject<?> dto = new DataTransferObject<>("GetProduct");
             Client.oos.writeObject(dto);
             Client.oos.flush();
 
-            DataTransferObject<Product> res = (DataTransferObject<Product>) Client.ois.readObject();
-
-            if (!res.getType().equals("GetProductResponse"))
-                return null;
-            return res.getData();
-        } catch (IOException | ClassNotFoundException e){
+            Object response = Client.ois.readObject();
+            if (response instanceof DataTransferObject<?>) {
+                DataTransferObject<Product[]> res = (DataTransferObject<Product[]>) response;
+                if (!res.getType().equals("GetProductResponse"))
+                    return Optional.empty();
+                System.out.println(res.getData());
+                return Optional.of(res.getData());
+            } else {
+                System.err.println("Phản hồi không đúng kiểu: " + response.getClass().getName());
+                return Optional.empty();
+            }
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-            return null;
+            return Optional.empty();
         }
     }
+
 }
