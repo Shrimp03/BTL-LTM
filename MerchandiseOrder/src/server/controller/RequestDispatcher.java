@@ -9,6 +9,10 @@ public class RequestDispatcher {
         switch (request.getType()) {
             case "UpdateUser":
                 return UserHandler.updateUser(request);
+            case "Login":
+                return UserHandler.loginUser(request);  // Thêm xử lý login
+            case "Register":
+                return UserHandler.registerUser(request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }
