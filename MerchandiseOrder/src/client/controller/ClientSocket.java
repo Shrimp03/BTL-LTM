@@ -6,8 +6,8 @@ import model.User;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ClientSocket {
     public ClientSocket() {}
