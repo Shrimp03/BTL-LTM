@@ -32,7 +32,7 @@ public class Client extends JFrame {
         RegisterScreen registerScreen = new RegisterScreen();
         cardPanel.add(loginScreen, "LoginScreen");
         cardPanel.add(registerScreen, "RegisterScreen");
-        cardPanel.add(questionScreen, "QuestionScreen");
+
         this.add(cardPanel);
 
         setTitle("Merchandise Order");
