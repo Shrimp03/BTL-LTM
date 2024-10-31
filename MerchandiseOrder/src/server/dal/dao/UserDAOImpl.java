@@ -47,6 +47,42 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             return false;
         }
     }
+    @Override
+    public User getUserByUsername(String username) {
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM users WHERE username = ?");
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new User(rs.getInt("id"), rs.getString("username"),
+                        rs.getString("password"), rs.getString("email"),
+                        rs.getString("points"), rs.getString("avatar")
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    // Thêm phương thức lưu người dùng mới
+    @Override
+    public boolean saveUser(User user) {
+        String query = "INSERT INTO users (username, password, email, points, avatar) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(query)) {
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPassword());  // Mật khẩu đã được mã hóa trước đó
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getPoints());
+            ps.setString(5, user.getAvatar());
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;  // Trả về true nếu thêm thành công
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;  // Trả về false nếu có lỗi
+    }
 
     public static void main(String[] args) {
         UserDAOImpl dao = new UserDAOImpl();

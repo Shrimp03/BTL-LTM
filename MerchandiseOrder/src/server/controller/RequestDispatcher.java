@@ -13,6 +13,10 @@ public class RequestDispatcher {
                 return UserHandler.updateUser(request);
             case "GetProduct":
                 return ProductHandler.getProduct(request);
+            case "Login":
+                return UserHandler.loginUser(request);  // Thêm xử lý login
+            case "Register":
+                return UserHandler.registerUser(request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }
