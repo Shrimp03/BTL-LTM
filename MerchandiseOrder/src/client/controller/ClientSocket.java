@@ -100,7 +100,7 @@ public class ClientSocket {
             DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) Client.ois.readObject();
 
             // Kiểm tra phản hồi từ server
-            if ("GetUsers".equals(res.getType())) {
+            if ("GetUsersResponse".equals(res.getType())) {
                 List<User> users = res.getData();
 
                 // Kiểm tra nếu dữ liệu người dùng bị null

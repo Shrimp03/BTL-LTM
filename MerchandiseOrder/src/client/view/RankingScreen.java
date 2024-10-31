@@ -27,15 +27,13 @@ public class RankingScreen extends JPanel {
 //        this.user = user;
         this.clientSocket = new ClientSocket();
         this.userList = new ArrayList<>(clientSocket.getAllUsers());
+        System.out.println(clientSocket.getAllUsers().get(0).getPoints());
+        for(User user : this.userList) {
+            System.out.println(user.getPoints());
+        }
         // Tải ảnh nền
         loadBackgroundImage();
 
-        // Khởi tạo ClientSocket và lấy danh sách người dùng từ server
-
-//        userList = clientSocket.getUserList();
-        if (userList == null) {
-            userList = new ArrayList<>(); // Nếu không lấy được dữ liệu, tạo danh sách trống
-        }
 
         // Sắp xếp danh sách người dùng theo điểm số (HighScore giảm dần, sau đó TotalPoints giảm dần)
         Collections.sort(userList, new Comparator<User>() {
