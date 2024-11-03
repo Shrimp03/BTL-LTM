@@ -20,16 +20,19 @@ public class Client extends JFrame {
     protected static ObjectOutputStream oos;
     private JPanel cardPanel;
     private CardLayout cardLayout;
+    private QuestionScreen questionScreen; // TODO: sau sửa lại
 
     private User currentUser;
     public Client() {
         this.cardLayout = new CardLayout();
         this.cardPanel = new JPanel(cardLayout);
 
+
         LoginScreen loginScreen = new LoginScreen();
         RegisterScreen registerScreen = new RegisterScreen();
         cardPanel.add(loginScreen, "LoginScreen");
         cardPanel.add(registerScreen, "RegisterScreen");
+
         this.add(cardPanel);
 
         setTitle("Merchandise Order");
