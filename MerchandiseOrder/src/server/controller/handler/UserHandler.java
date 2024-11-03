@@ -3,6 +3,7 @@ package server.controller.handler;
 import model.DataTransferObject;
 import model.Product;
 import model.User;
+import model.UserStatus;
 import server.dal.dao.ProductDAO;
 import server.dal.dao.ProductDAOImpl;
 import server.dal.dao.UserDAO;
@@ -48,10 +49,11 @@ public class UserHandler {
         UserDAO userDAO = new UserDAOImpl();
         User loginUser = (User) request.getData();
 
-
         // Kiểm tra username và mật khẩu
         User user = userDAO.getUserByUsername(loginUser.getUsername());
         if (user != null && PasswordUtil.verifyPassword(loginUser.getPassword(), user.getPassword())) {
+            user.setStatus(UserStatus.ONLINE);
+            userDAO.updateUser(user);
             return new DataTransferObject<>("SUCCESS", user);  // Trả về thành công nếu đăng nhập đúng
         } else {
             return new DataTransferObject<>("FAIL", null);  // Trả về thất bại nếu sai

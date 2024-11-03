@@ -21,7 +21,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             while (rs.next()) {
                 return new User(rs.getInt("id"), rs.getString("username"),
                         rs.getString("password"), rs.getString("email"),
-                        rs.getString("points"), rs.getString("avatar")
+                        rs.getString("points"), rs.getString("avatar"), rs.getString("status")
                 );
             }
         } catch (SQLException e) {
@@ -33,12 +33,13 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
 
     @Override
     public boolean updateUser(User user) {
-        String query = "UPDATE users SET email = ?, points = ?, avatar = ? WHERE id = ?";
+        String query = "UPDATE users SET email = ?, points = ?, avatar = ?, status = ? WHERE id = ?";
         try (PreparedStatement ps = con.prepareStatement(query)) {
             ps.setString(1, user.getEmail());
             ps.setString(2, user.getPoints());
             ps.setString(3, user.getAvatar());
-            ps.setInt(4, user.getId());
+            ps.setString(4, user.getStatus().toString());
+            ps.setInt(5, user.getId());
 
             int rowsAffected = ps.executeUpdate();
 
@@ -58,7 +59,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             if (rs.next()) {
                 return new User(rs.getInt("id"), rs.getString("username"),
                         rs.getString("password"), rs.getString("email"),
-                        rs.getString("points"), rs.getString("avatar")
+                        rs.getString("points"), rs.getString("avatar"), rs.getString("status")
                 );
             }
         } catch (SQLException e) {
@@ -95,7 +96,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             while (rs.next()) {
                  User user = new User(rs.getInt("id"), rs.getString("username"),
                         rs.getString("password"), rs.getString("email"),
-                        rs.getString("points"), rs.getString("avatar")
+                        rs.getString("points"), rs.getString("avatar"), rs.getString("status")
                 );
                  users.add(user);
             }
