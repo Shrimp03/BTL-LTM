@@ -4,35 +4,31 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class GameSession implements Serializable {
-    private int id;
     private Date timeStart;
     private Date timeFinish;
-    private int user1Id;
-    private int user2Id;
-    private Integer winnerId;
+    private User user1;
+    private User user2;
+    private User winner; // Có thể là null nếu chưa có người thắng
 
     // Constructor đầy đủ
-    public GameSession(int id, Date timeStart, Date timeFinish, int user1Id, int user2Id, Integer winnerId) {
-        this.id = id;
+    public GameSession(Date timeStart, Date timeFinish, User user1, User user2, User winner) {
         this.timeStart = timeStart;
         this.timeFinish = timeFinish;
-        this.user1Id = user1Id;
-        this.user2Id = user2Id;
-        this.winnerId = winnerId;
+        this.user1 = user1;
+        this.user2 = user2;
+        this.winner = winner;
     }
 
-    public GameSession(Date timeStart, Date timeFinish, int user1Id, int user2Id) {
+    // Constructor khi bắt đầu trận đấu (chưa có người thắng)
+    public GameSession(Date timeStart, Date timeFinish, User user1, User user2) {
         this.timeStart = timeStart;
         this.timeFinish = timeFinish;
-        this.user1Id = user1Id;
-        this.user2Id = user2Id;
+        this.user1 = user1;
+        this.user2 = user2;
+        this.winner = null; // Chưa có người thắng
     }
 
     // Getters
-    public int getId() {
-        return id;
-    }
-
     public Date getTimeStart() {
         return timeStart;
     }
@@ -41,23 +37,19 @@ public class GameSession implements Serializable {
         return timeFinish;
     }
 
-    public int getUser1Id() {
-        return user1Id;
+    public User getUser1() {
+        return user1;
     }
 
-    public int getUser2Id() {
-        return user2Id;
+    public User getUser2() {
+        return user2;
     }
 
-    public Integer getWinnerId() {
-        return winnerId;
+    public User getWinner() {
+        return winner;
     }
 
     // Setters
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public void setTimeStart(Date timeStart) {
         this.timeStart = timeStart;
     }
@@ -66,15 +58,15 @@ public class GameSession implements Serializable {
         this.timeFinish = timeFinish;
     }
 
-    public void setUser1Id(int user1Id) {
-        this.user1Id = user1Id;
+    public void setUser1(User user1) {
+        this.user1 = user1;
     }
 
-    public void setUser2Id(int user2Id) {
-        this.user2Id = user2Id;
+    public void setUser2(User user2) {
+        this.user2 = user2;
     }
 
-    public void setWinnerId(Integer winnerId) {
-        this.winnerId = winnerId;
+    public void setWinner(User winner) {
+        this.winner = winner;
     }
 }
