@@ -21,21 +21,23 @@ public class RankingScreen extends JPanel {
     private JTable leaderboardTable;
     private JScrollPane leaderboardScrollPane;
     private JButton backButton;
-    private User user;
+    private User currentUser;
     private ClientSocket clientSocket;
-    public RankingScreen() {
-//        this.user = user;
+    public RankingScreen(User currentUser ) {
+        this.currentUser = currentUser;
         this.clientSocket = new ClientSocket();
         this.userList = new ArrayList<>(clientSocket.getAllUsers());
+
+
+
         // Tải ảnh nền
         loadBackgroundImage();
-
-        // Khởi tạo ClientSocket và lấy danh sách người dùng từ server
-
-//        userList = clientSocket.getUserList();
-        if (userList == null) {
-            userList = new ArrayList<>(); // Nếu không lấy được dữ liệu, tạo danh sách trống
+        if (backgroundImage != null) {
+            System.out.println("Background image loaded successfully.");
+        } else {
+            System.out.println("Failed to load background image.");
         }
+
 
         // Sắp xếp danh sách người dùng theo điểm số (HighScore giảm dần, sau đó TotalPoints giảm dần)
         Collections.sort(userList, new Comparator<User>() {
@@ -62,20 +64,20 @@ public class RankingScreen extends JPanel {
 
         // Cài đặt giao diện
         setLayout(null);
-        setPreferredSize(new Dimension(385, 685));
 
-        // Tạo nhãn tiêu đề
-        titleLabel = new JLabel("Bảng xếp hạng", JLabel.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setBounds(10, 10, 365, 40);
-        titleLabel.setForeground(Color.WHITE);
-        add(titleLabel);
+
 
         // Tạo bảng xếp hạng
         String[] columnNames = {"Rank", "Name", "Total Score", "High Score"};
         leaderboardTable = new JTable(leaderboardData, columnNames) {
             @Override
-            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {Component c = super.prepareRenderer(renderer, row, column);
+            public boolean isCellEditable(int row, int column) {
+                return false; // Không cho phép chỉnh sửa ô
+            }
+
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
                 if (c instanceof JComponent) {
                     ((JComponent) c).setOpaque(false); // Làm cho ô trong suốt
                 }
@@ -88,6 +90,11 @@ public class RankingScreen extends JPanel {
         leaderboardTable.setShowGrid(false); // Ẩn lưới của bảng
         leaderboardTable.setOpaque(false); // Bảng trong suốt
         leaderboardTable.setTableHeader(null); // Loại bỏ tiêu đề của bảng
+
+        leaderboardTable.getColumnModel().getColumn(0).setPreferredWidth(50);  // Cột "Rank"
+        leaderboardTable.getColumnModel().getColumn(1).setPreferredWidth(170); // Cột "Name"
+        leaderboardTable.getColumnModel().getColumn(2).setPreferredWidth(100);  // Cột "Total Score"
+        leaderboardTable.getColumnModel().getColumn(3).setPreferredWidth(100);  // Cột "High Score"
 
         // Căn giữa nội dung các ô và đặt màu chữ trắng
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -103,23 +110,23 @@ public class RankingScreen extends JPanel {
         leaderboardScrollPane.setOpaque(false);
         leaderboardScrollPane.getViewport().setOpaque(false);
         leaderboardScrollPane.setBorder(BorderFactory.createEmptyBorder());
-        leaderboardScrollPane.setBounds(10, 60, 365, 500);
+        leaderboardScrollPane.setBounds(18, 185, 340, 500);
         add(leaderboardScrollPane);
 
         // Tạo nút quay lại
-        backButton = new JButton("Về màn hình chính");
-        backButton.setBounds(125, 580, 150, 40);
+        backButton = new JButton("Trở về trang chủ");
+        backButton.setBounds(0, 0, 150, 40);
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
         backButton.setBackground(new Color(100, 149, 237));
         backButton.setForeground(Color.WHITE);
-        backButton.setFocusPainted(false);
 
+        setComponentZOrder(backButton, 0);
+        add(backButton);
         backButton.addActionListener(e -> {
             // Quay lại màn hình chính
-            getClientFrame().showHomeScreen(user);
+            getClientFrame().showHomeScreen(currentUser);
         });
 
-        add(backButton);
     }
 
     // Phương thức tải hình nền

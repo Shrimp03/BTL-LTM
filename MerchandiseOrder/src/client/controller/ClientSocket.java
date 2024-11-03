@@ -6,8 +6,8 @@ import model.User;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ClientSocket {
     public ClientSocket() {}
@@ -100,7 +100,7 @@ public class ClientSocket {
             DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) Client.ois.readObject();
 
             // Kiểm tra phản hồi từ server
-            if ("GetUsers".equals(res.getType())) {
+            if ("GetUsersResponse".equals(res.getType())) {
                 List<User> users = res.getData();
 
                 // Kiểm tra nếu dữ liệu người dùng bị null

@@ -16,9 +16,10 @@ public class HomeScreen extends JPanel {
     private JLabel pointsLabel;
     private JButton playButton;
     private JButton rankingButton;
+    private User user;
 
     public HomeScreen(User user) {
-
+        this.user = user;
         // Thiết lập layout cho toàn bộ màn hình
         setLayout(new BorderLayout(20, 20)); // Thêm khoảng cách giữa các thành phần
 
@@ -74,7 +75,7 @@ public class HomeScreen extends JPanel {
         rankingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                getClientFrame().showRankingScreen();  // Chuyển sang trang "Bảng xếp hạng"
+                getClientFrame().showRankingScreen(user);  // Chuyển sang trang "Bảng xếp hạng"
             }
         });
     }
