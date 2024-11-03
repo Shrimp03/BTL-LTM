@@ -19,3 +19,44 @@ CREATE TABLE `users` (
 
 // dung dep trai
 
+CREATE TABLE `users` (
+	`id` INT NOT NULL AUTO_INCREMENT UNIQUE,
+	`username` VARCHAR()(255) NOT NULL,
+	`email` VARCHAR(255) NOT NULL,
+	`password` VARCHAR(255) NOT NULL,
+	`points` VARCHAR(255),
+	`avatar` VARCHAR(255),
+	`status` ENUM('OFFLINE', 'ONLINE', 'PLAYING') NOT NULL DEFAULT 'OFFLINE',
+	PRIMARY KEY(`id`)
+);
+
+
+CREATE TABLE `products` (
+	`id` INT NOT NULL AUTO_INCREMENT UNIQUE,
+	`name` VARCHAR(255) NOT NULL,
+	`image_url` VARCHAR(255),
+	PRIMARY KEY(`id`)
+);
+
+
+CREATE TABLE `game_sessions` (
+    `id` INT NOT NULL AUTO_INCREMENT UNIQUE,
+    `time_start` DATETIME NOT NULL,
+    `time_finish` DATETIME NOT NULL,
+    `user1_id` INT NOT NULL,
+    `user2_id` INT NOT NULL,
+    `winner_id` INT,
+    PRIMARY KEY(`id`)
+);
+
+ALTER TABLE `game_sessions`
+ADD FOREIGN KEY (`user1_id`) REFERENCES `users`(`id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+ALTER TABLE `game_sessions`
+ADD FOREIGN KEY (`user2_id`) REFERENCES `users`(`id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+ALTER TABLE `game_sessions`
+ADD FOREIGN KEY (`winner_id`) REFERENCES `users`(`id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;

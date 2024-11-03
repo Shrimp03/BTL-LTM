@@ -9,20 +9,21 @@ public class User implements Serializable {
     private String email;
     private String points;
     private String avatar;
+    private UserStatus status;
 
-    public User(int id, String username, String password, String email, String points, String avatar) {
+    public User(int id, String username, String password, String email, String points, String avatar, String status) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
         this.points = points;
         this.avatar = avatar;
+        this.status = UserStatus.valueOf(status.toUpperCase());
     }
 
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-
     }
 
     public User(String username, String password, String email) {
@@ -79,6 +80,14 @@ public class User implements Serializable {
         this.username = username;
     }
 
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
     public int getHighScore() {
         String[] points = this.points.split(" ");
         int result = 0;
@@ -99,7 +108,4 @@ public class User implements Serializable {
         }
         return result;
     }
-
-
-
 }
