@@ -26,14 +26,13 @@ public class Client extends JFrame {
     public Client() {
         this.cardLayout = new CardLayout();
         this.cardPanel = new JPanel(cardLayout);
-        this.questionScreen = new QuestionScreen(currentUser);
 
-        LoginScreen loginScreen = new LoginScreen(this);
-        RegisterScreen registerScreen = new RegisterScreen(this);
-//        HomeScreen homeScreen = new HomeScreen(currentUser);
+
+        LoginScreen loginScreen = new LoginScreen();
+        RegisterScreen registerScreen = new RegisterScreen();
         cardPanel.add(loginScreen, "LoginScreen");
         cardPanel.add(registerScreen, "RegisterScreen");
-        cardPanel.add(questionScreen, "QuestionScreen");
+
         this.add(cardPanel);
 
         setTitle("Merchandise Order");
@@ -62,15 +61,15 @@ public class Client extends JFrame {
         this.currentUser = user;
     }
 
-    public void showHomeScreen() {
-        HomeScreen homeScreen = new HomeScreen(this);  // Truyền đối tượng Client để lấy thông tin người dùng
+    public void showHomeScreen(User user) {
+        HomeScreen homeScreen = new HomeScreen(user);  // Truyền đối tượng Client để lấy thông tin người dùng
         cardPanel.add(homeScreen, "HomeScreen");
         cardLayout.show(cardPanel, "HomeScreen");
     }
 
     // Chuyển sang màn hình "Bảng xếp hạng"
-    public void showRankingScreen() {
-        RankingScreen rankingScreen = new RankingScreen();
+    public void showRankingScreen(User user) {
+        RankingScreen rankingScreen = new RankingScreen(user);
         cardPanel.add(rankingScreen, "RankingScreen");
         cardLayout.show(cardPanel, "RankingScreen");
     }

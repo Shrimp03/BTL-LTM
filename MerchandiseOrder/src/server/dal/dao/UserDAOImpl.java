@@ -5,6 +5,8 @@ import model.User;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAOImpl extends DAOConnection implements UserDAO {
 
@@ -82,6 +84,27 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             System.out.println(e.getMessage());
         }
         return false;  // Trả về false nếu có lỗi
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<User>();
+        try {
+            PreparedStatement ps = con.prepareStatement("select * from users ");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                 User user = new User(rs.getInt("id"), rs.getString("username"),
+                        rs.getString("password"), rs.getString("email"),
+                        rs.getString("points"), rs.getString("avatar")
+                );
+                 users.add(user);
+            }
+            return users;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+//            throw new RuntimeException(e);
+        }
+        return null;
     }
 
     public static void main(String[] args) {

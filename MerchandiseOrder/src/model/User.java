@@ -15,20 +15,29 @@ public class User implements Serializable {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.points = points;
         this.avatar = avatar;
+        if(points == null){
+            this.points = "0";
+        }
+        else this.points = points;
     }
 
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-
     }
+
+
 
     public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
         this.email = email;
+    }
+
+    public User() {
+        this.username = username;
+        this.points = points;
     }
 
     public int getId() {

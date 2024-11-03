@@ -32,6 +32,7 @@ public class QuestionScreen extends JPanel{
     private Timer countdownTimer;
 
     public QuestionScreen(User user) {
+        this.user = user;
 
         this.clientSocket = new ClientSocket();
         ArrayList<Product> products = new ArrayList<>();

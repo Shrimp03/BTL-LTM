@@ -16,10 +16,8 @@ public class RegisterScreen extends JPanel {
     private JButton registerButton;
     private JButton backButton;  // Thêm nút quay lại màn hình đăng nhập
     private ClientSocket clientSocket;
-    private Client client;  // Dùng để điều hướng giữa các màn hình
 
-    public RegisterScreen(Client client) {
-        this.client = client;
+    public RegisterScreen() {
         setLayout(new GridLayout(5, 20, 10, 10));
         setPreferredSize(new Dimension(385, 685));  // Kích thước khung giống PlayScreen
 
@@ -51,7 +49,7 @@ public class RegisterScreen extends JPanel {
                 Boolean success = clientSocket.registerUser(new User(username, password, email));
                 if (success) {
                     JOptionPane.showMessageDialog(null, "Đăng kí thành công!");
-                    client.showLoginScreen();  // Chuyển về màn hình đăng nhập nếu đăng ký thành công
+                    getClientFrame().showLoginScreen();  // Chuyển về màn hình đăng nhập nếu đăng ký thành công
                 } else {
                     JOptionPane.showMessageDialog(null, "Đăng kí thất bại!");
                 }
@@ -62,8 +60,12 @@ public class RegisterScreen extends JPanel {
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.showLoginScreen();  // Quay lại màn hình đăng nhập
+                getClientFrame().showLoginScreen();  // Quay lại màn hình đăng nhập
             }
         });
+    }
+
+    private Client getClientFrame() {
+        return (Client) SwingUtilities.getWindowAncestor(this);
     }
 }

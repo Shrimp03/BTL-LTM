@@ -5,8 +5,9 @@ import model.Product;
 import model.User;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ClientSocket {
     public ClientSocket() {}
@@ -30,6 +31,7 @@ public class ClientSocket {
     public Optional<Product[]> getProduct() {
         try {
             DataTransferObject<?> dto = new DataTransferObject<>("GetProduct");
+//            System.out.println(dto.getData());
             Client.oos.writeObject(dto);
             Client.oos.flush();
 
@@ -85,5 +87,34 @@ public class ClientSocket {
         return null;  // Trả về null nếu đăng nhập thất bại
     }
 
+    public List<User> getAllUsers() {
+        try {
+            // Tạo đối tượng truyền dữ liệu yêu cầu danh sách người dùng
+            DataTransferObject<?> dto = new DataTransferObject<>("GetUsers");
 
+            // Gửi yêu cầu tới server
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+            // Nhận phản hồi từ server
+            DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) Client.ois.readObject();
+
+            // Kiểm tra phản hồi từ server
+            if ("GetUsersResponse".equals(res.getType())) {
+                List<User> users = res.getData();
+
+                // Kiểm tra nếu dữ liệu người dùng bị null
+                if (users != null) {
+                    System.out.println(users);
+                    return users;  // Trả về danh sách người dùng nếu thành công
+                } else {
+                    System.out.println("No users found.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;  // Trả về null nếu có lỗi xảy ra
+    }
 }

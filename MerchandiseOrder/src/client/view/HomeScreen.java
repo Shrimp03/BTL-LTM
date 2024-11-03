@@ -17,14 +17,9 @@ public class HomeScreen extends JPanel {
     private JButton playButton;
     private JButton rankingButton;
     private User user;
-    private ArrayList<Product> products;
 
-    private Client client;
-
-    public HomeScreen(Client client) {
-        this.client = client;
-        this.user = new User(5, "user5", "password123", "user5@example.com", "10 20 30 40", "C:/full/path/to/your/image/avatar.png");
-
+    public HomeScreen(User user) {
+        this.user = user;
         // Thiết lập layout cho toàn bộ màn hình
         setLayout(new BorderLayout(20, 20)); // Thêm khoảng cách giữa các thành phần
 
@@ -34,7 +29,6 @@ public class HomeScreen extends JPanel {
         userInfoPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Tạo khoảng cách bao quanh
 
         // Lấy thông tin người dùng từ đối tượng client
-        User user = client.getCurrentUser();
 
         // Hiển thị tên người dùng và điểm số
         JPanel userInfoTextPanel = new JPanel(new GridLayout(2, 1));
@@ -73,7 +67,7 @@ public class HomeScreen extends JPanel {
         playButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.showQuestionScreen(user);
+                getClientFrame().showQuestionScreen(user);
             }
         });
 
@@ -81,8 +75,12 @@ public class HomeScreen extends JPanel {
         rankingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.showRankingScreen();  // Chuyển sang trang "Bảng xếp hạng"
+                getClientFrame().showRankingScreen(user);  // Chuyển sang trang "Bảng xếp hạng"
             }
         });
+    }
+
+    private Client getClientFrame() {
+        return (Client) SwingUtilities.getWindowAncestor(this);
     }
 }
