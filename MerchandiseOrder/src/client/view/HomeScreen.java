@@ -1,21 +1,24 @@
 package client.view;
 
 import client.controller.Client;
-import client.controller.ClientSocket;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import model.User;
-import model.Product;
+import utils.CloudinaryConfig;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Map;
+
 public class HomeScreen extends JPanel {
     private JLabel nameLabel;
     private JLabel pointsLabel;
     private JButton playButton;
     private JButton rankingButton;
+    private JButton uploadButton; // Nút upload ảnh
     private User user;
 
     public HomeScreen(User user) {
@@ -27,8 +30,6 @@ public class HomeScreen extends JPanel {
         JPanel userInfoPanel = new JPanel();
         userInfoPanel.setLayout(new BorderLayout(10, 10)); // Giữ khoảng cách giữa các thành phần
         userInfoPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Tạo khoảng cách bao quanh
-
-        // Lấy thông tin người dùng từ đối tượng client
 
         // Hiển thị tên người dùng và điểm số
         JPanel userInfoTextPanel = new JPanel(new GridLayout(2, 1));
@@ -46,7 +47,7 @@ public class HomeScreen extends JPanel {
 
         // Panel chứa các nút "Chơi trò chơi" và "Bảng xếp hạng"
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(2, 1, 10, 10)); // Layout dọc cho các nút
+        buttonPanel.setLayout(new GridLayout(3, 1, 10, 10)); // Layout dọc cho các nút
 
         // Nút "Bắt đầu chơi"
         playButton = new JButton("Bắt đầu chơi");
@@ -59,6 +60,12 @@ public class HomeScreen extends JPanel {
         rankingButton.setFont(new Font("Arial", Font.PLAIN, 18));
         rankingButton.setPreferredSize(new Dimension(200, 50));
         buttonPanel.add(rankingButton);
+
+        // Nút "Upload Ảnh"
+        uploadButton = new JButton("Upload Ảnh");
+        uploadButton.setFont(new Font("Arial", Font.PLAIN, 18));
+        uploadButton.setPreferredSize(new Dimension(200, 50));
+        buttonPanel.add(uploadButton);
 
         // Thêm panel chứa nút vào HomeScreen
         add(buttonPanel, BorderLayout.CENTER); // Đặt các nút vào giữa
@@ -78,6 +85,32 @@ public class HomeScreen extends JPanel {
                 getClientFrame().showRankingScreen(user);  // Chuyển sang trang "Bảng xếp hạng"
             }
         });
+
+        // Thêm sự kiện cho nút "Upload Ảnh"
+        uploadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                uploadImage();
+            }
+        });
+    }
+
+    // Hàm để upload ảnh
+    private void uploadImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(this);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            CloudinaryConfig cloudinaryHelper = new CloudinaryConfig();
+            String imageUrl = cloudinaryHelper.uploadImage(selectedFile.getAbsolutePath());
+
+            if (imageUrl != null) {
+                JOptionPane.showMessageDialog(this, "Upload thành công! URL: " + imageUrl);
+            } else {
+                JOptionPane.showMessageDialog(this, "Upload thất bại!");
+            }
+        }
     }
 
     private Client getClientFrame() {
