@@ -1,5 +1,6 @@
 package client.controller;
 
+import dto.UserStatusDto;
 import model.DataTransferObject;
 import model.Product;
 import model.User;
@@ -101,6 +102,37 @@ public class ClientSocket {
 
             // Kiểm tra phản hồi từ server
             if ("GetUsersResponse".equals(res.getType())) {
+                List<User> users = res.getData();
+
+                // Kiểm tra nếu dữ liệu người dùng bị null
+                if (users != null) {
+                    System.out.println(users);
+                    return users;  // Trả về danh sách người dùng nếu thành công
+                } else {
+                    System.out.println("No users found.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;  // Trả về null nếu có lỗi xảy ra
+    }
+
+    public List<User> getUsersByStatus(String status, String username) {
+        try {
+            // Tạo đối tượng truyền dữ liệu yêu cầu danh sách người dùng
+            DataTransferObject<?> dto = new DataTransferObject<>("GetUserByStatus", new UserStatusDto(status, username));
+
+            // Gửi yêu cầu tới server
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+            // Nhận phản hồi từ server
+            DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) Client.ois.readObject();
+
+            // Kiểm tra phản hồi từ server
+            if ("GetUserByStatus".equals(res.getType())) {
                 List<User> users = res.getData();
 
                 // Kiểm tra nếu dữ liệu người dùng bị null

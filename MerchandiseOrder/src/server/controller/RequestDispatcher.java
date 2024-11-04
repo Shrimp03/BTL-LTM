@@ -1,5 +1,6 @@
 package server.controller;
 
+import dto.UserStatusDto;
 import model.DataTransferObject;
 import model.Product;
 import server.controller.handler.ProductHandler;
@@ -19,6 +20,8 @@ public class RequestDispatcher {
                 return UserHandler.registerUser(request);
             case "GetUsers":
                 return UserHandler.getAllUsers(request);
+            case "GetUserByStatus":
+                return UserHandler.getUserByStatus((DataTransferObject<UserStatusDto>) request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }

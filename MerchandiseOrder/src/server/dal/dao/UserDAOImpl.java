@@ -71,14 +71,14 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     // Thêm phương thức lưu người dùng mới
     @Override
     public boolean saveUser(User user) {
-        String query = "INSERT INTO users (username, password, email, points, avatar, status) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO users (username, password, email, points, avatar) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = con.prepareStatement(query)) {
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getPassword());  // Mật khẩu đã được mã hóa trước đó
             ps.setString(3, user.getEmail());
             ps.setString(4, user.getPoints());
             ps.setString(5, user.getAvatar());
-            ps.setString(6, user.getStatus().toString());
+//            ps.setString(6, user.getStatus().toString());
 
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;  // Trả về true nếu thêm thành công
@@ -108,6 +108,29 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
         }
         return null;
     }
+
+    @Override
+    public List<User> getUserByStatus(String userStatus, String userName) {
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM users WHERE status = ? AND userName != ?");
+            ps.setString(1, userStatus);
+            ps.setString(2, userName);
+            ResultSet rs = ps.executeQuery();
+            List<User> users = new ArrayList<>();
+            if (rs.next()) {
+                User user =  new User(rs.getInt("id"), rs.getString("username"),
+                        rs.getString("password"), rs.getString("email"),
+                        rs.getString("points"), rs.getString("avatar"), rs.getString("status")
+                );
+                users.add(user);
+            }
+            return users;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
 
     public static void main(String[] args) {
         UserDAOImpl dao = new UserDAOImpl();

@@ -24,6 +24,10 @@ public class ServerThread implements Runnable {
         this.user = user;
     }
 
+    public User getUser() {
+        return user; // Getter method for user
+    }
+
     @Override
     public void run() {
         try {

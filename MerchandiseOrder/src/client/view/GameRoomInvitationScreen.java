@@ -1,13 +1,18 @@
 package client.view;
 
+import client.controller.ClientSocket;
+import model.User;
+import model.UserStatus;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
-public class GameRoomInvitationScreen extends JFrame {
+public class GameRoomInvitationScreen extends JPanel {
     private JLabel currentUserAvatar;
     private JLabel currentUserName;
     private JLabel invitedUserAvatar;
@@ -17,12 +22,13 @@ public class GameRoomInvitationScreen extends JFrame {
     private JButton playButton;
     private JButton removeUserButton;
     private boolean isUserInvited = false;
+    private User user;
+    private ClientSocket clientSocket;
 
-    public GameRoomInvitationScreen() {
-        setTitle("Game Room Invitation Screen");
+    public GameRoomInvitationScreen(User user) {
+        this.user = user;
+        this.clientSocket = new ClientSocket();
         setSize(400, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         initializeUI();
@@ -32,19 +38,19 @@ public class GameRoomInvitationScreen extends JFrame {
     private void initializeUI() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(null);
-        mainPanel.setBackground(new Color(173, 216, 230)); // Màu nền xanh dương nhạt
+        mainPanel.setBackground(new Color(173, 216, 230)); // Light blue background
 
-        // Nút Home ở góc trên bên phải
+        // Home button
         homeButton = new JButton("Home");
         homeButton.setBounds(300, 20, 80, 30);
         mainPanel.add(homeButton);
 
-        // Avatar và tên của người dùng hiện tại
+        // Current user's avatar and name
         currentUserAvatar = new JLabel(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
         currentUserAvatar.setBounds(90, 150, 50, 50);
         mainPanel.add(currentUserAvatar);
 
-        currentUserName = new JLabel("username1");
+        currentUserName = new JLabel(user.getUsername());
         currentUserName.setHorizontalAlignment(SwingConstants.CENTER);
         currentUserName.setBounds(80, 210, 70, 20);
         mainPanel.add(currentUserName);
@@ -114,7 +120,7 @@ public class GameRoomInvitationScreen extends JFrame {
     }
 
     private void showInvitationPopup() {
-        JDialog popup = new JDialog(this, "Invite User", true);
+        JDialog popup = new JDialog(JOptionPane.getFrameForComponent(this), "Invite User", true);
         popup.setSize(300, 400);
         popup.setLocationRelativeTo(this);
 
@@ -122,15 +128,15 @@ public class GameRoomInvitationScreen extends JFrame {
         JPanel popupPanel = new JPanel();
         popupPanel.setLayout(new BoxLayout(popupPanel, BoxLayout.Y_AXIS));
 
-        String[] onlineUsers = {"User1", "User2", "User3", "User4", "User5", "User6", "User7", "User8"};
-        for (String user : onlineUsers) {
+        List<User> onlineUsers = clientSocket.getUsersByStatus(user.getUsername(), String.valueOf(UserStatus.ONLINE));
+        for (User onlineUser : onlineUsers) {
             JPanel userPanel = new JPanel();
             userPanel.setLayout(new BorderLayout());
             userPanel.setPreferredSize(new Dimension(280, 50)); // Kích thước cố định cho mỗi hàng
 
             JLabel userAvatar = new JLabel(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
             userAvatar.setPreferredSize(new Dimension(50, 50)); // Kích thước ảnh avatar
-            JLabel userName = new JLabel(user);
+            JLabel userName = new JLabel(user.getUsername());
             userName.setHorizontalAlignment(SwingConstants.LEFT);
 
             JButton inviteUserButton = new JButton("Invite");
@@ -138,7 +144,7 @@ public class GameRoomInvitationScreen extends JFrame {
             inviteUserButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    invitedUserName.setText(user);
+                    invitedUserName.setText(user.getUsername());
                     invitedUserAvatar.setIcon(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
                     invitedUserName.setVisible(true); // Hiện tên người dùng được mời
                     invitedUserAvatar.setVisible(true); // Hiện avatar người dùng được mời
@@ -174,9 +180,5 @@ public class GameRoomInvitationScreen extends JFrame {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public static void main(String[] args) {
-        new GameRoomInvitationScreen();
     }
 }

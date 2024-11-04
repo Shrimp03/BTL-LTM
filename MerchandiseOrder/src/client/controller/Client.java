@@ -89,6 +89,12 @@ public class Client extends JFrame {
         cardLayout.show(cardPanel, "QuestionScreen");
     }
 
+    public void showInvitaionScreen(User user) {
+        GameRoomInvitationScreen gameRoomInvitationScreen = new GameRoomInvitationScreen(user);
+        cardPanel.add(gameRoomInvitationScreen, "GameRoomInvitationScreen");
+        cardLayout.show(cardPanel, "GameRoomInvitationScreen");
+    }
+
 
     public static void connectToServer() {
         try {

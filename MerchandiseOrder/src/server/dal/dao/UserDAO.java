@@ -12,4 +12,5 @@ public interface UserDAO {
     public User getUserByUsername(String username);
     boolean saveUser(User user);
     List<User> getAllUsers();
+    List<User> getUserByStatus(String userStatus, String userName);
 }
