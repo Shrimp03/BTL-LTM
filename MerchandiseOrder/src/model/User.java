@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class User implements Serializable {
     private int id;
@@ -100,6 +101,19 @@ public class User implements Serializable {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", points='" + points + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", status=" + status +
+                '}';
+    }
+
     public int getTotalPoints() {
         String[] points = this.points.split(" ");
         int result = 0;
@@ -107,5 +121,18 @@ public class User implements Serializable {
             result += Integer.parseInt(point);
         }
         return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id == user.id; // So sánh theo ID hoặc thuộc tính đặc biệt xác định người dùng
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id); // Sử dụng ID để tạo mã băm
     }
 }

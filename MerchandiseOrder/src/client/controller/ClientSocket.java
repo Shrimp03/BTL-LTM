@@ -1,6 +1,7 @@
 package client.controller;
 
 import model.DataTransferObject;
+import model.GameSession;
 import model.Product;
 import model.User;
 
@@ -40,7 +41,6 @@ public class ClientSocket {
                 DataTransferObject<Product[]> res = (DataTransferObject<Product[]>) response;
                 if (!res.getType().equals("GetProductResponse"))
                     return Optional.empty();
-                System.out.println(res.getData());
                 return Optional.of(res.getData());
             } else {
                 System.err.println("Phản hồi không đúng kiểu: " + response.getClass().getName());
@@ -51,7 +51,6 @@ public class ClientSocket {
             return Optional.empty();
         }
     }
-
 
     public Boolean registerUser(User user) {
         try {
@@ -116,5 +115,22 @@ public class ClientSocket {
         }
 
         return null;  // Trả về null nếu có lỗi xảy ra
+    }
+
+    // todo: dùng khi chưa có chức năng mời
+    public GameSession requestSolo(User user) {
+        try {
+            DataTransferObject<User> dto = new DataTransferObject<>("RequestSolo", user);
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+            DataTransferObject<GameSession> res = (DataTransferObject<GameSession>) Client.ois.readObject();
+
+            if (!res.getType().equals("ResponseSolo"))
+                return null;
+            return res.getData();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

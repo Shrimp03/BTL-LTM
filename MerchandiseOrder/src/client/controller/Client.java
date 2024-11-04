@@ -1,6 +1,7 @@
 package client.controller;
 
 import client.view.*;
+import model.GameSession;
 import model.Product;
 import model.User;
 
@@ -87,6 +88,12 @@ public class Client extends JFrame {
         QuestionScreen questionScreen = new QuestionScreen(user);
         cardPanel.add(questionScreen, "QuestionScreen");
         cardLayout.show(cardPanel, "QuestionScreen");
+    }
+
+    public void showSoloScreen(User user, GameSession gameSession, ArrayList<Product> products) {
+        SoloScreen soloScreen = new SoloScreen(user, gameSession, products);
+        cardPanel.add(soloScreen, "SoloScreen");
+        cardLayout.show(cardPanel, "SoloScreen");
     }
 
 

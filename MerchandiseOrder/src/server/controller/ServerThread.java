@@ -4,6 +4,7 @@ import model.DataTransferObject;
 import model.GameSession;
 import model.User;
 import model.UserStatus;
+import server.controller.threadManager.ThreadManager;
 import server.dal.dao.UserDAO;
 import server.dal.dao.UserDAOImpl;
 
@@ -39,6 +40,7 @@ public class ServerThread implements Runnable {
                     if ("DISCONNECT".equals(request.getType())) {
                         if (user != null) {
                             user.setStatus(UserStatus.OFFLINE);
+                            ThreadManager.removeUserThread(user);
                         }
                         userDAO.updateUser(user);
                         break;
@@ -48,12 +50,15 @@ public class ServerThread implements Runnable {
 
                     if ("Login".equals(request.getType()) && "SUCCESS".equals(response.getType())) {
                         setUser((User) response.getData());
+                        ThreadManager.addUserThread(user, this);
+                        System.out.println(ThreadManager.getUserThread(user));
                     }
 
                     sendEvent(response);
                 } catch (EOFException e) {
                     if (user != null) {
                         user.setStatus(UserStatus.OFFLINE);
+                        ThreadManager.removeUserThread(user);
                     }
                     userDAO.updateUser(user);
                     System.out.println("Client has closed the connection unexpectedly.");

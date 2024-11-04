@@ -2,6 +2,7 @@ package server.controller;
 
 import model.DataTransferObject;
 import model.Product;
+import server.controller.handler.GameSoloHandler;
 import server.controller.handler.ProductHandler;
 import server.controller.handler.UserHandler;
 
@@ -19,6 +20,8 @@ public class RequestDispatcher {
                 return UserHandler.registerUser(request);
             case "GetUsers":
                 return UserHandler.getAllUsers(request);
+            case "RequestSolo": //todo: dùng khi chưa có chức năng tạo phòng solo
+                return GameSoloHandler.requestSolo(request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }
