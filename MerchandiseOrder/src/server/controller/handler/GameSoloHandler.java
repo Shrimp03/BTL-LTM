@@ -30,11 +30,17 @@ public class GameSoloHandler {
     }
 
     public static DataTransferObject<Boolean> sendCorrectProductIds(DataTransferObject<?> request) {
-        Pair<GameSession, ArrayList<Integer>> dataRecive = (Pair<GameSession, ArrayList<Integer>>) request.getData();
-        GameSession gameSession = dataRecive.getFirst();
+        Pair<Pair<User, GameSession>, ArrayList<Integer>> dataRecive = (Pair<Pair<User, GameSession>, ArrayList<Integer>>) request.getData();
+        User currentUser = dataRecive.getFirst().getFirst();
+        GameSession gameSession = dataRecive.getFirst().getSecond();
         ArrayList<Integer> productIds = dataRecive.getSecond();
+        User nextUser = gameSession.getUser1();
+        if (currentUser.equals(gameSession.getUser1())) {
+            nextUser = gameSession.getUser2();
+        }
 
-        GameSessionManager.broadcastToSession(gameSession, new DataTransferObject<ArrayList<Integer>>("BroadCastProductIds", productIds));
+        Pair<User, ArrayList<Integer>> dataSend = new Pair<>(nextUser, productIds);
+        GameSessionManager.broadcastToSession(gameSession, new DataTransferObject<Pair<User, ArrayList<Integer>>>("BroadCastProductIds", dataSend));
 
         return new DataTransferObject<>("ReceiveCorrectProductIds", true);
     }

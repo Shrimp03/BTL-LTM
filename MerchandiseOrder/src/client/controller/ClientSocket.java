@@ -1,10 +1,12 @@
 package client.controller;
 
+import client.view.GameSoloListener;
 import model.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -14,6 +16,7 @@ public class ClientSocket {
     // Áp dụng Singleton
     private static ClientSocket instance;
     private final BlockingQueue<Object> messageQueue = new LinkedBlockingQueue<>();
+    private final ArrayList<GameSoloListener> listeners = new ArrayList<>();
 
     // Constructor riêng để tránh tạo nhiều phiên bản
     private ClientSocket() {}
@@ -26,12 +29,28 @@ public class ClientSocket {
         return instance;
     }
 
+    public void addGameSoloListener(GameSoloListener listener) {
+        listeners.add(listener);
+    }
+
     public void listening() {
         new Thread(() -> {
             try {
                 while (true) {
                     Object response = Client.ois.readObject();
-                    messageQueue.put(response);
+                    try {
+                        DataTransferObject<?> dto = (DataTransferObject<?>) response;
+                        if (Objects.equals(dto.getType(), "BroadCastProductIds")) {
+                            Pair<User, ArrayList<Integer>> dataReceived = (Pair<User, ArrayList<Integer>>) dto.getData();
+
+                            for (GameSoloListener listener : listeners) {
+                                listener.onProductOrderReceived(dataReceived);
+                            }
+                        } else {
+                            messageQueue.put(response);
+                        }
+                    } catch (ClassCastException ignored) {
+                    }
                 }
             } catch (IOException | ClassNotFoundException | InterruptedException e) {
 //                e.printStackTrace();
@@ -169,9 +188,9 @@ public class ClientSocket {
         return null;
     }
 
-    public boolean sendCorrectProductIds(Pair<GameSession, ArrayList<Integer>> dataSend) {
+    public boolean sendCorrectProductIds(Pair<Pair<User, GameSession>, ArrayList<Integer>> dataSend) {
         try {
-            DataTransferObject<Pair<GameSession, ArrayList<Integer>>> dto = new DataTransferObject<>("SendCorrectProductIds", dataSend);
+            DataTransferObject<Pair<Pair<User, GameSession>, ArrayList<Integer>>> dto = new DataTransferObject<>("SendCorrectProductIds", dataSend);
             Client.oos.writeObject(dto);
             Client.oos.flush();
 

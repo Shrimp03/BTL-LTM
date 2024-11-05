@@ -20,12 +20,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class SoloScreen extends JPanel {
+public class SoloScreen extends JPanel implements GameSoloListener {
     private ClientSocket clientSocket;
-    private User user;
+    private User currentUser;
     private GameSession gameSession;
     private ArrayList<Product> products;
     private ArrayList<Product> correctOrder;
+    private ArrayList<Product> currentOrder; // Danh sách trạng thái hiện tại của các sản phẩm
+    private User startingPlayer;
     private BufferedImage backgroundImage;
     private JLabel draggedLabel = null;
     private Point initialClick;
@@ -36,9 +38,10 @@ public class SoloScreen extends JPanel {
     private int originShelfIndex;
     private int movesCount = 0; // Biến đếm số lần xếp
     private Timer timer; // Bộ đếm thời gian
-    private int timeRemaining = 20; // Thời gian còn lại
+    private int timeRemaining; // Thời gian còn lại
     private boolean gameOver = false; // Biến cờ để kiểm tra trạng thái kết thúc trò chơi
     private final ArrayList<Integer> correctProductIds = new ArrayList<>();
+    private boolean isPlayerTurn = false; // Biến để kiểm tra lượt chơi
 
     // Nút "Về Màn Hình Chính"
     private JButton homeButton;
@@ -48,12 +51,15 @@ public class SoloScreen extends JPanel {
     private JLabel player2Label;
     private JLabel timerLabel; // Hiển thị thời gian
 
-    public SoloScreen(User user, GameSession gameSession, ArrayList<Product> products) {
-        this.user = user;
+    public SoloScreen(User currentUser, GameSession gameSession, ArrayList<Product> products, User startingPlayer) {
+        this.currentUser = currentUser;
         this.gameSession = gameSession;
         this.products = products;
-        this.correctOrder = new ArrayList<>(products); // Lưu trữ thứ tự đúng
+        this.startingPlayer = startingPlayer;
+        this.correctOrder = new ArrayList<>(products); // Lưu trữ thứ tự đúng (không thay đổi)
+        this.currentOrder = new ArrayList<>(Collections.nCopies(12, null)); // Danh sách trạng thái hiện tại của các sản phẩm
         clientSocket = ClientSocket.getInstance();
+        clientSocket.addGameSoloListener(this);
 
         // Xáo trộn sản phẩm
         Collections.shuffle(products);
@@ -82,8 +88,20 @@ public class SoloScreen extends JPanel {
         JPanel floorPanel = createFloorPanel(products);
         add(floorPanel);
 
-        // Bắt đầu bộ đếm thời gian
-        startTimer();
+        startTimer(); // Bắt đầu đếm thời gian
+        // Kiểm tra và bắt đầu lượt chơi
+        startTurn();
+    }
+
+    // Phương thức để bắt đầu lượt chơi
+    private void startTurn() {
+        if (currentUser.equals(startingPlayer)) {
+            isPlayerTurn = true; // Bật cờ cho phép người chơi thực hiện lượt
+            System.out.println("Đây là lượt của " + currentUser.getUsername());
+        } else {
+            isPlayerTurn = false; // Tắt cờ nếu không phải lượt của người chơi
+            System.out.println("Chưa phải lượt của bạn.");
+        }
     }
 
     // Tải hình nền
@@ -119,8 +137,7 @@ public class SoloScreen extends JPanel {
         homeButton.setFocusPainted(false);
 
         homeButton.addActionListener(e -> {
-            System.out.println(user.getUsername());
-            getClientFrame().showHomeScreen(user);
+            getClientFrame().showHomeScreen(currentUser);
         });
 
         add(homeButton);
@@ -150,32 +167,52 @@ public class SoloScreen extends JPanel {
 
     // Bắt đầu bộ đếm thời gian
     private void startTimer() {
+        timeRemaining = 20;
         timer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 timeRemaining = Math.max(timeRemaining - 1, 0);
                 timerLabel.setText("Time: " + timeRemaining + "s");
-                if (timeRemaining <= 0) {
+                if (checkShelfFull()) {
+                    timerLabel.setText("Game over");
+                    timeRemaining = -1;
                     timer.stop();
-                    checkGameOverConditions();
-//                    getClientFrame().showHomeScreen(user);
                 }
-                if (gameOver) return; // Nếu trò chơi đã kết thúc, không làm gì cả
+                checkGameOverConditions();
             }
         });
         timer.start();
     }
 
+    private boolean checkShelfFull() {
+        for (int i = 0; i < shelfSlots.length; i++) {
+            for (int j = 0; j < shelfSlots[i].length; j++) {
+                if (shelfSlots[i][j].getIcon() == null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     // Kiểm tra điều kiện: đã di chuyển 2 lần hoặc hết thời gian
     private void checkGameOverConditions() {
-        if (gameOver) return; // Nếu trò chơi đã kết thúc, không làm gì cả
-
-        if (movesCount >= 2 || timeRemaining <= 0) {
-            JOptionPane.showMessageDialog(SoloScreen.this, "Không xếp được nữa!");
+        if (movesCount >= 2 || timeRemaining <= 0 || checkShelfFull()) {
             timeRemaining = 0;
             gameOver = true; // Đánh dấu rằng trò chơi đã kết thúc
-            Pair<GameSession, ArrayList<Integer>> dataSend = new Pair<>(gameSession, correctProductIds);
-            clientSocket.sendCorrectProductIds(dataSend);
+            if (isPlayerTurn) {
+                // Tạo một bản sao mới của correctProductIds để gửi
+                ArrayList<Integer> productIdsToSend = new ArrayList<>(correctProductIds);
+                Pair<Pair<User, GameSession>, ArrayList<Integer>> dataSend = new Pair<>(new Pair<>(currentUser, gameSession), productIdsToSend);
+
+                // In ra dữ liệu để kiểm tra
+                System.out.println(dataSend);
+                clientSocket.sendCorrectProductIds(dataSend);
+                System.out.println(correctProductIds);
+
+                // Xóa dữ liệu trong correctProductIds sau khi gửi
+                correctProductIds.clear();
+            }
         }
     }
 
@@ -251,7 +288,7 @@ public class SoloScreen extends JPanel {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if (gameOver || label.getIcon() == null) return; // Nếu trò chơi đã kết thúc hoặc không có icon thì không làm gì cả
+                if (gameOver || !isPlayerTurn || label.getIcon() == null) return; // Nếu không phải lượt của người chơi hoặc trò chơi kết thúc, không làm gì
 
                 draggedLabel = createSlotLabel();
                 draggedLabel.setIcon(label.getIcon());
@@ -286,6 +323,7 @@ public class SoloScreen extends JPanel {
                             if (correctOrder.get(i * 3 + j).equals(draggedProduct)) {
                                 placeItemInSlot(shelfSlots[i][j], draggedLabel, draggedProduct);
                                 correctProductIds.add(draggedProduct.getId());
+                                currentOrder.set(i * 3 + j, draggedProduct); // Cập nhật trạng thái hiện tại
                             } else {
                                 // Hiển thị popup nếu di chuyển sai thứ tự
                                 JOptionPane.showMessageDialog(SoloScreen.this, "Sai thứ tự!", "Thông báo", JOptionPane.WARNING_MESSAGE);
@@ -325,7 +363,7 @@ public class SoloScreen extends JPanel {
         label.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                if (gameOver || draggedLabel == null) return; // Nếu trò chơi đã kết thúc hoặc không có nhãn kéo thì không làm gì cả
+                if (gameOver || !isPlayerTurn || draggedLabel == null) return; // Nếu không phải lượt của người chơi hoặc trò chơi kết thúc, không làm gì
 
                 Point point = SwingUtilities.convertPoint(label, e.getPoint(), SoloScreen.this);
                 int x = point.x - initialClick.x;
@@ -358,6 +396,61 @@ public class SoloScreen extends JPanel {
         Rectangle slotBounds = SwingUtilities.convertRectangle(slot.getParent(), slot.getBounds(), SoloScreen.this);
         Point mouseLocation = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), SoloScreen.this);
         return slotBounds.contains(mouseLocation);
+    }
+
+    private void updateProductLayout() {
+        for (int i = 0; i < shelfSlots.length; i++) {
+            for (int j = 0; j < shelfSlots[i].length; j++) {
+                if (shelfSlots[i][j].getIcon() == null) {
+                    int index = i * 3 + j;
+                    for (Product product : currentOrder) {
+                        if (product != null && product.getId() == correctOrder.get(index).getId()) {
+                            String imagePath = "/static/item/" + product.getImageUrl();
+                            ImageIcon icon = createIconFromResource(imagePath);
+
+                            if (icon != null) {
+                                shelfSlots[i][j].setIcon(icon);
+                                shelfSlots[i][j].putClientProperty("product", product);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Xóa các sản phẩm đã được xếp lên kệ khỏi sàn
+        for (JLabel floorSlot : floorSlots) {
+            Product productOnFloor = (Product) floorSlot.getClientProperty("product");
+            if (productOnFloor != null && currentOrder.contains(productOnFloor)) {
+                floorSlot.setIcon(null); // Xóa biểu tượng
+                floorSlot.putClientProperty("product", null); // Xóa thuộc tính sản phẩm
+            }
+        }
+
+        repaint(); // Vẽ lại giao diện
+    }
+
+    @Override
+    public void onProductOrderReceived(Pair<User, ArrayList<Integer>> dataReceived) {
+        System.out.println(dataReceived);
+        if (dataReceived.getFirst().equals(currentUser)) {
+            isPlayerTurn = true;
+            gameOver = false;
+            movesCount = 0;
+        } else {
+            isPlayerTurn = false;
+        }
+
+        for (Integer id : dataReceived.getSecond()) {
+            for (Product product : products) {
+                if (product.getId() == id) {
+                    currentOrder.add(product);
+                    break;
+                }
+            }
+        }
+        updateProductLayout();
+        timeRemaining = 21;
     }
 
     // Phương thức lấy Client (JFrame) cha
