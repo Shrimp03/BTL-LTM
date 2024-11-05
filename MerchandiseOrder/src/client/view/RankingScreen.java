@@ -25,10 +25,8 @@ public class RankingScreen extends JPanel {
     private ClientSocket clientSocket;
     public RankingScreen(User currentUser ) {
         this.currentUser = currentUser;
-        this.clientSocket = new ClientSocket();
+        clientSocket = ClientSocket.getInstance();
         this.userList = new ArrayList<>(clientSocket.getAllUsers());
-
-
 
         // Tải ảnh nền
         loadBackgroundImage();

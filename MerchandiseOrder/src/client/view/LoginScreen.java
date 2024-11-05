@@ -88,7 +88,7 @@ public class LoginScreen extends JPanel {
                 String password = new String(passwordField.getPassword());
 
                 // Gửi yêu cầu đăng nhập qua ClientSocket
-                ClientSocket clientSocket = new ClientSocket();
+                ClientSocket clientSocket = ClientSocket.getInstance();
                 User user = clientSocket.loginUser(username, password);
                 if (user != null) {
                     JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");

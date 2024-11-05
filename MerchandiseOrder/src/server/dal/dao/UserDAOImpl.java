@@ -32,6 +32,24 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     }
 
     @Override
+    public User getUserById(int id) {
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM users WHERE id = ?");
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new User(rs.getInt("id"), rs.getString("username"),
+                        rs.getString("password"), rs.getString("email"),
+                        rs.getString("points"), rs.getString("avatar"), rs.getString("status")
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
     public boolean updateUser(User user) {
         String query = "UPDATE users SET email = ?, points = ?, avatar = ?, status = ? WHERE id = ?";
         try (PreparedStatement ps = con.prepareStatement(query)) {

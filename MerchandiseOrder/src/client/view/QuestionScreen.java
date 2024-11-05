@@ -34,7 +34,7 @@ public class QuestionScreen extends JPanel{
     public QuestionScreen(User user) {
         this.user = user;
 
-        this.clientSocket = new ClientSocket();
+        clientSocket = ClientSocket.getInstance();
         ArrayList<Product> products = new ArrayList<>();
 
         Optional<Product[]> optionalProducts = clientSocket.getProduct();

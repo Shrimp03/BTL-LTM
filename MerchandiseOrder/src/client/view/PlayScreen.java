@@ -47,7 +47,7 @@ public class PlayScreen extends JPanel {
         this.points = 500; // Điểm ban đầu
         this.remainingTime = 60; // Thời gian đếm ngược
         this.penaltyTime = 0; // Bộ đếm thời gian phạt
-        this.clientSocket = new ClientSocket();
+        clientSocket = ClientSocket.getInstance();
 
         // Xáo trộn sản phẩm
         Collections.shuffle(products);
