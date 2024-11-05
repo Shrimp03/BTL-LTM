@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-
 public class GameRoomInvitationScreen extends JPanel {
     private JLabel currentUserAvatar;
     private JLabel currentUserName;
@@ -27,7 +26,7 @@ public class GameRoomInvitationScreen extends JPanel {
 
     public GameRoomInvitationScreen(User user) {
         this.user = user;
-        this.clientSocket = new ClientSocket();
+        this.clientSocket = ClientSocket.getInstance();
         setSize(400, 600);
         setLayout(new BorderLayout());
 
@@ -128,7 +127,7 @@ public class GameRoomInvitationScreen extends JPanel {
         JPanel popupPanel = new JPanel();
         popupPanel.setLayout(new BoxLayout(popupPanel, BoxLayout.Y_AXIS));
 
-        List<User> onlineUsers = clientSocket.getUsersByStatus(user.getUsername(), String.valueOf(UserStatus.ONLINE));
+        List<User> onlineUsers = ClientSocket.getInstance().getUsersByStatus(user.getUsername(), String.valueOf(UserStatus.ONLINE));
         for (User onlineUser : onlineUsers) {
             JPanel userPanel = new JPanel();
             userPanel.setLayout(new BorderLayout());
@@ -136,7 +135,7 @@ public class GameRoomInvitationScreen extends JPanel {
 
             JLabel userAvatar = new JLabel(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
             userAvatar.setPreferredSize(new Dimension(50, 50)); // Kích thước ảnh avatar
-            JLabel userName = new JLabel(user.getUsername());
+            JLabel userName = new JLabel(onlineUser.getUsername());
             userName.setHorizontalAlignment(SwingConstants.LEFT);
 
             JButton inviteUserButton = new JButton("Invite");
@@ -144,7 +143,8 @@ public class GameRoomInvitationScreen extends JPanel {
             inviteUserButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    invitedUserName.setText(user.getUsername());
+                    invitedUserName.setText(onlineUser.getUsername());
+                    ClientSocket.getInstance().sendInvite(onlineUser, user);
                     invitedUserAvatar.setIcon(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
                     invitedUserName.setVisible(true); // Hiện tên người dùng được mời
                     invitedUserAvatar.setVisible(true); // Hiện avatar người dùng được mời

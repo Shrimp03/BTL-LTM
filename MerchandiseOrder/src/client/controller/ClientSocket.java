@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.view.PopupInvite;
 import dto.UserStatusDto;
 import model.DataTransferObject;
 import model.Product;
@@ -35,6 +36,12 @@ public class ClientSocket {
             try {
                 while (true) {
                     Object response = Client.ois.readObject();
+                    if(response instanceof DataTransferObject<?>) {
+                        DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) response;
+                        if("INVITE".equals(res.getType())){
+                            PopupInvite.showInvitationDialog(res.getData().get(0), res.getData().get(1));
+                        }
+                    }
                     messageQueue.put(response);
                 }
             } catch (IOException | ClassNotFoundException | InterruptedException e) {
@@ -121,6 +128,7 @@ public class ClientSocket {
             if (response instanceof DataTransferObject<?>) {
                 DataTransferObject<User> res = (DataTransferObject<User>) response;
                 if ("SUCCESS".equals(res.getType())) {
+
                     return res.getData();
                 }
             }
@@ -163,19 +171,23 @@ public class ClientSocket {
             Client.oos.writeObject(dto);
             Client.oos.flush();
 
+            Object response = getNextMessage();
+
             // Nhận phản hồi từ server
-            DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) Client.ois.readObject();
+            if(response instanceof DataTransferObject<?>) {
+                DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) response;
 
-            // Kiểm tra phản hồi từ server
-            if ("GetUserByStatus".equals(res.getType())) {
-                List<User> users = res.getData();
+                // Kiểm tra phản hồi từ server
+                if ("GetUserByStatus".equals(res.getType())) {
+                    List<User> users = res.getData();
 
-                // Kiểm tra nếu dữ liệu người dùng bị null
-                if (users != null) {
-                    System.out.println(users);
-                    return users;  // Trả về danh sách người dùng nếu thành công
-                } else {
-                    System.out.println("No users found.");
+                    // Kiểm tra nếu dữ liệu người dùng bị null
+                    if (users != null) {
+                        System.out.println(users);
+                        return users;  // Trả về danh sách người dùng nếu thành công
+                    } else {
+                        System.out.println("No users found.");
+                    }
                 }
             }
         } catch (Exception e) {
@@ -221,5 +233,22 @@ public class ClientSocket {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void sendInvite(User user, User inviter) {
+        try {
+            // Tạo đối tượng truyền dữ liệu yêu cầu danh sách người dùng
+            List<User> twoUser =  new ArrayList<>();
+            twoUser.add(user);
+            twoUser.add(inviter);
+            DataTransferObject<?> dto = new DataTransferObject<>("INVITE", twoUser);
+
+            // Gửi yêu cầu tới server
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

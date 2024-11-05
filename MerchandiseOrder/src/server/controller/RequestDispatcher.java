@@ -3,9 +3,13 @@ package server.controller;
 import dto.UserStatusDto;
 import model.DataTransferObject;
 import model.Product;
+import model.User;
+import server.controller.handler.GameSessionHandler;
 import server.controller.handler.GameSoloHandler;
 import server.controller.handler.ProductHandler;
 import server.controller.handler.UserHandler;
+
+import java.util.List;
 
 public class RequestDispatcher {
 
@@ -27,6 +31,8 @@ public class RequestDispatcher {
                 return GameSoloHandler.requestSolo(request);
             case "SendCorrectProductIds":
                 return GameSoloHandler.sendCorrectProductIds(request);
+            case "INVITE":
+                GameSessionHandler.sendInvite((DataTransferObject<List<User>>) request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }

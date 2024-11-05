@@ -28,6 +28,7 @@ public class HomeScreen extends JPanel {
     private JButton soloButton; // Nút Solo
     private User user;
     private ClientSocket clientSocket;
+    private JButton roomButton;
 
     public HomeScreen(User user) {
         this.user = user;
@@ -76,6 +77,11 @@ public class HomeScreen extends JPanel {
         uploadButton.setPreferredSize(new Dimension(200, 50));
         buttonPanel.add(uploadButton);
 
+        roomButton = new JButton("tao phong");
+        roomButton.setFont(new Font("Arial", Font.PLAIN, 18));
+        roomButton.setPreferredSize(new Dimension(200, 50));
+        buttonPanel.add(roomButton);
+
         // Nút "Solo"
         soloButton = new JButton("Solo");
         soloButton.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -106,6 +112,13 @@ public class HomeScreen extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 uploadImage();
+            }
+        });
+
+        roomButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getClientFrame().showInvitaionScreen(user);
             }
         });
     }

@@ -1,6 +1,7 @@
 package client.controller;
 
 import client.view.*;
+import model.DataTransferObject;
 import model.GameSession;
 import model.Product;
 import model.User;

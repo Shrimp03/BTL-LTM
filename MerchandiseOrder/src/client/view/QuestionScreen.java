@@ -212,7 +212,7 @@ public class QuestionScreen extends JPanel{
 
     private static ImageIcon showImage(String imagePath, Integer width, Integer height) {
         try {
-            Image image = ImageIO.read(QuestionScreen.class.getResource(imagePath));
+            Image image = ImageIO.read(QuestionScreen.class.getResource(imagePath.startsWith("/") ? imagePath : "/" + imagePath));
             if (height == null) {
                 double aspectRatio = (double) image.getHeight(null) / image.getWidth(null);
                 height = (int) (width * aspectRatio);
