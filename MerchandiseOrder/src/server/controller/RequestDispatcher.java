@@ -32,7 +32,7 @@ public class RequestDispatcher {
             case "SendCorrectProductIds":
                 return GameSoloHandler.sendCorrectProductIds(request);
             case "INVITE":
-                GameSessionHandler.sendInvite((DataTransferObject<List<User>>) request);
+                return GameSessionHandler.sendInvite((DataTransferObject<List<User>>) request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }

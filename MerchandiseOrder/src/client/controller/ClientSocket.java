@@ -36,13 +36,15 @@ public class ClientSocket {
             try {
                 while (true) {
                     Object response = Client.ois.readObject();
-                    if(response instanceof DataTransferObject<?>) {
                         DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) response;
                         if("INVITE".equals(res.getType())){
+                            System.out.println("Open Micro:");
+                            System.out.println(res.getData().get(0));
                             PopupInvite.showInvitationDialog(res.getData().get(0), res.getData().get(1));
                         }
-                    }
-                    messageQueue.put(response);
+                        else {
+                            messageQueue.put(response);
+                        }
                 }
             } catch (IOException | ClassNotFoundException | InterruptedException e) {
 //                e.printStackTrace();
@@ -247,6 +249,7 @@ public class ClientSocket {
             Client.oos.writeObject(dto);
             Client.oos.flush();
 
+            Object response = getNextMessage();
         } catch (Exception e) {
             e.printStackTrace();
         }
