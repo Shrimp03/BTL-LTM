@@ -67,6 +67,7 @@ public class Client extends JFrame {
         cardLayout.show(cardPanel, "HomeScreen");
     }
 
+
     // Chuyển sang màn hình "Bảng xếp hạng"
     public void showRankingScreen(User user) {
         RankingScreen rankingScreen = new RankingScreen(user);
@@ -90,6 +91,10 @@ public class Client extends JFrame {
     }
 
 
+
+
+
+
     public static void connectToServer() {
         try {
             if (socket == null || socket.isClosed()) {
@@ -102,6 +107,7 @@ public class Client extends JFrame {
             e.printStackTrace();
         }
     }
+
 
     public static void closeConnection() {
         try {

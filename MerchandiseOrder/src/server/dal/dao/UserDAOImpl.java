@@ -71,14 +71,14 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     // Thêm phương thức lưu người dùng mới
     @Override
     public boolean saveUser(User user) {
-        String query = "INSERT INTO users (username, password, email, points, avatar, status) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO users (username, password, email, points, avatar) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = con.prepareStatement(query)) {
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getPassword());  // Mật khẩu đã được mã hóa trước đó
             ps.setString(3, user.getEmail());
             ps.setString(4, user.getPoints());
             ps.setString(5, user.getAvatar());
-            ps.setString(6, user.getStatus().toString());
+//            ps.setString(6, user.getStatus().toString());
 
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;  // Trả về true nếu thêm thành công

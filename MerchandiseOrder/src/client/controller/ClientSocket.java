@@ -77,15 +77,36 @@ public class ClientSocket {
             Client.oos.writeObject(userLogin);
             Client.oos.flush();
             DataTransferObject<User> res = (DataTransferObject<User>) Client.ois.readObject();
-
+            if("ALREADY_LOGGED_IN".equals(res.getType())){
+                return null;
+            }
             if ("SUCCESS".equals(res.getType())) {
                 return res.getData();  // Trả về User nếu đăng nhập thành công
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;  // Trả về null nếu đăng nhập thất bại
     }
+
+    public boolean logoutUser(User user) {
+        try {
+            // Tạo đối tượng DataTransferObject để gửi yêu cầu logout
+            DataTransferObject<User> dto = new DataTransferObject<>("DISCONNECT", user);
+            Client.oos.writeObject(dto); // Gửi yêu cầu logout tới server
+            Client.oos.flush();
+
+            // Nhận phản hồi từ server
+            DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) Client.ois.readObject();
+            return true;
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace(); // In ra lỗi nếu có
+        }
+        return false; // Trả về false nếu có lỗi xảy ra hoặc logout không thành công
+    }
+
+
 
     public List<User> getAllUsers() {
         try {

@@ -4,6 +4,7 @@ import model.DataTransferObject;
 import model.GameSession;
 import model.User;
 import model.UserStatus;
+import server.controller.threadManager.ThreadManager;
 import server.dal.dao.UserDAO;
 import server.dal.dao.UserDAOImpl;
 
@@ -39,9 +40,11 @@ public class ServerThread implements Runnable {
                     if ("DISCONNECT".equals(request.getType())) {
                         if (user != null) {
                             user.setStatus(UserStatus.OFFLINE);
+                            ThreadManager.removeUserThread(user);
                         }
                         userDAO.updateUser(user);
                         break;
+
                     }
 
                     DataTransferObject<?> response = RequestDispatcher.dispatch(request);
