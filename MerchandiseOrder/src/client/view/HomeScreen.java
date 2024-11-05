@@ -23,7 +23,7 @@ public class HomeScreen extends JPanel {
 
     public HomeScreen(User user) {
         this.user = user;
-        this.clientSocket = new ClientSocket();
+        clientSocket = ClientSocket.getInstance();
         // Thiết lập layout cho toàn bộ màn hình
         setLayout(new BorderLayout(20, 20)); // Thêm khoảng cách giữa các thành phần
 

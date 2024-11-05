@@ -3,6 +3,7 @@ package client.view;
 import client.controller.Client;
 import client.controller.ClientSocket;
 import model.GameSession;
+import model.Pair;
 import model.Product;
 import model.User;
 
@@ -33,10 +34,11 @@ public class SoloScreen extends JPanel {
     private JLabel[][] shelfSlots;
     private int originSlotIndex;
     private int originShelfIndex;
-    private int points;
     private int movesCount = 0; // Biến đếm số lần xếp
     private Timer timer; // Bộ đếm thời gian
     private int timeRemaining = 20; // Thời gian còn lại
+    private boolean gameOver = false; // Biến cờ để kiểm tra trạng thái kết thúc trò chơi
+    private final ArrayList<Integer> correctProductIds = new ArrayList<>();
 
     // Nút "Về Màn Hình Chính"
     private JButton homeButton;
@@ -51,8 +53,7 @@ public class SoloScreen extends JPanel {
         this.gameSession = gameSession;
         this.products = products;
         this.correctOrder = new ArrayList<>(products); // Lưu trữ thứ tự đúng
-        this.points = 500; // Điểm ban đầu
-        this.clientSocket = new ClientSocket();
+        clientSocket = ClientSocket.getInstance();
 
         // Xáo trộn sản phẩm
         Collections.shuffle(products);
@@ -110,8 +111,8 @@ public class SoloScreen extends JPanel {
 
     // Tạo nút "Về Màn Hình Chính"
     private void createHomeButton() {
-        homeButton = new JButton("H"); // Hoặc thay bằng biểu tượng ngôi nhà nếu có
-        homeButton.setBounds(320, 10, 50, 30); // Thu nhỏ nút và đặt ở bên phải
+        homeButton = new JButton("H");
+        homeButton.setBounds(320, 10, 50, 30);
         homeButton.setFont(new Font("Arial", Font.BOLD, 12));
         homeButton.setBackground(new Color(255, 69, 0));
         homeButton.setForeground(Color.WHITE);
@@ -119,7 +120,7 @@ public class SoloScreen extends JPanel {
 
         homeButton.addActionListener(e -> {
             System.out.println(user.getUsername());
-            getClientFrame().showHomeScreen(user);  // Quay lại màn hình chính
+            getClientFrame().showHomeScreen(user);
         });
 
         add(homeButton);
@@ -127,21 +128,18 @@ public class SoloScreen extends JPanel {
 
     // Tạo các nhãn hiển thị tên người chơi và thời gian
     private void createPlayerLabels() {
-        // Nhãn cho người chơi 1
         player1Label = new JLabel(gameSession.getUser1().getUsername());
         player1Label.setBounds(10, 10, 100, 30);
         player1Label.setFont(new Font("Arial", Font.BOLD, 14));
         player1Label.setForeground(Color.BLACK);
         add(player1Label);
 
-        // Nhãn cho người chơi 2
         player2Label = new JLabel(gameSession.getUser2().getUsername());
         player2Label.setBounds(220, 10, 100, 30);
         player2Label.setFont(new Font("Arial", Font.BOLD, 14));
         player2Label.setForeground(Color.BLACK);
         add(player2Label);
 
-        // Nhãn hiển thị thời gian
         timerLabel = new JLabel("Time: 20s");
         timerLabel.setBounds(120, 10, 100, 30);
         timerLabel.setFont(new Font("Arial", Font.BOLD, 14));
@@ -155,16 +153,30 @@ public class SoloScreen extends JPanel {
         timer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                timeRemaining--;
+                timeRemaining = Math.max(timeRemaining - 1, 0);
                 timerLabel.setText("Time: " + timeRemaining + "s");
                 if (timeRemaining <= 0) {
                     timer.stop();
-                    JOptionPane.showMessageDialog(SoloScreen.this, "Hết thời gian!");
-                    getClientFrame().showHomeScreen(user);
+                    checkGameOverConditions();
+//                    getClientFrame().showHomeScreen(user);
                 }
+                if (gameOver) return; // Nếu trò chơi đã kết thúc, không làm gì cả
             }
         });
         timer.start();
+    }
+
+    // Kiểm tra điều kiện: đã di chuyển 2 lần hoặc hết thời gian
+    private void checkGameOverConditions() {
+        if (gameOver) return; // Nếu trò chơi đã kết thúc, không làm gì cả
+
+        if (movesCount >= 2 || timeRemaining <= 0) {
+            JOptionPane.showMessageDialog(SoloScreen.this, "Không xếp được nữa!");
+            timeRemaining = 0;
+            gameOver = true; // Đánh dấu rằng trò chơi đã kết thúc
+            Pair<GameSession, ArrayList<Integer>> dataSend = new Pair<>(gameSession, correctProductIds);
+            clientSocket.sendCorrectProductIds(dataSend);
+        }
     }
 
     // Tạo các kệ và ô chứa sản phẩm
@@ -239,94 +251,87 @@ public class SoloScreen extends JPanel {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if (label.getIcon() != null) {
-                    draggedLabel = createSlotLabel();
-                    draggedLabel.setIcon(label.getIcon());
-                    draggedLabel.putClientProperty("product", label.getClientProperty("product"));
+                if (gameOver || label.getIcon() == null) return; // Nếu trò chơi đã kết thúc hoặc không có icon thì không làm gì cả
 
-                    initialClick = e.getPoint();
+                draggedLabel = createSlotLabel();
+                draggedLabel.setIcon(label.getIcon());
+                draggedLabel.putClientProperty("product", label.getClientProperty("product"));
 
-                    label.setIcon(null);
-                    label.putClientProperty("product", null);
+                initialClick = e.getPoint();
 
-                    Point startPoint = SwingUtilities.convertPoint(sourcePanel, label.getLocation(), SoloScreen.this);
-                    add(draggedLabel);
-                    draggedLabel.setLocation(startPoint);
-                    draggedLabel.setSize(draggedLabel.getPreferredSize());
-                    repaint();
+                label.setIcon(null);
+                label.putClientProperty("product", null);
 
-                    originSlotIndex = slotIndex;
-                    originShelfIndex = shelfIndex;
-                }
+                Point startPoint = SwingUtilities.convertPoint(sourcePanel, label.getLocation(), SoloScreen.this);
+                add(draggedLabel);
+                draggedLabel.setLocation(startPoint);
+                draggedLabel.setSize(draggedLabel.getPreferredSize());
+                repaint();
+
+                originSlotIndex = slotIndex;
+                originShelfIndex = shelfIndex;
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (draggedLabel != null) {
-                    if (movesCount >= 2) {
-                        JOptionPane.showMessageDialog(SoloScreen.this, "Bạn đã xếp tối đa 2 lần!");
-                        returnItemToOriginalPosition((Product) draggedLabel.getClientProperty("product"));
-                        remove(draggedLabel);
-                        repaint();
-                        draggedLabel = null;
-                        return;
-                    }
+                if (gameOver || draggedLabel == null) return; // Nếu trò chơi đã kết thúc hoặc không có nhãn kéo thì không làm gì cả
 
-                    boolean placed = false;
-                    Product draggedProduct = (Product) draggedLabel.getClientProperty("product");
+                boolean placed = false;
+                Product draggedProduct = (Product) draggedLabel.getClientProperty("product");
 
-                    // Kiểm tra vị trí thả sản phẩm
-                    for (int i = 0; i < shelfPanels.length; i++) {
-                        for (int j = 0; j < shelfSlots[i].length; j++) {
-                            if (isWithinSlot(e, shelfSlots[i][j])) {
-                                // Kiểm tra nếu sản phẩm đặt vào đúng thứ tự
-                                if (correctOrder.get(i * 3 + j).equals(draggedProduct)) {
-                                    placeItemInSlot(shelfSlots[i][j], draggedLabel, draggedProduct);
-                                } else {
-                                    // Nếu sai, trả sản phẩm về vị trí cũ
-                                    returnItemToOriginalPosition(draggedProduct);
-                                }
-                                movesCount++;
-                                placed = true;
-                                break;
+                // Kiểm tra vị trí thả sản phẩm
+                for (int i = 0; i < shelfPanels.length; i++) {
+                    for (int j = 0; j < shelfSlots[i].length; j++) {
+                        if (isWithinSlot(e, shelfSlots[i][j])) {
+                            if (correctOrder.get(i * 3 + j).equals(draggedProduct)) {
+                                placeItemInSlot(shelfSlots[i][j], draggedLabel, draggedProduct);
+                                correctProductIds.add(draggedProduct.getId());
+                            } else {
+                                // Hiển thị popup nếu di chuyển sai thứ tự
+                                JOptionPane.showMessageDialog(SoloScreen.this, "Sai thứ tự!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                                returnItemToOriginalPosition(draggedProduct);
                             }
-                        }
-                        if (placed) break;
-                    }
-
-                    // Kiểm tra xem sản phẩm có được đặt trên sàn không
-                    if (!placed) {
-                        for (JLabel floorSlot : floorSlots) {
-                            if (isWithinSlot(e, floorSlot)) {
-                                placeItemInSlot(floorSlot, draggedLabel, draggedProduct);
-                                placed = true;
-                                break;
-                            }
+                            movesCount++;
+                            checkGameOverConditions(); // Gọi hàm kiểm tra điều kiện
+                            placed = true;
+                            break;
                         }
                     }
-
-                    // Nếu không đặt vào đâu được, trả sản phẩm về vị trí cũ
-                    if (!placed) {
-                        returnItemToOriginalPosition(draggedProduct);
-                    }
-
-                    remove(draggedLabel);
-                    repaint();
-                    draggedLabel = null;
+                    if (placed) break;
                 }
+
+                // Kiểm tra xem sản phẩm có được đặt trên sàn không
+                if (!placed) {
+                    for (JLabel floorSlot : floorSlots) {
+                        if (isWithinSlot(e, floorSlot)) {
+                            placeItemInSlot(floorSlot, draggedLabel, draggedProduct);
+                            placed = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Nếu không đặt vào đâu được, trả sản phẩm về vị trí cũ
+                if (!placed) {
+                    returnItemToOriginalPosition(draggedProduct);
+                }
+
+                remove(draggedLabel);
+                repaint();
+                draggedLabel = null;
             }
         });
 
         label.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                if (draggedLabel != null) {
-                    Point point = SwingUtilities.convertPoint(label, e.getPoint(), SoloScreen.this);
-                    int x = point.x - initialClick.x;
-                    int y = point.y - initialClick.y;
-                    draggedLabel.setLocation(x, y);
-                    repaint();
-                }
+                if (gameOver || draggedLabel == null) return; // Nếu trò chơi đã kết thúc hoặc không có nhãn kéo thì không làm gì cả
+
+                Point point = SwingUtilities.convertPoint(label, e.getPoint(), SoloScreen.this);
+                int x = point.x - initialClick.x;
+                int y = point.y - initialClick.y;
+                draggedLabel.setLocation(x, y);
+                repaint();
             }
         });
     }

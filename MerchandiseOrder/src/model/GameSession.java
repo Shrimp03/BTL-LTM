@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Objects;
 
 public class GameSession implements Serializable {
+    private static final long serialVersionUID = 2L;
     private int id;
     private Date timeStart;
     private Date timeFinish;

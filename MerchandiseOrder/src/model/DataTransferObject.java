@@ -3,6 +3,7 @@ package model;
 import java.io.Serializable;
 
 public class DataTransferObject<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String type; // Kiểu dữ liệu để xác định loại thông điệp
     private T data;      // Dữ liệu dạng generic
 

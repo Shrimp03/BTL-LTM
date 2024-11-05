@@ -3,7 +3,7 @@ package model;
 import java.io.Serializable;
 
 public class Product implements Serializable {
-
+    private static final long serialVersionUID = 4L;
     private int id;
     private String name;
     private String imageUrl;

@@ -22,6 +22,8 @@ public class RequestDispatcher {
                 return UserHandler.getAllUsers(request);
             case "RequestSolo": //todo: dùng khi chưa có chức năng tạo phòng solo
                 return GameSoloHandler.requestSolo(request);
+            case "SendCorrectProductIds":
+                return GameSoloHandler.sendCorrectProductIds(request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }

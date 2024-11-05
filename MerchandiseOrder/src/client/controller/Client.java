@@ -19,6 +19,7 @@ public class Client extends JFrame {
     protected static Socket socket;
     protected static ObjectInputStream ois;
     protected static ObjectOutputStream oos;
+    private ClientSocket clientSocket;
     private JPanel cardPanel;
     private CardLayout cardLayout;
     private QuestionScreen questionScreen; // TODO: sau sửa lại
@@ -27,7 +28,6 @@ public class Client extends JFrame {
     public Client() {
         this.cardLayout = new CardLayout();
         this.cardPanel = new JPanel(cardLayout);
-
 
         LoginScreen loginScreen = new LoginScreen();
         RegisterScreen registerScreen = new RegisterScreen();
@@ -43,6 +43,11 @@ public class Client extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
         showLoginScreen();
+    }
+
+    public void startListening() {
+        clientSocket = ClientSocket.getInstance();
+        clientSocket.listening(); // Gọi phương thức lắng nghe broadcast
     }
 
     // Thêm phương thức điều hướng giữa các màn hình
@@ -135,6 +140,7 @@ public class Client extends JFrame {
         SwingUtilities.invokeLater(() -> {
             Client client = new Client();
             connectToServer();
+            client.startListening();
         });
 
         Runtime.getRuntime().addShutdownHook(new Thread(Client::closeConnection));

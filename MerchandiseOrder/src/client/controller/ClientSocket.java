@@ -1,73 +1,109 @@
 package client.controller;
 
-import model.DataTransferObject;
-import model.GameSession;
-import model.Product;
-import model.User;
+import model.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class ClientSocket {
-    public ClientSocket() {}
+    // Áp dụng Singleton
+    private static ClientSocket instance;
+    private final BlockingQueue<Object> messageQueue = new LinkedBlockingQueue<>();
+
+    // Constructor riêng để tránh tạo nhiều phiên bản
+    private ClientSocket() {}
+
+    // Phương thức để lấy phiên bản duy nhất của ClientSocket
+    public static synchronized ClientSocket getInstance() {
+        if (instance == null) {
+            instance = new ClientSocket();
+        }
+        return instance;
+    }
+
+    public void listening() {
+        new Thread(() -> {
+            try {
+                while (true) {
+                    Object response = Client.ois.readObject();
+                    messageQueue.put(response);
+                }
+            } catch (IOException | ClassNotFoundException | InterruptedException e) {
+//                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    // Phương thức lấy gói tin từ hàng đợi
+    public Object getNextMessage() throws InterruptedException {
+        return messageQueue.take();
+    }
 
     public boolean updateUser(User user) {
         try {
             DataTransferObject<User> dto = new DataTransferObject<>("UpdateUser", user);
             Client.oos.writeObject(dto);
             Client.oos.flush();
-            DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) Client.ois.readObject();
 
-            if (!res.getType().equals("Update user response"))
-                return false;
-            return res.getData();
-        } catch (IOException | ClassNotFoundException e) {
+            Object response = getNextMessage();
+            if (response instanceof DataTransferObject<?>) {
+                DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) response;
+                if (!"Update user response".equals(res.getType())) {
+                    return false;
+                }
+                return res.getData();
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     public Optional<Product[]> getProduct() {
         try {
             DataTransferObject<?> dto = new DataTransferObject<>("GetProduct");
-//            System.out.println(dto.getData());
             Client.oos.writeObject(dto);
             Client.oos.flush();
 
-            Object response = Client.ois.readObject();
+            Object response = getNextMessage();
             if (response instanceof DataTransferObject<?>) {
                 DataTransferObject<Product[]> res = (DataTransferObject<Product[]>) response;
-                if (!res.getType().equals("GetProductResponse"))
+                if (!"GetProductResponse".equals(res.getType())) {
                     return Optional.empty();
+                }
                 return Optional.of(res.getData());
             } else {
-                System.err.println("Phản hồi không đúng kiểu: " + response.getClass().getName());
-                return Optional.empty();
+                System.err.println("Invalid response type: " + response.getClass().getName());
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     public Boolean registerUser(User user) {
         try {
-            // Tạo đối tượng DataTransferObject để gửi thông tin đăng ký
             DataTransferObject<User> dto = new DataTransferObject<>("Register", user);
-            Client.oos.writeObject(dto); // Gửi yêu cầu đến server
+            Client.oos.writeObject(dto);
             Client.oos.flush();
 
-            DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) Client.ois.readObject();
-
-            if (!res.getType().equals("register response"))
-                return false ;
-            return res.getData();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace(); // In ra lỗi nếu có
+            Object response = getNextMessage();
+            if (response instanceof DataTransferObject<?>) {
+                DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) response;
+                if (!"register response".equals(res.getType())) {
+                    return false;
+                }
+                return res.getData();
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
         }
-        return false; // Trả về null nếu có lỗi hoặc đăng ký không thành công
+        return false;
     }
 
     public User loginUser(String username, String password) {
@@ -75,62 +111,80 @@ public class ClientSocket {
             DataTransferObject<User> userLogin = new DataTransferObject<>("Login", new User(username, password));
             Client.oos.writeObject(userLogin);
             Client.oos.flush();
-            DataTransferObject<User> res = (DataTransferObject<User>) Client.ois.readObject();
 
-            if ("SUCCESS".equals(res.getType())) {
-                return res.getData();  // Trả về User nếu đăng nhập thành công
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;  // Trả về null nếu đăng nhập thất bại
-    }
-
-    public List<User> getAllUsers() {
-        try {
-            // Tạo đối tượng truyền dữ liệu yêu cầu danh sách người dùng
-            DataTransferObject<?> dto = new DataTransferObject<>("GetUsers");
-
-            // Gửi yêu cầu tới server
-            Client.oos.writeObject(dto);
-            Client.oos.flush();
-
-            // Nhận phản hồi từ server
-            DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) Client.ois.readObject();
-
-            // Kiểm tra phản hồi từ server
-            if ("GetUsersResponse".equals(res.getType())) {
-                List<User> users = res.getData();
-
-                // Kiểm tra nếu dữ liệu người dùng bị null
-                if (users != null) {
-                    System.out.println(users);
-                    return users;  // Trả về danh sách người dùng nếu thành công
-                } else {
-                    System.out.println("No users found.");
+            Object response = getNextMessage();
+            System.out.println(response);
+            if (response instanceof DataTransferObject<?>) {
+                DataTransferObject<User> res = (DataTransferObject<User>) response;
+                if ("SUCCESS".equals(res.getType())) {
+                    return res.getData();
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return null;  // Trả về null nếu có lỗi xảy ra
+        return null;
     }
 
-    // todo: dùng khi chưa có chức năng mời
+    public List<User> getAllUsers() {
+        try {
+            DataTransferObject<?> dto = new DataTransferObject<>("GetUsers");
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+            Object response = getNextMessage();
+            if (response instanceof DataTransferObject<?>) {
+                DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) response;
+                if ("GetUsersResponse".equals(res.getType())) {
+                    List<User> users = res.getData();
+                    if (users != null) {
+                        return users;
+                    } else {
+                        System.out.println("No users found.");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public GameSession requestSolo(User user) {
         try {
             DataTransferObject<User> dto = new DataTransferObject<>("RequestSolo", user);
             Client.oos.writeObject(dto);
             Client.oos.flush();
-            DataTransferObject<GameSession> res = (DataTransferObject<GameSession>) Client.ois.readObject();
 
-            if (!res.getType().equals("ResponseSolo"))
-                return null;
-            return res.getData();
-        } catch (IOException | ClassNotFoundException e) {
+            Object response = getNextMessage();
+            if (response instanceof DataTransferObject<?>) {
+                DataTransferObject<GameSession> res = (DataTransferObject<GameSession>) response;
+                if ("ResponseSolo".equals(res.getType())) {
+                    return res.getData();
+                }
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
+    }
+
+    public boolean sendCorrectProductIds(Pair<GameSession, ArrayList<Integer>> dataSend) {
+        try {
+            DataTransferObject<Pair<GameSession, ArrayList<Integer>>> dto = new DataTransferObject<>("SendCorrectProductIds", dataSend);
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+            Object response = getNextMessage();
+            if (response instanceof DataTransferObject<?>) {
+                DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) response;
+                if ("ReceiveCorrectProductIds".equals(res.getType())) {
+                    return res.getData();
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
