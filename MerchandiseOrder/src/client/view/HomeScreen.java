@@ -16,6 +16,8 @@ public class HomeScreen extends JPanel {
     private JLabel pointsLabel;
     private JButton playButton;
     private JButton rankingButton;
+    private JButton ruleButton;
+    private JButton updateUser;
     private User user;
 
     public HomeScreen(User user) {
@@ -60,6 +62,20 @@ public class HomeScreen extends JPanel {
         rankingButton.setPreferredSize(new Dimension(200, 50));
         buttonPanel.add(rankingButton);
 
+        //Nút "Luật chơi"
+
+        ruleButton = new JButton("Luật chơi");
+        ruleButton.setFont(new Font("Arial", Font.PLAIN, 18));
+        ruleButton.setPreferredSize(new Dimension(200, 50));
+        buttonPanel.add(ruleButton);
+
+        //Nút "Profile"
+        updateUser = new JButton("Profile");
+        updateUser.setFont(new Font("Arial", Font.PLAIN, 18));
+        updateUser.setPreferredSize(new Dimension(200, 50));
+        buttonPanel.add(updateUser);
+
+
         // Thêm panel chứa nút vào HomeScreen
         add(buttonPanel, BorderLayout.CENTER); // Đặt các nút vào giữa
 
@@ -78,6 +94,23 @@ public class HomeScreen extends JPanel {
                 getClientFrame().showRankingScreen(user);  // Chuyển sang trang "Bảng xếp hạng"
             }
         });
+
+        //Thêm sự kiện cho nút " Luật chơi"
+        ruleButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getClientFrame().showRuleScreen(user);
+            }
+        });
+
+        updateUser.addActionListener(new ActionListener() {
+            @Override
+           public void actionPerformed(ActionEvent e) {
+                getClientFrame().showProfileScreen(user);
+            }
+        });
+
+
     }
 
     private Client getClientFrame() {

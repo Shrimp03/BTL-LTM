@@ -25,9 +25,7 @@ public class LoginScreen extends JPanel {
         loginButton = new JButton("Đăng nhập");
         registerButton = new JButton("Đăng kí");
 
-        add(new JLabel("Tên đăng nhập:"));
         add(usernameField);
-        add(new JLabel("Mật khẩu:"));
         add(passwordField);
         add(loginButton);
         add(registerButton);  // Thêm nút Register vào giao diện
