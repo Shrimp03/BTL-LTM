@@ -25,6 +25,8 @@ public class RequestDispatcher {
                 return UserHandler.registerUser(request);
             case "GetUsers":
                 return UserHandler.getAllUsers(request);
+            case "Logout":
+                return UserHandler.logoutUser(request);
             case "GetUserByStatus":
                 return UserHandler.getUserByStatus((DataTransferObject<UserStatusDto>) request);
             case "RequestSolo": //todo: dùng khi chưa có chức năng tạo phòng solo

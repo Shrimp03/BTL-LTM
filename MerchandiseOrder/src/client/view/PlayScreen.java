@@ -77,7 +77,10 @@ public class PlayScreen extends JPanel {
         JPanel floorPanel = createFloorPanel(products);
         add(floorPanel);
     }
-
+//    làm giúp tôi 1 ảnh game xếp đồ lên kệ với các chức năng như này
+//    DUngalo12 là tên
+//    bên dưới là point
+//    có 2 nút là bắt đầu chơi và bảng xếp hạng làm giúp tôi
     // Tải hình nền
     private void loadBackgroundImage() {
         try {

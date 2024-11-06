@@ -5,6 +5,7 @@ import model.DataTransferObject;
 import model.Product;
 import model.User;
 import model.UserStatus;
+import server.controller.threadManager.ThreadManager;
 import server.dal.dao.ProductDAO;
 import server.dal.dao.ProductDAOImpl;
 import server.dal.dao.UserDAO;
@@ -16,13 +17,6 @@ import java.util.List;
 
 public class UserHandler {
 
-    public static DataTransferObject<Boolean> updateUser(DataTransferObject<?> request) {
-        UserDAO userDAO = new UserDAOImpl();
-        User user = (User) request.getData();
-        boolean updateSuccess = userDAO.updateUser(user);
-        return new DataTransferObject<>("Update user response", updateSuccess);
-    }
-
     // Thêm phương thức xử lý đăng ký
     public static DataTransferObject<Boolean> registerUser(DataTransferObject<?> request) {
         UserDAO userDAO = new UserDAOImpl();
@@ -31,6 +25,11 @@ public class UserHandler {
         // Kiểm tra nếu username đã tồn tại
         if (userDAO.getUserByUsername(registerUser.getUsername()) != null) {
             return new DataTransferObject<>("FAIL", false);  // Username đã tồn tại
+        }
+
+        // Kiểm tra nếu email có hợp lệ hay không
+        if (!PasswordUtil.isValidEmail(registerUser.getEmail())) {
+            return new DataTransferObject<>("INVALID_EMAIL", false);  // Email không hợp lệ
         }
 
         // Kiểm tra mật khẩu có hợp lệ hay không
@@ -52,18 +51,32 @@ public class UserHandler {
 
         // Kiểm tra username và mật khẩu
         User user = userDAO.getUserByUsername(loginUser.getUsername());
-        if (user != null && PasswordUtil.verifyPassword(loginUser.getPassword(), user.getPassword())) {
-            user.setStatus(UserStatus.ONLINE);
-            userDAO.updateUser(user);
-            return new DataTransferObject<>("SUCCESS", user);  // Trả về thành công nếu đăng nhập đúng
-        } else {
-            return new DataTransferObject<>("FAIL", null);  // Trả về thất bại nếu sai
+        if (user != null) {
+            // Kiểm tra nếu người dùng đã đăng nhập (trạng thái ONLINE)
+            if (user.getStatus() == UserStatus.ONLINE) {
+                return new DataTransferObject<>("ALREADY_LOGGED_IN", null);  // Người dùng đã đăng nhập ở nơi khác
+            }
+
+            // Kiểm tra mật khẩu
+            if (PasswordUtil.verifyPassword(loginUser.getPassword(), user.getPassword())) {
+                // Cập nhật trạng thái người dùng thành ONLINE
+                user.setStatus(UserStatus.ONLINE);
+                userDAO.updateUser(user);
+                return new DataTransferObject<>("SUCCESS", user);  // Trả về thành công nếu đăng nhập đúng
+            }
         }
+        return new DataTransferObject<>("FAIL", null);  // Trả về thất bại nếu sai
     }
 
+    public static DataTransferObject<Boolean> updateUser(DataTransferObject<?> request) {
+        UserDAO userDAO = new UserDAOImpl();
+        User user = (User) request.getData();
+        boolean updateSuccess = userDAO.updateUser(user);
+        return new DataTransferObject<>("Update user response", updateSuccess);
+    }
     public static DataTransferObject<List<User>> getAllUsers(DataTransferObject<?> request) {
-       UserDAO userDAO = new UserDAOImpl();
-       List<User> users = userDAO.getAllUsers();
+        UserDAO userDAO = new UserDAOImpl();
+        List<User> users = userDAO.getAllUsers();
         System.out.println(users.get(0).getUsername());
 
         return new DataTransferObject<>("GetUsersResponse", users);
@@ -77,6 +90,27 @@ public class UserHandler {
 
         return new DataTransferObject<>("GetUserByStatus", users);
 
+    }
+
+
+    public static DataTransferObject<Boolean> logoutUser(DataTransferObject<?> request) {
+        UserDAO userDAO = new UserDAOImpl();
+        User logoutUser = (User) request.getData();
+
+        // Lấy thông tin người dùng từ cơ sở dữ liệu
+        User user = userDAO.getUserByUsername(logoutUser.getUsername());
+        if (user != null) {
+            // Cập nhật trạng thái người dùng thành OFFLINE
+            user.setStatus(UserStatus.OFFLINE);
+            userDAO.updateUser(user);
+
+            boolean updateSuccess = userDAO.updateUser(user);
+            ThreadManager.removeUserThread(user);
+            if (updateSuccess) {
+                return new DataTransferObject<>("Logout response", true); // Trả về phản hồi thành công
+            }
+        }
+        return new DataTransferObject<>("LOGOUT_FAIL", false); // Trả về thất bại nếu có lỗi
     }
 
 

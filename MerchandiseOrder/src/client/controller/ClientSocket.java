@@ -124,21 +124,42 @@ public class ClientSocket {
             DataTransferObject<User> userLogin = new DataTransferObject<>("Login", new User(username, password));
             Client.oos.writeObject(userLogin);
             Client.oos.flush();
-
-            Object response = getNextMessage();
-            System.out.println(response);
-            if (response instanceof DataTransferObject<?>) {
-                DataTransferObject<User> res = (DataTransferObject<User>) response;
-                if ("SUCCESS".equals(res.getType())) {
-
-                    return res.getData();
-                }
+            DataTransferObject<User> res = (DataTransferObject<User>) Client.ois.readObject();
+            if("ALREADY_LOGGED_IN".equals(res.getType())){
+                return null;
             }
+            if ("SUCCESS".equals(res.getType())) {
+                return res.getData();  // Trả về User nếu đăng nhập thành công
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    public boolean logoutUser(User user) {
+        try {
+            // Tạo đối tượng DataTransferObject để gửi yêu cầu logout
+            DataTransferObject<User> dto = new DataTransferObject<>("Logout", user);
+            Client.oos.writeObject(dto); // Gửi yêu cầu logout tới server
+            Client.oos.flush();
+
+            // Nhận phản hồi từ server
+            DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) Client.ois.readObject();
+            if (!res.getType().equals("Logout response")){
+                return false;
+            }
+
+            return res.getData(); // Trả về kết quả từ server
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace(); // In ra lỗi nếu có
+        }
+        return false; // Trả về false nếu có lỗi xảy ra hoặc logout không thành công
+    }
+
+
+
 
     public List<User> getAllUsers() {
         try {

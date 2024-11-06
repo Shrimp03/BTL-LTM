@@ -34,4 +34,11 @@ public class PasswordUtil {
         if (!password.matches(".*\\d.*")) return false; // Phải có ít nhất một chữ số
         return true;
     }
+
+    // Kiểm tra định dạng email hợp lệ
+    public static boolean isValidEmail(String email) {
+        // Biểu thức chính quy để kiểm tra định dạng email
+        String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+        return email.matches(emailRegex);
+    }
 }

@@ -1,6 +1,7 @@
 package client.view;
 
 import client.controller.Client;
+import client.controller.ClientSocket;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import model.User;
@@ -10,12 +11,16 @@ import model.GameSession;
 import model.Product;
 import model.User;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
 
 import java.util.ArrayList;
 
@@ -30,26 +35,35 @@ public class HomeScreen extends JPanel {
     private ClientSocket clientSocket;
     private JButton roomButton;
 
+    private Image backgroundImage;
+    private JButton hintButton;
+    private JLabel imageLabel;
     public HomeScreen(User user) {
         this.user = user;
         clientSocket = ClientSocket.getInstance();
         // Thiết lập layout cho toàn bộ màn hình
         setLayout(new BorderLayout(20, 20)); // Thêm khoảng cách giữa các thành phần
+        setSize(385, 685); // Đặt kích thước lớn
+        setLayout(null);
+        // Tải ảnh nền
+        loadBackgroundImage();
 
-        // Panel hiển thị thông tin người dùng (tên, điểm số)
-        JPanel userInfoPanel = new JPanel();
-        userInfoPanel.setLayout(new BorderLayout(10, 10)); // Giữ khoảng cách giữa các thành phần
-        userInfoPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Tạo khoảng cách bao quanh
+        // Khởi tạo JLabel cho ảnh
+        imageLabel = new JLabel();
+        imageLabel.setBounds(9, 5, 92, 87);
+        imageLabel.setBorder(BorderFactory.createLineBorder(Color.white, 5));
+        add(imageLabel);
 
-        // Hiển thị tên người dùng và điểm số
-        JPanel userInfoTextPanel = new JPanel(new GridLayout(2, 1));
-        nameLabel = new JLabel(user.getUsername());
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 16)); // Phông chữ lớn hơn cho tên người dùng
-        pointsLabel = new JLabel(user.getPoints() + " điểm");
-        pointsLabel.setFont(new Font("Arial", Font.PLAIN, 14)); // Phông chữ nhỏ hơn cho điểm số
+        // Tải ảnh avatar từ URL
+        loadAvatar();
 
-        userInfoTextPanel.add(nameLabel);
-        userInfoTextPanel.add(pointsLabel);
+        // Sự kiện khi nhấn vào avatar để chuyển đến trang cập nhật người dùng
+        imageLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                getClientFrame().showUpdateUserScreen(user);
+            }
+        });
 
         // Thêm panel chứa thông tin người dùng vào HomeScreen
         userInfoPanel.add(userInfoTextPanel, BorderLayout.WEST); // Đặt thông tin người dùng ở bên trái
@@ -61,21 +75,44 @@ public class HomeScreen extends JPanel {
 
         // Nút "Bắt đầu chơi"
         playButton = new JButton("Bắt đầu chơi");
-        playButton.setFont(new Font("Arial", Font.PLAIN, 18)); // Tăng kích thước chữ cho nút
-        playButton.setPreferredSize(new Dimension(200, 50)); // Đặt kích thước nút đồng nhất
-        buttonPanel.add(playButton);
+        styleButton(playButton, 98, 313, 170, 60); // Đặt vị trí và kích thước
+        playButton.addActionListener(e -> getClientFrame().showQuestionScreen(user));
+        add(playButton);
 
         // Nút "Bảng xếp hạng"
         rankingButton = new JButton("Bảng xếp hạng");
-        rankingButton.setFont(new Font("Arial", Font.PLAIN, 18));
-        rankingButton.setPreferredSize(new Dimension(200, 50));
-        buttonPanel.add(rankingButton);
+        styleButton(rankingButton, 88, 392, 200, 60); // Đặt vị trí và kích thước
+        rankingButton.addActionListener(e -> getClientFrame().showRankingScreen(user));
+        add(rankingButton);
 
         // Nút "Upload Ảnh"
         uploadButton = new JButton("Upload Ảnh");
-        uploadButton.setFont(new Font("Arial", Font.PLAIN, 18));
-        uploadButton.setPreferredSize(new Dimension(200, 50));
-        buttonPanel.add(uploadButton);
+        styleButton(uploadButton, 20, 21, 60, 50); // Đặt vị trí và kích thước
+        uploadButton.addActionListener(e -> uploadImage());
+        add(uploadButton);
+
+        // Nút "Tạo phòng chơi"
+        JButton createRoomButton = new JButton("Tạo phòng");
+        styleButton(createRoomButton, 88, 476, 200, 60);
+        createRoomButton.setFocusPainted(false); // Loại bỏ viền khi focus
+        createRoomButton.setContentAreaFilled(false); // Loại bỏ màu nền
+        createRoomButton.setOpaque(false); // Không vẽ nền
+        createRoomButton.setBorderPainted(false); // Loại bỏ viền của nút
+
+        createRoomButton.addActionListener(e -> getClientFrame().showCreateRoomScreen(user)); // Chuyển đến màn hình tạo phòng
+        add(createRoomButton);
+
+        // Nút "Đăng Xuất" hình tròn
+        JButton logoutButton = new JButton("") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // Vẽ hình tròn trong suốt
+                if (getModel().isArmed()) {
+                    g.setColor(Color.LIGHT_GRAY); // Màu khi nhấn
+                } else {
+                    g.setColor(new Color(0, 0, 0, 0)); // Màu nền trong suốt
+                }
+                g.fillOval(0, 0, getWidth(), getHeight()); // Vẽ hình tròn
 
         roomButton = new JButton("tao phong");
         roomButton.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -90,28 +127,72 @@ public class HomeScreen extends JPanel {
 
         // Thêm panel chứa nút vào HomeScreen
         add(buttonPanel, BorderLayout.CENTER); // Đặt các nút vào giữa
+                // Vẽ ký tự "X" (hoặc bất kỳ ký tự nào bạn muốn cho nút "Đăng Xuất")
+                g.setColor(Color.WHITE); // Màu chữ
+                g.setFont(new Font("Arial", Font.BOLD, 18));
+                FontMetrics fm = g.getFontMetrics();
+                int textWidth = fm.stringWidth(getText());
+                int textHeight = fm.getAscent();
+                g.drawString(getText(), (getWidth() - textWidth) / 2, (getHeight() + textHeight) / 2 - 3);
 
-        // Thêm sự kiện cho nút "Bắt đầu chơi"
-        playButton.addActionListener(new ActionListener() {
+                super.paintComponent(g);
+            }
+
             @Override
-            public void actionPerformed(ActionEvent e) {
-                getClientFrame().showQuestionScreen(user);
+            public Dimension getPreferredSize() {
+                // Đặt kích thước hình tròn
+                return new Dimension(60, 60);
+            }
+        };
+        logoutButton.setBounds(280, 560, 58, 58); // Đặt vị trí và kích thước
+        logoutButton.setFocusPainted(false); // Loại bỏ viền khi focus
+        logoutButton.setContentAreaFilled(false); // Loại bỏ màu nền
+        logoutButton.setOpaque(false); // Không vẽ nền
+        logoutButton.setBorderPainted(false); // Loại bỏ viền của nút
+
+        // Thêm sự kiện click
+        logoutButton.addActionListener(e -> {
+            // Hiển thị hộp thoại xác nhận
+            int response = JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có muốn đăng xuất không?",
+                    "Xác nhận đăng xuất",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            // Kiểm tra phản hồi của người dùng
+            if (response == JOptionPane.YES_OPTION) {
+                ClientSocket clientSocket = new ClientSocket();
+                boolean logoutSuccess = clientSocket.logoutUser(user); // Gửi yêu cầu logout tới server
+
+                if (logoutSuccess) {
+                    // Chuyển về màn hình đăng nhập
+                    getClientFrame().showLoginScreen();
+                    JOptionPane.showMessageDialog(this, "Bạn đã đăng xuất thành công!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Đăng xuất thất bại. Vui lòng thử lại.");
+                }
             }
         });
+        add(logoutButton);
 
-        // Thêm sự kiện cho nút "Bảng xếp hạng"
-        rankingButton.addActionListener(new ActionListener() {
+
+        hintButton = new JButton("?") {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                getClientFrame().showRankingScreen(user);  // Chuyển sang trang "Bảng xếp hạng"
+            protected void paintComponent(Graphics g) {
+                // Vẽ hình tròn trong suốt
+                g.setColor(new Color(0, 0, 0, 0)); // Màu nền trong suốt
+                g.fillOval(0, 0, getWidth(), getHeight()); // Vẽ hình tròn
+
+                // Vẽ ký tự "?" mà không thay đổi khi nhấn
+                super.paintComponent(g);
             }
-        });
 
-        // Thêm sự kiện cho nút "Upload Ảnh"
-        uploadButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                uploadImage();
+            public Dimension getPreferredSize() {
+                // Đặt kích thước hình tròn
+                return new Dimension(60, 60);
             }
         });
 
@@ -121,9 +202,35 @@ public class HomeScreen extends JPanel {
                 getClientFrame().showInvitaionScreen(user);
             }
         });
+        };
+        hintButton.setBounds(295, 23, 60, 60); // Đặt vị trí và kích thước
+        hintButton.setFocusPainted(false); // Loại bỏ viền khi focus
+        hintButton.setContentAreaFilled(false); // Loại bỏ màu nền
+        hintButton.setOpaque(false); // Không vẽ nền
+        hintButton.setFont(new Font("Arial", Font.BOLD, 18));
+        hintButton.setForeground(Color.WHITE); // Màu chữ
+        hintButton.setBorderPainted(false); // Loại bỏ viền của nút
+        hintButton.addActionListener(e -> getClientFrame().showSuggestScreen(user)); // Chuyển đến màn hình gợi ý
+        // Sự kiện click
+        add(hintButton);
+
     }
 
-    // Hàm để upload ảnh
+    // Phương thức để hiển thị gợi ý
+    private void showHint() {
+        JOptionPane.showMessageDialog(this, "Đây là gợi ý!");
+    }
+    // Phương thức để định dạng các nút, làm cho nền trong suốt
+    private void styleButton(JButton button, int x, int y, int width, int height) {
+        button.setBounds(x, y, width, height);
+        button.setFont(new Font("Arial", Font.PLAIN, 18));
+        button.setFocusPainted(false); // Loại bỏ viền khi nhấn
+        button.setContentAreaFilled(false); // Loại bỏ màu nền
+        button.setOpaque(false); // Không vẽ nền
+        button.setBorderPainted(false); // Loại bỏ viền của nút
+        button.setForeground(Color.WHITE); // Đặt màu chữ
+        button.setFont(new Font("Arial", Font.BOLD, 22));
+    }
     private void uploadImage() {
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(this);
@@ -135,6 +242,16 @@ public class HomeScreen extends JPanel {
 
             if (imageUrl != null) {
                 JOptionPane.showMessageDialog(this, "Upload thành công! URL: " + imageUrl);
+
+                try {
+                    // Tải ảnh từ URL và hiển thị trong JLabel
+                    ImageIcon imageIcon = new ImageIcon(new URL(imageUrl));
+                    Image image = imageIcon.getImage().getScaledInstance(94, 87, Image.SCALE_SMOOTH);
+                    imageLabel.setIcon(new ImageIcon(image));
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi tải ảnh từ URL.");
+                    e.printStackTrace();
+                }
             } else {
                 JOptionPane.showMessageDialog(this, "Upload thất bại!");
             }
@@ -167,6 +284,64 @@ public class HomeScreen extends JPanel {
             }
         });
 
+    }
+
+    private void loadAvatar() {
+        try {
+            // Kiểm tra xem URL avatar có hợp lệ hay không
+            if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+                ImageIcon imageIcon = new ImageIcon(new URL(user.getAvatar()));
+                Image image = imageIcon.getImage().getScaledInstance(94, 87, Image.SCALE_SMOOTH);
+                imageLabel.setIcon(new ImageIcon(image));
+            } else {
+                // Nếu không có URL, hiển thị ảnh mặc định
+                imageLabel.setIcon(null); // Hoặc bạn có thể đặt một ảnh mặc định
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+//    // Phương thức để upload ảnh
+//    private void uploadImage() {
+//        JFileChooser fileChooser = new JFileChooser();
+//        int result = fileChooser.showOpenDialog(this);
+//
+//        if (result == JFileChooser.APPROVE_OPTION) {
+//            File selectedFile = fileChooser.getSelectedFile();
+//            CloudinaryConfig cloudinaryHelper = new CloudinaryConfig();
+//            String imageUrl = cloudinaryHelper.uploadImage(selectedFile.getAbsolutePath());
+//
+//            if (imageUrl != null) {
+//                JOptionPane.showMessageDialog(this, "Upload thành công! URL: " + imageUrl);
+//            } else {
+//                JOptionPane.showMessageDialog(this, "Upload thất bại!");
+//            }
+//        }
+//    }
+
+    // Phương thức tải hình nền
+    private void loadBackgroundImage() {
+        try {
+            InputStream imgStream = getClass().getResourceAsStream("/static/home.jpg");
+            if (imgStream != null) {
+                backgroundImage = ImageIO.read(imgStream);
+            } else {
+                System.out.println("Không tìm thấy hình nền, tiếp tục không có ảnh nền.");
+            }
+        } catch (IOException e) {
+            System.out.println("Lỗi khi tải hình nền: " + e.getMessage());
+        }
+    }
+
+    // Vẽ hình nền
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
     private Client getClientFrame() {
