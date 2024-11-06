@@ -35,6 +35,12 @@ public class RequestDispatcher {
                 return GameSoloHandler.sendCorrectProductIds(request);
             case "INVITE":
                 return GameSessionHandler.sendInvite((DataTransferObject<List<User>>) request);
+            case "ACCEPT":
+                return GameSessionHandler.sendJoin((DataTransferObject<List<User>>) request);
+            case "DECLINE":
+                return GameSessionHandler.sendLeave((DataTransferObject<List<User>>) request);
+            case "PLAY":
+                return GameSessionHandler.sendPlay((DataTransferObject<List<User>>) request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }

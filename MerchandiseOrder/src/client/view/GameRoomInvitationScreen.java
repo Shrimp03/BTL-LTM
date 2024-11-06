@@ -1,5 +1,6 @@
 package client.view;
 
+import client.controller.Client;
 import client.controller.ClientSocket;
 import model.User;
 import model.UserStatus;
@@ -10,7 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 public class GameRoomInvitationScreen extends JPanel {
     private JLabel currentUserAvatar;
     private JLabel currentUserName;
@@ -22,17 +26,18 @@ public class GameRoomInvitationScreen extends JPanel {
     private JButton removeUserButton;
     private boolean isUserInvited = false;
     private User user;
-    private ClientSocket clientSocket;
+    private Timer inviteTimer;
+    private User onlineUser;
 
     public GameRoomInvitationScreen(User user) {
         this.user = user;
-        this.clientSocket = ClientSocket.getInstance();
         setSize(400, 600);
         setLayout(new BorderLayout());
 
         initializeUI();
         setVisible(true);
     }
+
 
     private void initializeUI() {
         JPanel mainPanel = new JPanel();
@@ -43,6 +48,14 @@ public class GameRoomInvitationScreen extends JPanel {
         homeButton = new JButton("Home");
         homeButton.setBounds(300, 20, 80, 30);
         mainPanel.add(homeButton);
+
+        homeButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getClientFrame().showHomeScreen(user);
+            }
+        });
 
         // Current user's avatar and name
         currentUserAvatar = new JLabel(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
@@ -109,6 +122,10 @@ public class GameRoomInvitationScreen extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (isUserInvited) {
+                    List<User> twoUser = new ArrayList<User>();
+                    twoUser.add(getOnlineUser());
+                    twoUser.add(user);
+                    ClientSocket.getInstance().sendPlay("PLAY", twoUser);
                     JOptionPane.showMessageDialog(null, "Game Started!");
                 }
             }
@@ -128,6 +145,10 @@ public class GameRoomInvitationScreen extends JPanel {
         popupPanel.setLayout(new BoxLayout(popupPanel, BoxLayout.Y_AXIS));
 
         List<User> onlineUsers = ClientSocket.getInstance().getUsersByStatus(user.getUsername(), String.valueOf(UserStatus.ONLINE));
+        if(onlineUsers.size() == 0 || onlineUsers == null) {
+            JOptionPane.showMessageDialog(null, "Hiện không có người chơi nào trực tuyến!");
+            return;
+        }
         for (User onlineUser : onlineUsers) {
             JPanel userPanel = new JPanel();
             userPanel.setLayout(new BorderLayout());
@@ -138,7 +159,7 @@ public class GameRoomInvitationScreen extends JPanel {
             JLabel userName = new JLabel(onlineUser.getUsername());
             userName.setHorizontalAlignment(SwingConstants.LEFT);
 
-            JButton inviteUserButton = new JButton("Invite");
+            JButton inviteUserButton = new JButton("Mời");
             inviteUserButton.setPreferredSize(new Dimension(80, 30)); // Kích thước nút Invite
             inviteUserButton.addActionListener(new ActionListener() {
                 @Override
@@ -149,10 +170,27 @@ public class GameRoomInvitationScreen extends JPanel {
                     invitedUserName.setVisible(true); // Hiện tên người dùng được mời
                     invitedUserAvatar.setVisible(true); // Hiện avatar người dùng được mời
                     inviteButton.setVisible(false); // Ẩn nút +
-                    isUserInvited = true;
                     playButton.setEnabled(true);
                     removeUserButton.setVisible(true); // Hiện nút x
-                    popup.dispose();
+                    inviteTimer = new Timer();
+                    inviteTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Boolean accepted = ClientSocket.getInstance().getAccepted();
+                                    if (accepted) {
+                                        popup.dispose();
+                                        setOnlineUser(onlineUser);
+                                        isUserInvited = true;
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "Người chơi không chấp nhận lời mời!");
+                                    }
+                                }
+                            });
+                        }
+                    }, 5000); // Dela
                 }
             });
 
@@ -181,4 +219,18 @@ public class GameRoomInvitationScreen extends JPanel {
             return null;
         }
     }
+
+    private void setOnlineUser(User onlineUser){
+        this.onlineUser = onlineUser;
+    }
+
+    public User getOnlineUser() {
+        return onlineUser;
+    }
+
+    private Client getClientFrame() {
+        return (Client) SwingUtilities.getWindowAncestor(this);
+    }
+
+
 }

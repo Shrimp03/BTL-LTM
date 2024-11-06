@@ -135,7 +135,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             ps.setString(2, userName);
             ResultSet rs = ps.executeQuery();
             List<User> users = new ArrayList<>();
-            if (rs.next()) {
+            while (rs.next()) {
                 User user =  new User(rs.getInt("id"), rs.getString("username"),
                         rs.getString("password"), rs.getString("email"),
                         rs.getString("points"), rs.getString("avatar"), rs.getString("status")

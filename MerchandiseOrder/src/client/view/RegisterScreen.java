@@ -92,8 +92,7 @@ public class RegisterScreen extends JPanel {
                 String email = emailField.getText();
 
                 // Gửi yêu cầu đăng ký qua ClientSocket
-                clientSocket = ClientSocket.getInstance();
-                Boolean success = clientSocket.registerUser(new User(username, password, email));
+                Boolean success = ClientSocket.getInstance().registerUser(new User(username, password, email));
                 if (success) {
                     JOptionPane.showMessageDialog(null, "Đăng kí thành công!");
                     getClientFrame().showLoginScreen();  // Chuyển về màn hình đăng nhập nếu đăng ký thành công

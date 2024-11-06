@@ -6,10 +6,6 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import model.User;
 import utils.CloudinaryConfig;
-import client.controller.ClientSocket;
-import model.GameSession;
-import model.Product;
-import model.User;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -22,27 +18,18 @@ import java.io.InputStream;
 import java.net.URL;
 
 
-import java.util.ArrayList;
-
 public class HomeScreen extends JPanel {
     private JLabel nameLabel;
     private JLabel pointsLabel;
     private JButton playButton;
     private JButton rankingButton;
     private JButton uploadButton; // Nút upload ảnh
-    private JButton soloButton; // Nút Solo
     private User user;
-    private ClientSocket clientSocket;
-    private JButton roomButton;
-
     private Image backgroundImage;
     private JButton hintButton;
     private JLabel imageLabel;
     public HomeScreen(User user) {
         this.user = user;
-        clientSocket = ClientSocket.getInstance();
-        // Thiết lập layout cho toàn bộ màn hình
-        setLayout(new BorderLayout(20, 20)); // Thêm khoảng cách giữa các thành phần
         setSize(385, 685); // Đặt kích thước lớn
         setLayout(null);
         // Tải ảnh nền
@@ -65,13 +52,18 @@ public class HomeScreen extends JPanel {
             }
         });
 
-        // Thêm panel chứa thông tin người dùng vào HomeScreen
-        userInfoPanel.add(userInfoTextPanel, BorderLayout.WEST); // Đặt thông tin người dùng ở bên trái
-        add(userInfoPanel, BorderLayout.NORTH); // Đặt panel thông tin người dùng ở trên cùng
-
-        // Panel chứa các nút "Chơi trò chơi", "Bảng xếp hạng" và "Solo"
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(3, 1, 10, 10)); // Layout dọc cho các nút
+//        // Hiển thị thông tin người dùng (Tên và Điểm)
+//        nameLabel = new JLabel(user.getUsername());
+//        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+//        nameLabel.setBounds(20, 20, 200, 30); // Vị trí cho nhãn tên
+//        nameLabel.setForeground(Color.WHITE); // Đặt màu chữ để dễ nhìn
+//        add(nameLabel);
+//
+//        pointsLabel = new JLabel(user.getPoints() + " điểm");
+//        pointsLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+//        pointsLabel.setBounds(20, 50, 200, 30); // Vị trí cho nhãn điểm
+//        pointsLabel.setForeground(Color.WHITE); // Đặt màu chữ để dễ nhìn
+//        add(pointsLabel);
 
         // Nút "Bắt đầu chơi"
         playButton = new JButton("Bắt đầu chơi");
@@ -99,7 +91,7 @@ public class HomeScreen extends JPanel {
         createRoomButton.setOpaque(false); // Không vẽ nền
         createRoomButton.setBorderPainted(false); // Loại bỏ viền của nút
 
-        createRoomButton.addActionListener(e -> getClientFrame().showCreateRoomScreen(user)); // Chuyển đến màn hình tạo phòng
+        createRoomButton.addActionListener(e -> getClientFrame().showInvitaionScreen(user)); // Chuyển đến màn hình tạo phòng
         add(createRoomButton);
 
         // Nút "Đăng Xuất" hình tròn
@@ -114,19 +106,6 @@ public class HomeScreen extends JPanel {
                 }
                 g.fillOval(0, 0, getWidth(), getHeight()); // Vẽ hình tròn
 
-        roomButton = new JButton("tao phong");
-        roomButton.setFont(new Font("Arial", Font.PLAIN, 18));
-        roomButton.setPreferredSize(new Dimension(200, 50));
-        buttonPanel.add(roomButton);
-
-        // Nút "Solo"
-        soloButton = new JButton("Solo");
-        soloButton.setFont(new Font("Arial", Font.PLAIN, 18));
-        soloButton.setPreferredSize(new Dimension(200, 50));
-        buttonPanel.add(soloButton);
-
-        // Thêm panel chứa nút vào HomeScreen
-        add(buttonPanel, BorderLayout.CENTER); // Đặt các nút vào giữa
                 // Vẽ ký tự "X" (hoặc bất kỳ ký tự nào bạn muốn cho nút "Đăng Xuất")
                 g.setColor(Color.WHITE); // Màu chữ
                 g.setFont(new Font("Arial", Font.BOLD, 18));
@@ -163,8 +142,7 @@ public class HomeScreen extends JPanel {
 
             // Kiểm tra phản hồi của người dùng
             if (response == JOptionPane.YES_OPTION) {
-                ClientSocket clientSocket = new ClientSocket();
-                boolean logoutSuccess = clientSocket.logoutUser(user); // Gửi yêu cầu logout tới server
+                boolean logoutSuccess = ClientSocket.getInstance().logoutUser(user); // Gửi yêu cầu logout tới server
 
                 if (logoutSuccess) {
                     // Chuyển về màn hình đăng nhập
@@ -194,14 +172,6 @@ public class HomeScreen extends JPanel {
                 // Đặt kích thước hình tròn
                 return new Dimension(60, 60);
             }
-        });
-
-        roomButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                getClientFrame().showInvitaionScreen(user);
-            }
-        });
         };
         hintButton.setBounds(295, 23, 60, 60); // Đặt vị trí và kích thước
         hintButton.setFocusPainted(false); // Loại bỏ viền khi focus
@@ -256,34 +226,6 @@ public class HomeScreen extends JPanel {
                 JOptionPane.showMessageDialog(this, "Upload thất bại!");
             }
         }
-
-        // Thêm sự kiện cho nút "Solo"
-        soloButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Tạo một GameSession mới cho trò chơi solo
-                GameSession gameSession = clientSocket.requestSolo(user);
-
-                // Tạo ArrayList<Product> và thêm 12 sản phẩm giống như trong cơ sở dữ liệu
-                ArrayList<Product> products = new ArrayList<>();
-                products.add(new Product(21, "Chuối", "chuoi.png"));
-                products.add(new Product(22, "Coca", "coca.png"));
-                products.add(new Product(23, "Hamber", "hamber.png"));
-                products.add(new Product(24, "Lê", "le.png"));
-                products.add(new Product(25, "Nước tăng lực", "nctangluc.png"));
-                products.add(new Product(26, "Ngũ cốc xanh", "ngucocxanh.png"));
-                products.add(new Product(27, "Nước giặt cam", "nuocgiatcam.png"));
-                products.add(new Product(28, "Nước giặt trắng", "nuocgiattrang.png"));
-                products.add(new Product(29, "Nước giặt xanh", "nuocgiatxanh.png"));
-                products.add(new Product(30, "Trà đào", "quadao.png"));
-                products.add(new Product(31, "Sữa", "sua.png"));
-                products.add(new Product(32, "Cà chua", "tomato.png"));
-
-                // Hiển thị màn hình solo với danh sách sản phẩm
-                getClientFrame().showSoloScreen(user, gameSession, products);
-            }
-        });
-
     }
 
     private void loadAvatar() {
@@ -303,23 +245,6 @@ public class HomeScreen extends JPanel {
     }
 
 
-//    // Phương thức để upload ảnh
-//    private void uploadImage() {
-//        JFileChooser fileChooser = new JFileChooser();
-//        int result = fileChooser.showOpenDialog(this);
-//
-//        if (result == JFileChooser.APPROVE_OPTION) {
-//            File selectedFile = fileChooser.getSelectedFile();
-//            CloudinaryConfig cloudinaryHelper = new CloudinaryConfig();
-//            String imageUrl = cloudinaryHelper.uploadImage(selectedFile.getAbsolutePath());
-//
-//            if (imageUrl != null) {
-//                JOptionPane.showMessageDialog(this, "Upload thành công! URL: " + imageUrl);
-//            } else {
-//                JOptionPane.showMessageDialog(this, "Upload thất bại!");
-//            }
-//        }
-//    }
 
     // Phương thức tải hình nền
     private void loadBackgroundImage() {

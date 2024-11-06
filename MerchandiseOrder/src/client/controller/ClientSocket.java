@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.view.GameRoomInvitationScreen;
 import client.view.PopupInvite;
 import dto.UserStatusDto;
 import model.DataTransferObject;
@@ -19,6 +20,7 @@ public class ClientSocket {
     // Áp dụng Singleton
     private static ClientSocket instance;
     private final BlockingQueue<Object> messageQueue = new LinkedBlockingQueue<>();
+    private Boolean accepted = false;
 
     // Constructor riêng để tránh tạo nhiều phiên bản
     private ClientSocket() {}
@@ -36,11 +38,21 @@ public class ClientSocket {
             try {
                 while (true) {
                     Object response = Client.ois.readObject();
-                        DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) response;
+                        DataTransferObject<?> res = (DataTransferObject<?>) response;
                         if("INVITE".equals(res.getType())){
-                            System.out.println("Open Micro:");
-                            System.out.println(res.getData().get(0));
-                            PopupInvite.showInvitationDialog(res.getData().get(0), res.getData().get(1));
+                            DataTransferObject<List<User>> resInvite = (DataTransferObject<List<User>>) res;
+                            PopupInvite.showInvitationDialog(resInvite.getData().get(0), resInvite.getData().get(1));
+                        }
+                        else if("ACCEPT".equals(res.getType())){
+                            setAccepted(true);
+                        }
+                        else if("DECLINE".equals(res.getType())){
+                            System.out.println("DECLINE");
+                        }
+                        else if("PLAY".equals(res.getType())){
+                             DataTransferObject<Pair<GameSession, User>> resPlay = (DataTransferObject<Pair<GameSession, User>>) res;
+                             System.out.println("pair");
+                             System.out.println(resPlay.getData().getFirst().getUser2());
                         }
                         else {
                             messageQueue.put(response);
@@ -124,12 +136,16 @@ public class ClientSocket {
             DataTransferObject<User> userLogin = new DataTransferObject<>("Login", new User(username, password));
             Client.oos.writeObject(userLogin);
             Client.oos.flush();
-            DataTransferObject<User> res = (DataTransferObject<User>) Client.ois.readObject();
-            if("ALREADY_LOGGED_IN".equals(res.getType())){
-                return null;
-            }
-            if ("SUCCESS".equals(res.getType())) {
-                return res.getData();  // Trả về User nếu đăng nhập thành công
+            Object response = getNextMessage();
+            if(response instanceof DataTransferObject<?>){
+                DataTransferObject<User> res = (DataTransferObject<User>) response;
+
+                if("ALREADY_LOGGED_IN".equals(res.getType())){
+                    return null;
+                }
+                if ("SUCCESS".equals(res.getType())) {
+                    return res.getData();  // Trả về User nếu đăng nhập thành công
+                }
             }
 
         } catch (Exception e) {
@@ -144,16 +160,19 @@ public class ClientSocket {
             DataTransferObject<User> dto = new DataTransferObject<>("Logout", user);
             Client.oos.writeObject(dto); // Gửi yêu cầu logout tới server
             Client.oos.flush();
-
-            // Nhận phản hồi từ server
-            DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) Client.ois.readObject();
-            if (!res.getType().equals("Logout response")){
-                return false;
-            }
-
-            return res.getData(); // Trả về kết quả từ server
-        } catch (IOException | ClassNotFoundException e) {
+            Object response = getNextMessage();
+           if(response instanceof DataTransferObject<?>){
+               // Nhận phản hồi từ server
+               DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) response;
+               if (!res.getType().equals("Logout response")){
+                   return false;
+               }
+               return res.getData(); // Trả về kết quả từ server
+           }
+        } catch (IOException e) {
             e.printStackTrace(); // In ra lỗi nếu có
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
         return false; // Trả về false nếu có lỗi xảy ra hoặc logout không thành công
     }
@@ -203,6 +222,8 @@ public class ClientSocket {
                 // Kiểm tra phản hồi từ server
                 if ("GetUserByStatus".equals(res.getType())) {
                     List<User> users = res.getData();
+                    System.out.println("size user status online");
+                    System.out.println(users.size());
 
                     // Kiểm tra nếu dữ liệu người dùng bị null
                     if (users != null) {
@@ -258,11 +279,11 @@ public class ClientSocket {
         return false;
     }
 
-    public void sendInvite(User user, User inviter) {
+    public void sendInvite(User onlineUser, User inviter) {
         try {
             // Tạo đối tượng truyền dữ liệu yêu cầu danh sách người dùng
             List<User> twoUser =  new ArrayList<>();
-            twoUser.add(user);
+            twoUser.add(onlineUser);
             twoUser.add(inviter);
             DataTransferObject<?> dto = new DataTransferObject<>("INVITE", twoUser);
 
@@ -274,5 +295,41 @@ public class ClientSocket {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendAcceptInvite(String responseType, List<User> twoUser) {
+        try {
+            DataTransferObject<?> dto = new DataTransferObject<>(responseType, twoUser);
+
+            // Gửi yêu cầu tới server
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+            Object response = getNextMessage();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendPlay(String responseType, List<User> twoUser) {
+        try {
+            DataTransferObject<?> dto = new DataTransferObject<>(responseType, twoUser);
+
+            // Gửi yêu cầu tới server
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+            Object response = getNextMessage();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setAccepted(Boolean accepted){
+         this.accepted = accepted;
+    }
+
+    public Boolean getAccepted(){
+        return accepted;
     }
 }

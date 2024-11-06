@@ -83,10 +83,8 @@ public class UserHandler {
     }
 
     public static DataTransferObject<List<User>> getUserByStatus(DataTransferObject<UserStatusDto> request) {
-        System.out.println(request.getData().getStatus());
         UserDAO userDAO = new UserDAOImpl();
         List<User> users = userDAO.getUserByStatus(request.getData().getStatus(), request.getData().getUserName());
-        System.out.println(users.get(0).getUsername());
 
         return new DataTransferObject<>("GetUserByStatus", users);
 
