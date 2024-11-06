@@ -17,6 +17,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -88,6 +89,7 @@ public class SoloScreen extends JPanel implements GameSoloListener {
         JPanel floorPanel = createFloorPanel(products);
         add(floorPanel);
 
+        updatePlayerLabels(startingPlayer);
         startTimer(); // Bắt đầu đếm thời gian
         // Kiểm tra và bắt đầu lượt chơi
         startTurn();
@@ -145,16 +147,12 @@ public class SoloScreen extends JPanel implements GameSoloListener {
 
     // Tạo các nhãn hiển thị tên người chơi và thời gian
     private void createPlayerLabels() {
-        player1Label = new JLabel(gameSession.getUser1().getUsername());
-        player1Label.setBounds(10, 10, 100, 30);
-        player1Label.setFont(new Font("Arial", Font.BOLD, 14));
-        player1Label.setForeground(Color.BLACK);
+        player1Label = new JLabel();
+        player1Label.setBounds(10, 10, 50, 50);
         add(player1Label);
 
-        player2Label = new JLabel(gameSession.getUser2().getUsername());
-        player2Label.setBounds(220, 10, 100, 30);
-        player2Label.setFont(new Font("Arial", Font.BOLD, 14));
-        player2Label.setForeground(Color.BLACK);
+        player2Label = new JLabel();
+        player2Label.setBounds(270, 10, 50, 50);
         add(player2Label);
 
         timerLabel = new JLabel("Time: 20s");
@@ -163,6 +161,45 @@ public class SoloScreen extends JPanel implements GameSoloListener {
         timerLabel.setForeground(Color.RED);
         timerLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(timerLabel);
+    }
+
+    private void updatePlayerLabels(User nextUser) {
+        ImageIcon player1Avatar = createAvatarIconFromURL(gameSession.getUser1().getAvatar(), gameSession.getUser1().equals(nextUser));
+        if (player1Avatar != null) player1Label.setIcon(player1Avatar);
+
+        ImageIcon player2Avatar = createAvatarIconFromURL(gameSession.getUser2().getAvatar(), gameSession.getUser2().equals(nextUser));
+        if (player2Avatar != null) player2Label.setIcon(player2Avatar);
+    }
+
+    private ImageIcon createAvatarIconFromURL(String urlString, boolean isPlayerTurn) {
+        try {
+            // Tải hình ảnh từ URL
+            URL url = new URL(urlString != null ? urlString : "https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg");
+            BufferedImage img = ImageIO.read(url);
+
+            // Tạo một hình ảnh tròn với kích thước 50x50
+            BufferedImage circularImg = new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = circularImg.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // Vẽ hình tròn và cắt hình ảnh vào trong
+            g2.setClip(new java.awt.geom.Ellipse2D.Float(0, 0, 50, 50));
+            g2.drawImage(img, 0, 0, 50, 50, null);
+
+            // Nếu là lượt của người chơi, vẽ viền đỏ
+            if (isPlayerTurn) {
+                g2.setClip(null); // Xóa clip để vẽ đường viền
+                g2.setColor(Color.RED);
+                g2.setStroke(new BasicStroke(3)); // Độ dày của viền
+                g2.drawOval(1, 1, 48, 48); // Vẽ hình tròn đỏ bao quanh
+            }
+
+            g2.dispose();
+            return new ImageIcon(circularImg);
+        } catch (IOException e) {
+            System.err.println("Couldn't load avatar image from URL: " + urlString);
+            return null;
+        }
     }
 
     // Bắt đầu bộ đếm thời gian
@@ -198,7 +235,6 @@ public class SoloScreen extends JPanel implements GameSoloListener {
     // Kiểm tra điều kiện: đã di chuyển 2 lần hoặc hết thời gian
     private void checkGameOverConditions() {
         if (movesCount >= 2 || timeRemaining <= 0 || checkShelfFull()) {
-            timeRemaining = 0;
             gameOver = true; // Đánh dấu rằng trò chơi đã kết thúc
             if (isPlayerTurn) {
                 // Tạo một bản sao mới của correctProductIds để gửi
@@ -288,6 +324,9 @@ public class SoloScreen extends JPanel implements GameSoloListener {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                if (shelfIndex != -1 && label.getIcon() != null) {
+                    return;
+                }
                 if (gameOver || !isPlayerTurn || label.getIcon() == null) return; // Nếu không phải lượt của người chơi hoặc trò chơi kết thúc, không làm gì
 
                 draggedLabel = createSlotLabel();
@@ -387,8 +426,21 @@ public class SoloScreen extends JPanel implements GameSoloListener {
 
     // Đặt sản phẩm vào ô
     private void placeItemInSlot(JLabel slot, JLabel item, Product product) {
+        Icon currentIcon = slot.getIcon();
+        Product currentProduct = (Product) slot.getClientProperty("product");
+
         slot.setIcon(item.getIcon());
         slot.putClientProperty("product", product);
+
+        if (currentIcon != null && currentProduct != null) {
+            if (originShelfIndex == -1) {
+                floorSlots[originSlotIndex].setIcon(currentIcon);
+                floorSlots[originSlotIndex].putClientProperty("product", currentProduct);
+            } else {
+                shelfSlots[originShelfIndex][originSlotIndex].setIcon(currentIcon);
+                shelfSlots[originShelfIndex][originSlotIndex].putClientProperty("product", currentProduct);
+            }
+        }
     }
 
     // Kiểm tra nếu sản phẩm nằm trong ô
@@ -432,7 +484,7 @@ public class SoloScreen extends JPanel implements GameSoloListener {
 
     @Override
     public void onProductOrderReceived(Pair<User, ArrayList<Integer>> dataReceived) {
-        System.out.println(dataReceived);
+        User nextUser = dataReceived.getFirst();
         if (dataReceived.getFirst().equals(currentUser)) {
             isPlayerTurn = true;
             gameOver = false;
@@ -450,6 +502,7 @@ public class SoloScreen extends JPanel implements GameSoloListener {
             }
         }
         updateProductLayout();
+        updatePlayerLabels(nextUser);
         timeRemaining = 21;
     }
 
