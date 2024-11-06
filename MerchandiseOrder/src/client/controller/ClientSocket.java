@@ -188,9 +188,9 @@ public class ClientSocket {
         return null;
     }
 
-    public boolean sendCorrectProductIds(Pair<Pair<User, GameSession>, ArrayList<Integer>> dataSend) {
+    public boolean sendCorrectProductIds(Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>> dataSend) {
         try {
-            DataTransferObject<Pair<Pair<User, GameSession>, ArrayList<Integer>>> dto = new DataTransferObject<>("SendCorrectProductIds", dataSend);
+            DataTransferObject<Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>>> dto = new DataTransferObject<>("SendCorrectProductIds", dataSend);
             Client.oos.writeObject(dto);
             Client.oos.flush();
 

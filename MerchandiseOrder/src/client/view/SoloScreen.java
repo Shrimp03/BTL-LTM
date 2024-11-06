@@ -239,12 +239,9 @@ public class SoloScreen extends JPanel implements GameSoloListener {
             if (isPlayerTurn) {
                 // Tạo một bản sao mới của correctProductIds để gửi
                 ArrayList<Integer> productIdsToSend = new ArrayList<>(correctProductIds);
-                Pair<Pair<User, GameSession>, ArrayList<Integer>> dataSend = new Pair<>(new Pair<>(currentUser, gameSession), productIdsToSend);
+                Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>> dataSend = new Pair<>(new Pair<>(currentUser, gameSession), new Pair<>(productIdsToSend, checkShelfFull()));
 
-                // In ra dữ liệu để kiểm tra
-                System.out.println(dataSend);
                 clientSocket.sendCorrectProductIds(dataSend);
-                System.out.println(correctProductIds);
 
                 // Xóa dữ liệu trong correctProductIds sau khi gửi
                 correctProductIds.clear();
@@ -303,7 +300,7 @@ public class SoloScreen extends JPanel implements GameSoloListener {
 
     // Tạo biểu tượng từ tài nguyên
     private ImageIcon createIconFromResource(String path) {
-        java.net.URL imgURL = getClass().getResource(path);
+        URL imgURL = getClass().getResource(path);
         if (imgURL != null) {
             try {
                 BufferedImage img = ImageIO.read(imgURL);

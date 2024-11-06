@@ -1,20 +1,21 @@
 package model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 public class GameSession implements Serializable {
     private static final long serialVersionUID = 2L;
     private int id;
-    private Date timeStart;
-    private Date timeFinish;
+    private LocalDateTime timeStart;
+    private LocalDateTime timeFinish;
     private User user1;
     private User user2;
     private User winner; // Có thể là null nếu chưa có người thắng
 
     // Constructor đầy đủ
-    public GameSession(int id, Date timeStart, Date timeFinish, User user1, User user2, User winner) {
+    public GameSession(int id, LocalDateTime timeStart, LocalDateTime timeFinish, User user1, User user2, User winner) {
         this.id = id;
         this.timeStart = timeStart;
         this.timeFinish = timeFinish;
@@ -24,7 +25,7 @@ public class GameSession implements Serializable {
     }
 
     // Constructor khi bắt đầu trận đấu (chưa có người thắng)
-    public GameSession(Date timeStart, Date timeFinish, User user1, User user2) {
+    public GameSession(LocalDateTime timeStart, LocalDateTime timeFinish, User user1, User user2) {
         this.timeStart = timeStart;
         this.timeFinish = timeFinish;
         this.user1 = user1;
@@ -40,20 +41,20 @@ public class GameSession implements Serializable {
         this.id = id;
     }
 
-    public Date getTimeStart() {
-        return timeStart;
+    public Timestamp getTimeStart() {
+        return timeStart == null ? null : Timestamp.valueOf(timeStart); // Chuyển LocalDateTime thành Timestamp
     }
 
-    public void setTimeStart(Date timeStart) {
-        this.timeStart = timeStart;
+    public void setTimeStart(Timestamp timeStart) {
+        this.timeStart = timeStart == null ? null : timeStart.toLocalDateTime(); // Chuyển Timestamp thành LocalDateTime
     }
 
-    public Date getTimeFinish() {
-        return timeFinish;
+    public Timestamp getTimeFinish() {
+        return timeFinish == null ? null : Timestamp.valueOf(timeFinish); // Chuyển LocalDateTime thành Timestamp
     }
 
-    public void setTimeFinish(Date timeFinish) {
-        this.timeFinish = timeFinish;
+    public void setTimeFinish(Timestamp timeFinish) {
+        this.timeFinish = timeFinish == null ? null : timeFinish.toLocalDateTime(); // Chuyển Timestamp thành LocalDateTime
     }
 
     public User getUser1() {
@@ -79,7 +80,6 @@ public class GameSession implements Serializable {
     public void setWinner(User winner) {
         this.winner = winner;
     }
-// Getters and Setters (giữ nguyên)
 
     @Override
     public boolean equals(Object o) {

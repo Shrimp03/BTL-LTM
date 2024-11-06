@@ -10,6 +10,9 @@ import server.controller.threadManager.ThreadManager;
 import server.dal.dao.GameSessionDAO;
 import server.dal.dao.GameSessionDAOImpl;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class GameSoloHandler {
@@ -30,10 +33,19 @@ public class GameSoloHandler {
     }
 
     public static DataTransferObject<Boolean> sendCorrectProductIds(DataTransferObject<?> request) {
-        Pair<Pair<User, GameSession>, ArrayList<Integer>> dataRecive = (Pair<Pair<User, GameSession>, ArrayList<Integer>>) request.getData();
+        GameSessionDAO gameSessionDAO = new GameSessionDAOImpl();
+        Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>> dataRecive = (Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>>) request.getData();
         User currentUser = dataRecive.getFirst().getFirst();
         GameSession gameSession = dataRecive.getFirst().getSecond();
-        ArrayList<Integer> productIds = dataRecive.getSecond();
+        ArrayList<Integer> productIds = dataRecive.getSecond().getFirst();
+        Boolean finish = dataRecive.getSecond().getSecond();
+
+        if (finish && gameSessionDAO.getGameSessionById(gameSession.getId()).getWinner() == null) {
+            gameSession.setWinner(currentUser);
+            gameSession.setTimeFinish(Timestamp.valueOf(LocalDateTime.now()));
+            gameSessionDAO.updateGameSession(gameSession);
+        }
+
         User nextUser = gameSession.getUser1();
         if (currentUser.equals(gameSession.getUser1())) {
             nextUser = gameSession.getUser2();
