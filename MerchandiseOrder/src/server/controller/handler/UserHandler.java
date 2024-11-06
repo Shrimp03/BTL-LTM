@@ -4,6 +4,7 @@ import model.DataTransferObject;
 import model.Product;
 import model.User;
 import model.UserStatus;
+import server.controller.threadManager.ThreadManager;
 import server.dal.dao.ProductDAO;
 import server.dal.dao.ProductDAOImpl;
 import server.dal.dao.UserDAO;
@@ -80,17 +81,26 @@ public class UserHandler {
         return new DataTransferObject<>("GetUsersResponse", users);
     }
 
-//
-//    public static DataTransferObject<Boolean> logoutUser(DataTransferObject<?> request) {
-//        UserDAO userDAO = new UserDAOImpl();
-//        User logoutUser = (User) request.getData();
-//
-//        // Lấy thông tin người dùng từ cơ sở dữ liệu
-//        User user = userDAO.getUserByUsername(logoutUser.getUsername());
-//        if (user != null) {
-//            return new DataTransferObject<>("Logout response", true);
-//        }
-//        return new DataTransferObject<>("LOGOUT_FAIL", false);
-//    }
+
+    public static DataTransferObject<Boolean> logoutUser(DataTransferObject<?> request) {
+        UserDAO userDAO = new UserDAOImpl();
+        User logoutUser = (User) request.getData();
+
+        // Lấy thông tin người dùng từ cơ sở dữ liệu
+        User user = userDAO.getUserByUsername(logoutUser.getUsername());
+        if (user != null) {
+            // Cập nhật trạng thái người dùng thành OFFLINE
+            user.setStatus(UserStatus.OFFLINE);
+            userDAO.updateUser(user);
+
+            boolean updateSuccess = userDAO.updateUser(user);
+            ThreadManager.removeUserThread(user);
+            if (updateSuccess) {
+                return new DataTransferObject<>("Logout response", true); // Trả về phản hồi thành công
+            }
+        }
+        return new DataTransferObject<>("LOGOUT_FAIL", false); // Trả về thất bại nếu có lỗi
+    }
+
 
 }

@@ -36,15 +36,14 @@ public class ServerThread implements Runnable {
                     DataTransferObject<?> request = (DataTransferObject<?>) ois.readObject();
                     System.out.println("Received request from client: " + request);
 
-                    // Kiểm tra nếu client yêu cầu ngắt kết nối
+                    // Xử lý yêu cầu ngắt kết nối
                     if ("DISCONNECT".equals(request.getType())) {
                         if (user != null) {
                             user.setStatus(UserStatus.OFFLINE);
                             ThreadManager.removeUserThread(user);
                         }
-                        userDAO.updateUser(user);
-                        break;
-
+                        System.out.println("Client requested disconnect. Closing connection...");
+                        break; // Thoát khỏi vòng lặp để ngắt kết nối
                     }
 
                     DataTransferObject<?> response = RequestDispatcher.dispatch(request);

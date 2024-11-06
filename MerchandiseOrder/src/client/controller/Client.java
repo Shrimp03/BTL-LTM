@@ -91,8 +91,23 @@ public class Client extends JFrame {
     }
 
 
+    public void showUpdateUserScreen(User user) {
+        setContentPane(new UpdateUserScreen(user));
+        revalidate();
+        repaint();
+    }
 
+    public void showCreateRoomScreen(User user) {
+        CreateRoomScreen createRoomScreen = new CreateRoomScreen(user); // Tạo màn hình tạo phòng
+        cardPanel.add(createRoomScreen, "CreateRoomScreen"); // Thêm vào card panel
+        cardLayout.show(cardPanel, "CreateRoomScreen"); // Hiển thị màn hình tạo phòng
+    }
 
+    public void showSuggestScreen(User user) {
+        SuggestScreen suggestScreen = new SuggestScreen(user); // Tạo màn hình gợi ý
+        cardPanel.add(suggestScreen, "SuggestScreen"); // Thêm vào card panel
+        cardLayout.show(cardPanel, "SuggestScreen"); // Hiển thị màn hình gợi ý
+    }
 
 
     public static void connectToServer() {

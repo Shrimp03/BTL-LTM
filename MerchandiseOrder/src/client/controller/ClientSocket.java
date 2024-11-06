@@ -93,18 +93,23 @@ public class ClientSocket {
     public boolean logoutUser(User user) {
         try {
             // Tạo đối tượng DataTransferObject để gửi yêu cầu logout
-            DataTransferObject<User> dto = new DataTransferObject<>("DISCONNECT", user);
+            DataTransferObject<User> dto = new DataTransferObject<>("Logout", user);
             Client.oos.writeObject(dto); // Gửi yêu cầu logout tới server
             Client.oos.flush();
 
             // Nhận phản hồi từ server
             DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) Client.ois.readObject();
-            return true;
+            if (!res.getType().equals("Logout response")){
+                return false;
+            }
+
+            return res.getData(); // Trả về kết quả từ server
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace(); // In ra lỗi nếu có
         }
         return false; // Trả về false nếu có lỗi xảy ra hoặc logout không thành công
     }
+
 
 
 

@@ -30,17 +30,27 @@ public class HomeScreen extends JPanel {
     private JLabel imageLabel;
     public HomeScreen(User user) {
         this.user = user;
-        setSize(400, 600);
+        setSize(385, 685); // Đặt kích thước lớn
         setLayout(null);
-
         // Tải ảnh nền
         loadBackgroundImage();
 
         // Khởi tạo JLabel cho ảnh
         imageLabel = new JLabel();
-        imageLabel.setBounds(7, 7, 94, 87); // Đặt vị trí và kích thước cho JLabel
-        imageLabel.setBorder(BorderFactory.createLineBorder(Color.white, 5)); // Viền màu đen, độ dày 2 pixel
+        imageLabel.setBounds(9, 5, 92, 87);
+        imageLabel.setBorder(BorderFactory.createLineBorder(Color.white, 5));
         add(imageLabel);
+
+        // Tải ảnh avatar từ URL
+        loadAvatar();
+
+        // Sự kiện khi nhấn vào avatar để chuyển đến trang cập nhật người dùng
+        imageLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                getClientFrame().showUpdateUserScreen(user);
+            }
+        });
 
 //        // Hiển thị thông tin người dùng (Tên và Điểm)
 //        nameLabel = new JLabel(user.getUsername());
@@ -73,20 +83,22 @@ public class HomeScreen extends JPanel {
         uploadButton.addActionListener(e -> uploadImage());
         add(uploadButton);
 
-        // Nút "Logout"
-        JButton logoutButton = new JButton("Đăng Xuất");
-        styleButton(logoutButton, 88, 476, 200, 60); // Đặt vị trí và kích thước
-        logoutButton.addActionListener(e -> {
-            ClientSocket clientSocket = new ClientSocket();
-            clientSocket.logoutUser(user);
-        });
-        add(logoutButton);
+        // Nút "Tạo phòng chơi"
+        JButton createRoomButton = new JButton("Tạo phòng");
+        styleButton(createRoomButton, 88, 476, 200, 60);
+        createRoomButton.setFocusPainted(false); // Loại bỏ viền khi focus
+        createRoomButton.setContentAreaFilled(false); // Loại bỏ màu nền
+        createRoomButton.setOpaque(false); // Không vẽ nền
+        createRoomButton.setBorderPainted(false); // Loại bỏ viền của nút
 
-        // Nút hình tròn cho gợi ý
-        hintButton = new JButton("?") {
+        createRoomButton.addActionListener(e -> getClientFrame().showCreateRoomScreen(user)); // Chuyển đến màn hình tạo phòng
+        add(createRoomButton);
+
+        // Nút "Đăng Xuất" hình tròn
+        JButton logoutButton = new JButton("") {
             @Override
             protected void paintComponent(Graphics g) {
-                // Vẽ hình tròn
+                // Vẽ hình tròn trong suốt
                 if (getModel().isArmed()) {
                     g.setColor(Color.LIGHT_GRAY); // Màu khi nhấn
                 } else {
@@ -94,9 +106,68 @@ public class HomeScreen extends JPanel {
                 }
                 g.fillOval(0, 0, getWidth(), getHeight()); // Vẽ hình tròn
 
-                // Vẽ ký tự "?"
+                // Vẽ ký tự "X" (hoặc bất kỳ ký tự nào bạn muốn cho nút "Đăng Xuất")
+                g.setColor(Color.WHITE); // Màu chữ
+                g.setFont(new Font("Arial", Font.BOLD, 18));
+                FontMetrics fm = g.getFontMetrics();
+                int textWidth = fm.stringWidth(getText());
+                int textHeight = fm.getAscent();
+                g.drawString(getText(), (getWidth() - textWidth) / 2, (getHeight() + textHeight) / 2 - 3);
+
                 super.paintComponent(g);
             }
+
+            @Override
+            public Dimension getPreferredSize() {
+                // Đặt kích thước hình tròn
+                return new Dimension(60, 60);
+            }
+        };
+        logoutButton.setBounds(280, 560, 58, 58); // Đặt vị trí và kích thước
+        logoutButton.setFocusPainted(false); // Loại bỏ viền khi focus
+        logoutButton.setContentAreaFilled(false); // Loại bỏ màu nền
+        logoutButton.setOpaque(false); // Không vẽ nền
+        logoutButton.setBorderPainted(false); // Loại bỏ viền của nút
+
+        // Thêm sự kiện click
+        logoutButton.addActionListener(e -> {
+            // Hiển thị hộp thoại xác nhận
+            int response = JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có muốn đăng xuất không?",
+                    "Xác nhận đăng xuất",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            // Kiểm tra phản hồi của người dùng
+            if (response == JOptionPane.YES_OPTION) {
+                ClientSocket clientSocket = new ClientSocket();
+                boolean logoutSuccess = clientSocket.logoutUser(user); // Gửi yêu cầu logout tới server
+
+                if (logoutSuccess) {
+                    // Chuyển về màn hình đăng nhập
+                    getClientFrame().showLoginScreen();
+                    JOptionPane.showMessageDialog(this, "Bạn đã đăng xuất thành công!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Đăng xuất thất bại. Vui lòng thử lại.");
+                }
+            }
+        });
+        add(logoutButton);
+
+
+        hintButton = new JButton("?") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // Vẽ hình tròn trong suốt
+                g.setColor(new Color(0, 0, 0, 0)); // Màu nền trong suốt
+                g.fillOval(0, 0, getWidth(), getHeight()); // Vẽ hình tròn
+
+                // Vẽ ký tự "?" mà không thay đổi khi nhấn
+                super.paintComponent(g);
+            }
+
             @Override
             public Dimension getPreferredSize() {
                 // Đặt kích thước hình tròn
@@ -104,14 +175,16 @@ public class HomeScreen extends JPanel {
             }
         };
         hintButton.setBounds(295, 23, 60, 60); // Đặt vị trí và kích thước
-        hintButton.setFocusPainted(false);
-        hintButton.setContentAreaFilled(false); // Nền trong suốt
-        hintButton.setOpaque(false);
+        hintButton.setFocusPainted(false); // Loại bỏ viền khi focus
+        hintButton.setContentAreaFilled(false); // Loại bỏ màu nền
+        hintButton.setOpaque(false); // Không vẽ nền
         hintButton.setFont(new Font("Arial", Font.BOLD, 18));
         hintButton.setForeground(Color.WHITE); // Màu chữ
-        hintButton.setBorderPainted(false); // Loại bỏ viền nút
-        hintButton.addActionListener(e -> showHint()); // Sự kiện click
+        hintButton.setBorderPainted(false); // Loại bỏ viền của nút
+        hintButton.addActionListener(e -> getClientFrame().showSuggestScreen(user)); // Chuyển đến màn hình gợi ý
+        // Sự kiện click
         add(hintButton);
+
     }
 
     // Phương thức để hiển thị gợi ý
@@ -156,6 +229,21 @@ public class HomeScreen extends JPanel {
         }
     }
 
+    private void loadAvatar() {
+        try {
+            // Kiểm tra xem URL avatar có hợp lệ hay không
+            if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+                ImageIcon imageIcon = new ImageIcon(new URL(user.getAvatar()));
+                Image image = imageIcon.getImage().getScaledInstance(94, 87, Image.SCALE_SMOOTH);
+                imageLabel.setIcon(new ImageIcon(image));
+            } else {
+                // Nếu không có URL, hiển thị ảnh mặc định
+                imageLabel.setIcon(null); // Hoặc bạn có thể đặt một ảnh mặc định
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 //    // Phương thức để upload ảnh
@@ -179,7 +267,7 @@ public class HomeScreen extends JPanel {
     // Phương thức tải hình nền
     private void loadBackgroundImage() {
         try {
-            InputStream imgStream = getClass().getResourceAsStream("/static/home1.jpg");
+            InputStream imgStream = getClass().getResourceAsStream("/static/home.jpg");
             if (imgStream != null) {
                 backgroundImage = ImageIO.read(imgStream);
             } else {

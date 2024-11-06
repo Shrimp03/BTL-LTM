@@ -19,8 +19,8 @@ public class RequestDispatcher {
                 return UserHandler.registerUser(request);
             case "GetUsers":
                 return UserHandler.getAllUsers(request);
-//            case "DISCONNECT":
-//                return UserHandler.logoutUser(request);
+            case "Logout":
+                return UserHandler.logoutUser(request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }
