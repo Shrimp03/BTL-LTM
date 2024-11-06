@@ -125,11 +125,11 @@ public class Client extends JFrame {
     }
 
 
-    public void showUpdateUserScreen(User user) {
-        setContentPane(new UpdateUserScreen(user));
-        revalidate();
-        repaint();
-    }
+//    public void showUpdateUserScreen(User user) {
+//        setContentPane(new UpdateUserScreen(user));
+//        revalidate();
+//        repaint();
+//    }
 
     public void showCreateRoomScreen(User user) {
         CreateRoomScreen createRoomScreen = new CreateRoomScreen(user); // Tạo màn hình tạo phòng

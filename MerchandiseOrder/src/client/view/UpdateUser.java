@@ -81,7 +81,7 @@ public class UpdateUser extends JPanel {
         currentUser.setUsername(txtUsername.getText());
         currentUser.setEmail(txtEmail.getText());
         currentUser.setPassword(new String(txtPassword.getPassword()));
-        clientSocket.updateUser(currentUser);
+        ClientSocket.getInstance().updateUser(currentUser);
         JOptionPane.showMessageDialog(this, "Profile updated successfully!");
     }
 
