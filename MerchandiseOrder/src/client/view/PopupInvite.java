@@ -1,9 +1,9 @@
 package client.view;
 
-import client.controller.ClientSocket;
 import model.User;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,20 +21,16 @@ public class PopupInvite {
                 "Decline"
         );
 
-        System.out.println(inviter.getUsername());
-        System.out.println( currentUser.getUsername());
         // Xử lý lựa chọn của người dùng
         String responseType = (option == JOptionPane.YES_OPTION) ? "ACCEPT" : "DECLINE";
-
-        ClientSocket clientSocket = ClientSocket.getInstance();
 
         if (responseType.equals("ACCEPT")) {
             List<User> twoUsers = new ArrayList<>();
             twoUsers.add(inviter);
             twoUsers.add(currentUser);
-//            clientSocket.sendResponse(responseType, twoUsers);
+//            sendResponse(responseType, twoUsers);
         } else {
-//            clientSocket.sendResponse(responseType, null);
+//            sendResponse(responseType, null);
         }
     }
 
