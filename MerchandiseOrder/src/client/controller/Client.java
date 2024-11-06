@@ -78,8 +78,23 @@ public class Client extends JFrame {
     // Chuyển sang màn hình "Bảng xếp hạng"
     public void showRankingScreen(User user) {
         RankingScreen rankingScreen = new RankingScreen(user);
-        cardPanel.add(rankingScreen, "RankingScreen");
-        cardLayout.show(cardPanel, "RankingScreen");
+        cardPanel.add(rankingScreen, "RuleScreen");
+        cardLayout.show(cardPanel, "RuleScreen");
+    }
+
+    //Chuyển sang màn hình "Luật chơi"
+
+    public void showRuleScreen(User user) {
+        RuleScreen ruleScreen = new RuleScreen(user);
+        cardPanel.add(ruleScreen, "RuleScreen");
+        cardLayout.show(cardPanel, "RuleScreen");
+    }
+
+    //chuyen man hinh " profile"
+    public void showProfileScreen(User user) {
+        UpdateUser updateUser = new UpdateUser(user);
+        cardPanel.add(updateUser, "UpdateUser");
+        cardLayout.show(cardPanel, "UpdateUser");
     }
 
     // Chuyển sang màn hình "Phòng ra đề"
