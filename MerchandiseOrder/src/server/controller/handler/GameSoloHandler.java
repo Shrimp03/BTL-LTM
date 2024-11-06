@@ -40,19 +40,21 @@ public class GameSoloHandler {
         ArrayList<Integer> productIds = dataRecive.getSecond().getFirst();
         Boolean finish = dataRecive.getSecond().getSecond();
 
-        if (finish && gameSessionDAO.getGameSessionById(gameSession.getId()).getWinner() == null) {
-            gameSession.setWinner(currentUser);
-            gameSession.setTimeFinish(Timestamp.valueOf(LocalDateTime.now()));
-            gameSessionDAO.updateGameSession(gameSession);
-        }
-
         User nextUser = gameSession.getUser1();
         if (currentUser.equals(gameSession.getUser1())) {
             nextUser = gameSession.getUser2();
         }
 
-        Pair<User, ArrayList<Integer>> dataSend = new Pair<>(nextUser, productIds);
-        GameSessionManager.broadcastToSession(gameSession, new DataTransferObject<Pair<User, ArrayList<Integer>>>("BroadCastProductIds", dataSend));
+        Pair<Pair<User, GameSession>, ArrayList<Integer>> dataSend = new Pair<>(new Pair<>(nextUser, gameSession), productIds);
+        GameSessionManager.broadcastToSession(gameSession, new DataTransferObject<Pair<Pair<User, GameSession>, ArrayList<Integer>>>("BroadCastProductIds", dataSend));
+
+        if (finish && gameSessionDAO.getGameSessionById(gameSession.getId()).getWinner() == null) {
+            gameSession.setWinner(currentUser);
+            gameSession.setTimeFinish(Timestamp.valueOf(LocalDateTime.now()));
+            gameSessionDAO.updateGameSession(gameSession);
+
+            GameSessionManager.broadcastToSession(gameSession, new DataTransferObject<Pair<User, GameSession>>("GameSoloFinish", new Pair<>(currentUser, gameSession)));
+        }
 
         return new DataTransferObject<>("ReceiveCorrectProductIds", true);
     }

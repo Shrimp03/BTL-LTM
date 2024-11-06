@@ -41,6 +41,7 @@ public class SoloScreen extends JPanel implements GameSoloListener {
     private Timer timer; // Bộ đếm thời gian
     private int timeRemaining; // Thời gian còn lại
     private boolean gameOver = false; // Biến cờ để kiểm tra trạng thái kết thúc trò chơi
+    private boolean gameFinish = false;
     private final ArrayList<Integer> correctProductIds = new ArrayList<>();
     private boolean isPlayerTurn = false; // Biến để kiểm tra lượt chơi
 
@@ -60,7 +61,7 @@ public class SoloScreen extends JPanel implements GameSoloListener {
         this.correctOrder = new ArrayList<>(products); // Lưu trữ thứ tự đúng (không thay đổi)
         this.currentOrder = new ArrayList<>(Collections.nCopies(12, null)); // Danh sách trạng thái hiện tại của các sản phẩm
         clientSocket = ClientSocket.getInstance();
-        clientSocket.addGameSoloListener(this);
+        clientSocket.addGameSoloListener(this, currentUser);
 
         // Xáo trộn sản phẩm
         Collections.shuffle(products);
@@ -236,7 +237,7 @@ public class SoloScreen extends JPanel implements GameSoloListener {
     private void checkGameOverConditions() {
         if (movesCount >= 2 || timeRemaining <= 0 || checkShelfFull()) {
             gameOver = true; // Đánh dấu rằng trò chơi đã kết thúc
-            if (isPlayerTurn) {
+            if (!gameFinish && isPlayerTurn) {
                 // Tạo một bản sao mới của correctProductIds để gửi
                 ArrayList<Integer> productIdsToSend = new ArrayList<>(correctProductIds);
                 Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>> dataSend = new Pair<>(new Pair<>(currentUser, gameSession), new Pair<>(productIdsToSend, checkShelfFull()));
@@ -501,6 +502,20 @@ public class SoloScreen extends JPanel implements GameSoloListener {
         updateProductLayout();
         updatePlayerLabels(nextUser);
         timeRemaining = 21;
+    }
+
+    @Override
+    public void onFinishGame(User winner) {
+        gameFinish = true;
+
+        // Đưa dialog vào luồng khác để tránh xung đột trên EDT
+        SwingUtilities.invokeLater(() -> {
+            if (winner.equals(currentUser)) {
+                JOptionPane.showMessageDialog(this, "Chúc mừng! Bạn đã thắng!", "Kết thúc Trò Chơi", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Rất tiếc! Bạn đã thua!", "Kết thúc Trò Chơi", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
     }
 
     // Phương thức lấy Client (JFrame) cha

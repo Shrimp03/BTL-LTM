@@ -16,7 +16,7 @@ public class ClientSocket {
     // Áp dụng Singleton
     private static ClientSocket instance;
     private final BlockingQueue<Object> messageQueue = new LinkedBlockingQueue<>();
-    private final ArrayList<GameSoloListener> listeners = new ArrayList<>();
+    private final ArrayList<Pair<GameSoloListener, User>> listeners = new ArrayList<>();
 
     // Constructor riêng để tránh tạo nhiều phiên bản
     private ClientSocket() {}
@@ -29,8 +29,8 @@ public class ClientSocket {
         return instance;
     }
 
-    public void addGameSoloListener(GameSoloListener listener) {
-        listeners.add(listener);
+    public void addGameSoloListener(GameSoloListener listener, User user) {
+        listeners.add(new Pair<>(listener, user));
     }
 
     public void listening() {
@@ -41,11 +41,26 @@ public class ClientSocket {
                     try {
                         DataTransferObject<?> dto = (DataTransferObject<?>) response;
                         if (Objects.equals(dto.getType(), "BroadCastProductIds")) {
-                            Pair<User, ArrayList<Integer>> dataReceived = (Pair<User, ArrayList<Integer>>) dto.getData();
+                            Pair<Pair<User, GameSession>, ArrayList<Integer>> dataReceived = (Pair<Pair<User, GameSession>, ArrayList<Integer>>) dto.getData();
+                            User nextUser = dataReceived.getFirst().getFirst();
+                            GameSession gameSession = dataReceived.getFirst().getSecond();
+                            ArrayList<Integer> productIds = dataReceived.getSecond();
 
-                            for (GameSoloListener listener : listeners) {
-                                listener.onProductOrderReceived(dataReceived);
+                            for (Pair<GameSoloListener, User> p : listeners) {
+                                if (p.getSecond().equals(gameSession.getUser1()) || p.getSecond().equals(gameSession.getUser2())) {
+                                    p.getFirst().onProductOrderReceived(new Pair<>(nextUser, productIds));
+                                }
                             }
+                        } else if (Objects.equals(dto.getType(), "GameSoloFinish")) {
+                            Pair<User, GameSession> dataRecived = (Pair<User, GameSession>) dto.getData();
+                            User winner = dataRecived.getFirst();
+                            GameSession gameSession = dataRecived.getSecond();
+                            for (Pair<GameSoloListener, User> p : listeners) {
+                                if (p.getSecond().equals(gameSession.getUser1()) || p.getSecond().equals(gameSession.getUser2())) {
+                                    p.getFirst().onFinishGame(winner);
+                                }
+                            }
+
                         } else {
                             messageQueue.put(response);
                         }
