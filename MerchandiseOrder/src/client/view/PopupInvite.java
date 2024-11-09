@@ -11,6 +11,19 @@ import java.util.TimerTask;
 
 public class PopupInvite {
 
+    private static GameInvitationListener gameInvitationListener;
+
+    // Phương thức đăng ký listener
+    public void setGameInvitationListener(GameInvitationListener listener) {
+        this.gameInvitationListener = listener;
+    }
+
+    // Constructor
+    public PopupInvite() {
+        // Đảm bảo listener được set khi khởi tạo
+//        this.setGameInvitationListener(Client.getInstance()); // Đăng ký Client là listener
+    }
+
     public static void showInvitationDialog(User inviter, User currentUser) {
         // Biến lưu trạng thái lựa chọn của người dùng
         final boolean[] hasResponded = {false};
@@ -46,15 +59,21 @@ public class PopupInvite {
         String responseType = (option == JOptionPane.YES_OPTION) ? "ACCEPT" : "DECLINE";
         System.out.println(responseType);
 
+        List<User> twoUsers = new ArrayList<>();
+        twoUsers.add(inviter);
+        twoUsers.add(currentUser);
+
         if ("ACCEPT".equals(responseType)) {
-            List<User> twoUsers = new ArrayList<>();
-            twoUsers.add(inviter);
-            twoUsers.add(currentUser);
+//            ClientSocket.getInstance().setAccepted(true);
+            // Nếu chọn chấp nhận, thông báo cho Client và gửi mời
+            if (gameInvitationListener != null) {
+                gameInvitationListener.onInvitationReceived(true, currentUser);
+            }
             ClientSocket.getInstance().sendAcceptInvite(responseType, twoUsers);
         } else {
-            ClientSocket.getInstance().sendAcceptInvite(responseType, null);
+            // Nếu chọn từ chối, thông báo từ chối và gửi yêu cầu
+            ClientSocket.getInstance().setAccepted(false);
+            ClientSocket.getInstance().sendAcceptInvite(responseType, twoUsers);
         }
     }
-
-
 }

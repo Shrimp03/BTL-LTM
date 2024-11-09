@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
 public class GameRoomInvitationScreen extends JPanel {
     private JLabel currentUserAvatar;
     private JLabel currentUserName;
@@ -28,8 +29,10 @@ public class GameRoomInvitationScreen extends JPanel {
     private User user;
     private Timer inviteTimer;
     private User onlineUser;
+    private Boolean isOnlineUser ;
 
-    public GameRoomInvitationScreen(User user) {
+    public GameRoomInvitationScreen(User user, Boolean isOnlineUser) {
+        this.isOnlineUser = isOnlineUser;
         this.user = user;
         setSize(400, 600);
         setLayout(new BorderLayout());
@@ -145,7 +148,7 @@ public class GameRoomInvitationScreen extends JPanel {
         popupPanel.setLayout(new BoxLayout(popupPanel, BoxLayout.Y_AXIS));
 
         List<User> onlineUsers = ClientSocket.getInstance().getUsersByStatus(user.getUsername(), String.valueOf(UserStatus.ONLINE));
-        if(onlineUsers.size() == 0 || onlineUsers == null) {
+        if( onlineUsers == null || onlineUsers.size() == 0 ) {
             JOptionPane.showMessageDialog(null, "Hiện không có người chơi nào trực tuyến!");
             return;
         }
@@ -167,11 +170,10 @@ public class GameRoomInvitationScreen extends JPanel {
                     invitedUserName.setText(onlineUser.getUsername());
                     ClientSocket.getInstance().sendInvite(onlineUser, user);
                     invitedUserAvatar.setIcon(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
-                    invitedUserName.setVisible(true); // Hiện tên người dùng được mời
-                    invitedUserAvatar.setVisible(true); // Hiện avatar người dùng được mời
-                    inviteButton.setVisible(false); // Ẩn nút +
-                    playButton.setEnabled(true);
-                    removeUserButton.setVisible(true); // Hiện nút x
+                    if(isOnlineUser) {
+                        playButton.setEnabled(false);
+                    }
+                    else playButton.setEnabled(true);
                     inviteTimer = new Timer();
                     inviteTimer.schedule(new TimerTask() {
                         @Override
@@ -180,11 +182,26 @@ public class GameRoomInvitationScreen extends JPanel {
                                 @Override
                                 public void run() {
                                     Boolean accepted = ClientSocket.getInstance().getAccepted();
-                                    if (accepted) {
+                                    if (accepted ) {
                                         popup.dispose();
+                                        invitedUserName.setVisible(true); // Hiện tên người dùng được mời
+                                        invitedUserAvatar.setVisible(true); // Hiện avatar người dùng được mời
+                                        removeUserButton.setVisible(true); // Hiện nút x
+                                        inviteButton.setVisible(false);
                                         setOnlineUser(onlineUser);
                                         isUserInvited = true;
                                     } else {
+                                        if(isOnlineUser){
+                                            invitedUserName.setVisible(true);
+                                            invitedUserAvatar.setVisible(true);
+                                        }
+                                        else {
+                                            invitedUserName.setVisible(false);
+                                            invitedUserAvatar.setVisible(false);
+                                        }
+
+                                        inviteButton.setVisible(true);
+                                        isUserInvited = false;
                                         JOptionPane.showMessageDialog(null, "Người chơi không chấp nhận lời mời!");
                                     }
                                 }
@@ -231,6 +248,4 @@ public class GameRoomInvitationScreen extends JPanel {
     private Client getClientFrame() {
         return (Client) SwingUtilities.getWindowAncestor(this);
     }
-
-
 }

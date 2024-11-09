@@ -79,7 +79,7 @@ public class HomeScreen extends JPanel {
         createRoomButton.setOpaque(false); // Không vẽ nền
         createRoomButton.setBorderPainted(false); // Loại bỏ viền của nút
 
-        createRoomButton.addActionListener(e -> getClientFrame().showInvitaionScreen(user)); // Chuyển đến màn hình tạo phòng
+        createRoomButton.addActionListener(e -> getClientFrame().showInvitaionScreen(user, false)); // Chuyển đến màn hình tạo phòng
         add(createRoomButton);
 
         // Nút "Đăng Xuất" hình tròn

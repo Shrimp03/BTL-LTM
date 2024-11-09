@@ -15,20 +15,20 @@ public class GameSessionHandler {
         User userOnline = request.getData().get(0);
         ServerThread serverThread = ThreadManager.getUserThread(userOnline);
         serverThread.sendEvent(new DataTransferObject<>("INVITE", request.getData()));
-        return new DataTransferObject<>("", true);
+        return new DataTransferObject<>("Trash", true);
     }
     public static DataTransferObject<Boolean> sendJoin(DataTransferObject<List<User>> request){
         User userInvite = request.getData().get(1);
         ServerThread serverInvite = ThreadManager.getUserThread(userInvite);
         serverInvite.sendEvent(new DataTransferObject<>("ACCEPT", request.getData()));
-        return new DataTransferObject<>("", true);
+        return new DataTransferObject<>("Trash", true);
     }
 
     public static DataTransferObject<Boolean> sendLeave(DataTransferObject<List<User>> request){
         User userInvite = request.getData().get(1);
         ServerThread serverInvite = ThreadManager.getUserThread(userInvite);
         serverInvite.sendEvent(new DataTransferObject<>("DECLINE", request.getData()));
-        return new DataTransferObject<>("", true);
+        return new DataTransferObject<>("Trash", true);
     }
 
     public static DataTransferObject<Boolean> sendPlay(DataTransferObject<List<User>> request){
@@ -40,6 +40,6 @@ public class GameSessionHandler {
         Pair<GameSession, User> pair = new Pair<>(gameSession, userInvite);
         serverOnline.sendEvent(new DataTransferObject<>("PLAY", pair));
         serverInvite.sendEvent(new DataTransferObject<>("PLAY", pair));
-        return new DataTransferObject<>("", true);
+        return new DataTransferObject<>("Trash", true);
     }
 }

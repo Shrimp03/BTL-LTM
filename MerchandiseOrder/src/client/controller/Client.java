@@ -14,7 +14,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class Client extends JFrame {
+public class Client extends JFrame implements GameInvitationListener {
     protected static final String serverHost = "localhost";
     protected static final int serverPort = 12345;
     protected static Socket socket;
@@ -26,7 +26,30 @@ public class Client extends JFrame {
     private QuestionScreen questionScreen; // TODO: sau sửa lại
 
     private User currentUser;
+
+    private static Client instance;
+    private PopupInvite popupInvite;
+
+    public static Client getInstance() {
+        if (instance == null) {
+            instance = new Client();
+        }
+        return instance;
+    }
+
+    @Override
+    public void onInvitationReceived(boolean isAccepted, User currentUser) {
+        if (isAccepted) {
+            // Nếu lời mời được chấp nhận, hiển thị màn hình Game Room Invitation
+            showInvitaionScreen(currentUser, true);
+        } else {
+            // Nếu lời mời bị từ chối, bạn có thể hiển thị thông báo khác hoặc cập nhật giao diện
+            System.out.println("Lời mời bị từ chối.");
+        }
+    }
     public Client() {
+        popupInvite = new PopupInvite();
+        popupInvite.setGameInvitationListener(this);
         this.cardLayout = new CardLayout();
         this.cardPanel = new JPanel(cardLayout);
 
@@ -118,8 +141,8 @@ public class Client extends JFrame {
         cardLayout.show(cardPanel, "SoloScreen");
     }
 
-    public void showInvitaionScreen(User user) {
-        GameRoomInvitationScreen gameRoomInvitationScreen = new GameRoomInvitationScreen(user);
+    public void showInvitaionScreen(User user, Boolean isOnlineUser) {
+        GameRoomInvitationScreen gameRoomInvitationScreen = new GameRoomInvitationScreen(user, isOnlineUser);
         cardPanel.add(gameRoomInvitationScreen, "GameRoomInvitationScreen");
         cardLayout.show(cardPanel, "GameRoomInvitationScreen");
     }
@@ -188,4 +211,6 @@ public class Client extends JFrame {
 
         Runtime.getRuntime().addShutdownHook(new Thread(Client::closeConnection));
     }
+
+
 }

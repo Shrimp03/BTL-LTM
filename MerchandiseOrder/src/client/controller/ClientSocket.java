@@ -39,24 +39,34 @@ public class ClientSocket {
                 while (true) {
                     Object response = Client.ois.readObject();
                         DataTransferObject<?> res = (DataTransferObject<?>) response;
-                        if("INVITE".equals(res.getType())){
+                    switch (res.getType()) {
+                        case "INVITE":
                             DataTransferObject<List<User>> resInvite = (DataTransferObject<List<User>>) res;
                             PopupInvite.showInvitationDialog(resInvite.getData().get(0), resInvite.getData().get(1));
-                        }
-                        else if("ACCEPT".equals(res.getType())){
+                            break;
+
+                        case "ACCEPT":
                             setAccepted(true);
-                        }
-                        else if("DECLINE".equals(res.getType())){
+                            break;
+
+                        case "DECLINE":
+                            setAccepted(false);
                             System.out.println("DECLINE");
-                        }
-                        else if("PLAY".equals(res.getType())){
-                             DataTransferObject<Pair<GameSession, User>> resPlay = (DataTransferObject<Pair<GameSession, User>>) res;
-                             System.out.println("pair");
-                             System.out.println(resPlay.getData().getFirst().getUser2());
-                        }
-                        else {
+                            break;
+
+                        case "PLAY":
+                            DataTransferObject<Pair<GameSession, User>> resPlay = (DataTransferObject<Pair<GameSession, User>>) res;
+                            System.out.println("pair");
+                            System.out.println(resPlay.getData().getFirst().getUser2());
+                            break;
+                        case "Trash":
+                            System.out.println("trash");
+
+                        default:
                             messageQueue.put(response);
-                        }
+                            break;
+                    }
+
                 }
             } catch (IOException | ClassNotFoundException | InterruptedException e) {
 //                e.printStackTrace();
@@ -291,7 +301,6 @@ public class ClientSocket {
             Client.oos.writeObject(dto);
             Client.oos.flush();
 
-            Object response = getNextMessage();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -305,7 +314,6 @@ public class ClientSocket {
             Client.oos.writeObject(dto);
             Client.oos.flush();
 
-            Object response = getNextMessage();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -319,7 +327,6 @@ public class ClientSocket {
             Client.oos.writeObject(dto);
             Client.oos.flush();
 
-            Object response = getNextMessage();
         } catch (Exception e) {
             e.printStackTrace();
         }
