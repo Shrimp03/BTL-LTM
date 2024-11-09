@@ -10,6 +10,9 @@ import server.controller.threadManager.ThreadManager;
 import server.dal.dao.GameSessionDAO;
 import server.dal.dao.GameSessionDAOImpl;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class GameSoloHandler {
@@ -30,11 +33,28 @@ public class GameSoloHandler {
     }
 
     public static DataTransferObject<Boolean> sendCorrectProductIds(DataTransferObject<?> request) {
-        Pair<GameSession, ArrayList<Integer>> dataRecive = (Pair<GameSession, ArrayList<Integer>>) request.getData();
-        GameSession gameSession = dataRecive.getFirst();
-        ArrayList<Integer> productIds = dataRecive.getSecond();
+        GameSessionDAO gameSessionDAO = new GameSessionDAOImpl();
+        Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>> dataRecive = (Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>>) request.getData();
+        User currentUser = dataRecive.getFirst().getFirst();
+        GameSession gameSession = dataRecive.getFirst().getSecond();
+        ArrayList<Integer> productIds = dataRecive.getSecond().getFirst();
+        Boolean finish = dataRecive.getSecond().getSecond();
 
-        GameSessionManager.broadcastToSession(gameSession, new DataTransferObject<ArrayList<Integer>>("BroadCastProductIds", productIds));
+        User nextUser = gameSession.getUser1();
+        if (currentUser.equals(gameSession.getUser1())) {
+            nextUser = gameSession.getUser2();
+        }
+
+        Pair<Pair<User, GameSession>, ArrayList<Integer>> dataSend = new Pair<>(new Pair<>(nextUser, gameSession), productIds);
+        GameSessionManager.broadcastToSession(gameSession, new DataTransferObject<Pair<Pair<User, GameSession>, ArrayList<Integer>>>("BroadCastProductIds", dataSend));
+
+        if (finish && gameSessionDAO.getGameSessionById(gameSession.getId()).getWinner() == null) {
+            gameSession.setWinner(currentUser);
+            gameSession.setTimeFinish(Timestamp.valueOf(LocalDateTime.now()));
+            gameSessionDAO.updateGameSession(gameSession);
+
+            GameSessionManager.broadcastToSession(gameSession, new DataTransferObject<Pair<User, GameSession>>("GameSoloFinish", new Pair<>(currentUser, gameSession)));
+        }
 
         return new DataTransferObject<>("ReceiveCorrectProductIds", true);
     }

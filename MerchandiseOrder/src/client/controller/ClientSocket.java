@@ -6,6 +6,7 @@ import dto.UserStatusDto;
 import model.DataTransferObject;
 import model.Product;
 import model.User;
+import client.view.GameSoloListener;
 import model.*;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class ClientSocket {
     // Áp dụng Singleton
     private static ClientSocket instance;
     private final BlockingQueue<Object> messageQueue = new LinkedBlockingQueue<>();
+    private final ArrayList<Pair<GameSoloListener, User>> listeners = new ArrayList<>();
     private Boolean accepted = false;
 
     // Constructor riêng để tránh tạo nhiều phiên bản
@@ -31,6 +33,10 @@ public class ClientSocket {
             instance = new ClientSocket();
         }
         return instance;
+    }
+
+    public void addGameSoloListener(GameSoloListener listener, User user) {
+        listeners.add(new Pair<>(listener, user));
     }
 
     public void listening() {
@@ -61,6 +67,28 @@ public class ClientSocket {
                             break;
                         case "Trash":
                             System.out.println("trash");
+                        case "BroadCastProductIds":
+                            Pair<Pair<User, GameSession>, ArrayList<Integer>> dataReceived = (Pair<Pair<User, GameSession>, ArrayList<Integer>>) dto.getData();
+                            User nextUser = dataReceived.getFirst().getFirst();
+                            GameSession gameSession = dataReceived.getFirst().getSecond();
+                            ArrayList<Integer> productIds = dataReceived.getSecond();
+
+                            for (Pair<GameSoloListener, User> p : listeners) {
+                                if (p.getSecond().equals(gameSession.getUser1()) || p.getSecond().equals(gameSession.getUser2())) {
+                                    p.getFirst().onProductOrderReceived(new Pair<>(nextUser, productIds));
+                                }
+                            }
+                            break;
+                        case "GameSoloFinish":
+                            Pair<User, GameSession> dataRecived = (Pair<User, GameSession>) dto.getData();
+                            User winner = dataRecived.getFirst();
+                            GameSession gameSession = dataRecived.getSecond();
+                            for (Pair<GameSoloListener, User> p : listeners) {
+                                if (p.getSecond().equals(gameSession.getUser1()) || p.getSecond().equals(gameSession.getUser2())) {
+                                    p.getFirst().onFinishGame(winner);
+                                }
+                            }
+                            break;
 
                         default:
                             messageQueue.put(response);
@@ -270,9 +298,9 @@ public class ClientSocket {
         return null;
     }
 
-    public boolean sendCorrectProductIds(Pair<GameSession, ArrayList<Integer>> dataSend) {
+    public boolean sendCorrectProductIds(Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>> dataSend) {
         try {
-            DataTransferObject<Pair<GameSession, ArrayList<Integer>>> dto = new DataTransferObject<>("SendCorrectProductIds", dataSend);
+            DataTransferObject<Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>>> dto = new DataTransferObject<>("SendCorrectProductIds", dataSend);
             Client.oos.writeObject(dto);
             Client.oos.flush();
 
