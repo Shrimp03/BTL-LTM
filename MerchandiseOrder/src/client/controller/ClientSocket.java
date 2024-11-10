@@ -1,12 +1,10 @@
 package client.controller;
 
-import client.view.GameRoomInvitationScreen;
-import client.view.PopupInvite;
+import client.view.*;
 import dto.UserStatusDto;
 import model.DataTransferObject;
 import model.Product;
 import model.User;
-import client.view.GameSoloListener;
 import model.*;
 
 import java.io.IOException;
@@ -23,6 +21,7 @@ public class ClientSocket {
     private final BlockingQueue<Object> messageQueue = new LinkedBlockingQueue<>();
     private final ArrayList<Pair<GameSoloListener, User>> listeners = new ArrayList<>();
     private Boolean accepted = false;
+    private final ArrayList<Pair<GamePlayListener, User>> gamePlayListener = new ArrayList<>();
 
     // Constructor riêng để tránh tạo nhiều phiên bản
     private ClientSocket() {}
@@ -39,12 +38,17 @@ public class ClientSocket {
         listeners.add(new Pair<>(listener, user));
     }
 
+    public void addGamePlayListener(GamePlayListener listener, User user) {
+        gamePlayListener.add(new Pair<>(listener, user));
+    }
+
     public void listening() {
         new Thread(() -> {
             try {
                 while (true) {
                     Object response = Client.ois.readObject();
-                        DataTransferObject<?> res = (DataTransferObject<?>) response;
+                    DataTransferObject<?> res = (DataTransferObject<?>) response;
+
                     switch (res.getType()) {
                         case "INVITE":
                             DataTransferObject<List<User>> resInvite = (DataTransferObject<List<User>>) res;
@@ -62,29 +66,57 @@ public class ClientSocket {
 
                         case "PLAY":
                             DataTransferObject<Pair<GameSession, User>> resPlay = (DataTransferObject<Pair<GameSession, User>>) res;
-                            System.out.println("pair");
-                            System.out.println(resPlay.getData().getFirst().getUser2());
-                            break;
-                        case "Trash":
-                            System.out.println("trash");
-                        case "BroadCastProductIds":
-                            Pair<Pair<User, GameSession>, ArrayList<Integer>> dataReceived = (Pair<Pair<User, GameSession>, ArrayList<Integer>>) dto.getData();
-                            User nextUser = dataReceived.getFirst().getFirst();
-                            GameSession gameSession = dataReceived.getFirst().getSecond();
-                            ArrayList<Integer> productIds = dataReceived.getSecond();
-
-                            for (Pair<GameSoloListener, User> p : listeners) {
-                                if (p.getSecond().equals(gameSession.getUser1()) || p.getSecond().equals(gameSession.getUser2())) {
-                                    p.getFirst().onProductOrderReceived(new Pair<>(nextUser, productIds));
+                            GameSession gameSession3 = resPlay.getData().getFirst();
+                            ArrayList<Product> products = new ArrayList<>();
+                            products.add(new Product(21, "Chuối", "chuoi.png"));
+                            products.add(new Product(22, "Coca", "coca.png"));
+                            products.add(new Product(23, "Hamber", "hamber.png"));
+                            products.add(new Product(24, "Lê", "le.png"));
+                            products.add(new Product(25, "Nước tăng lực", "nctangluc.png"));
+                            products.add(new Product(26, "Ngũ cốc xanh", "ngucocxanh.png"));
+                            products.add(new Product(27, "Nước giặt cam", "nuocgiatcam.png"));
+                            products.add(new Product(28, "Nước giặt trắng", "nuocgiattrang.png"));
+                            products.add(new Product(29, "Nước giặt xanh", "nuocgiatxanh.png"));
+                            products.add(new Product(30, "Trà đào", "quadao.png"));
+                            products.add(new Product(31, "Sữa", "sua.png"));
+                            products.add(new Product(32, "Cà chua", "tomato.png"));
+                            for (Pair<GamePlayListener, User> p : gamePlayListener) {
+                                if (p.getSecond().equals(gameSession3.getUser1()) || p.getSecond().equals(gameSession3.getUser2())) {
+                                    p.getFirst().onPlay(p.getSecond(), gameSession3, products, gameSession3.getUser1());
                                 }
                             }
                             break;
+
+                        case "BroadCastProductIds":
+                            Object data = res.getData();
+                            if (data instanceof Pair<?, ?> outerPair) {
+                                if (outerPair.getFirst() instanceof Pair<?, ?> innerPair && outerPair.getSecond() instanceof ArrayList) {
+                                    Pair<User, GameSession> userGameSessionPair = (Pair<User, GameSession>) innerPair;
+                                    ArrayList<Integer> productIds = (ArrayList<Integer>) outerPair.getSecond();
+
+                                    // Notify listeners
+                                    for (Pair<GameSoloListener, User> p : listeners) {
+                                        if (p.getSecond().equals(userGameSessionPair.getFirst()) ||
+                                                p.getSecond().equals(userGameSessionPair.getSecond().getUser2())) {
+                                            p.getFirst().onProductOrderReceived(new Pair<>(userGameSessionPair.getFirst(), productIds));
+                                        }
+                                    }
+                                } else {
+                                    System.err.println("Data format mismatch: Expected Pair<Pair<User, GameSession>, ArrayList<Integer>>");
+                                }
+                            } else if (data instanceof Boolean boolData) {
+                                System.out.println("Received Boolean data instead of expected Pair: " + boolData);
+                            } else {
+                                System.err.println("Unexpected data type: " + data.getClass().getName());
+                            }
+                            break;
+
                         case "GameSoloFinish":
-                            Pair<User, GameSession> dataRecived = (Pair<User, GameSession>) dto.getData();
-                            User winner = dataRecived.getFirst();
-                            GameSession gameSession = dataRecived.getSecond();
+                            Pair<User, GameSession> dataReceived = (Pair<User, GameSession>) res.getData();
+                            User winner = dataReceived.getFirst();
+                            GameSession gameSession1 = dataReceived.getSecond();
                             for (Pair<GameSoloListener, User> p : listeners) {
-                                if (p.getSecond().equals(gameSession.getUser1()) || p.getSecond().equals(gameSession.getUser2())) {
+                                if (p.getSecond().equals(gameSession1.getUser1()) || p.getSecond().equals(gameSession1.getUser2())) {
                                     p.getFirst().onFinishGame(winner);
                                 }
                             }
@@ -94,13 +126,13 @@ public class ClientSocket {
                             messageQueue.put(response);
                             break;
                     }
-
                 }
             } catch (IOException | ClassNotFoundException | InterruptedException e) {
-//                e.printStackTrace();
+                e.printStackTrace();
             }
         }).start();
     }
+
 
     // Phương thức lấy gói tin từ hàng đợi
     public Object getNextMessage() throws InterruptedException {
@@ -367,4 +399,6 @@ public class ClientSocket {
     public Boolean getAccepted(){
         return accepted;
     }
+
+   
 }

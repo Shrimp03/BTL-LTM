@@ -1,5 +1,6 @@
 package client.view;
 
+import model.GameSession;
 import model.User;
 
 public interface GameInvitationListener {

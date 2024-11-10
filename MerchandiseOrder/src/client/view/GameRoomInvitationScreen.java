@@ -2,6 +2,8 @@ package client.view;
 
 import client.controller.Client;
 import client.controller.ClientSocket;
+import model.GameSession;
+import model.Product;
 import model.User;
 import model.UserStatus;
 
@@ -16,7 +18,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class GameRoomInvitationScreen extends JPanel {
+public class GameRoomInvitationScreen extends JPanel implements GamePlayListener {
     private JLabel currentUserAvatar;
     private JLabel currentUserName;
     private JLabel invitedUserAvatar;
@@ -36,6 +38,8 @@ public class GameRoomInvitationScreen extends JPanel {
         this.user = user;
         setSize(400, 600);
         setLayout(new BorderLayout());
+
+        ClientSocket.getInstance().addGamePlayListener(this, user);
 
         initializeUI();
         setVisible(true);
@@ -247,5 +251,10 @@ public class GameRoomInvitationScreen extends JPanel {
 
     private Client getClientFrame() {
         return (Client) SwingUtilities.getWindowAncestor(this);
+    }
+
+    @Override
+    public void onPlay(User curUser, GameSession gameSession, ArrayList<Product> products, User startingPlayer) {
+        getClientFrame().showSoloScreen(curUser, gameSession, products, startingPlayer);
     }
 }

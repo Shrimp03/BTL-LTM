@@ -7,7 +7,8 @@ import model.User;
 import server.controller.ServerThread;
 import server.controller.threadManager.ThreadManager;
 
-import java.util.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class GameSessionHandler {
@@ -34,7 +35,7 @@ public class GameSessionHandler {
     public static DataTransferObject<Boolean> sendPlay(DataTransferObject<List<User>> request){
         User userOnline = request.getData().get(0);
         User userInvite = request.getData().get(1);
-        GameSession gameSession = new GameSession(new Date(), new Date(), userInvite, userOnline);
+        GameSession gameSession = new GameSession(LocalDateTime.now(), LocalDateTime.now(), userInvite, userOnline);
         ServerThread serverInvite = ThreadManager.getUserThread(userInvite);
         ServerThread serverOnline = ThreadManager.getUserThread(userOnline);
         Pair<GameSession, User> pair = new Pair<>(gameSession, userInvite);

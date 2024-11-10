@@ -28,6 +28,7 @@ public class HomeScreen extends JPanel {
     private Image backgroundImage;
     private JButton hintButton;
     private JLabel imageLabel;
+    private JButton soloButton;
     public HomeScreen(User user) {
         this.user = user;
         setSize(385, 685); // Đặt kích thước lớn
@@ -70,6 +71,11 @@ public class HomeScreen extends JPanel {
         styleButton(uploadButton, 20, 21, 60, 50); // Đặt vị trí và kích thước
         uploadButton.addActionListener(e -> uploadImage());
         add(uploadButton);
+
+        soloButton = new JButton("Solo");
+        styleButton(uploadButton, 20, 21, 60, 50);
+//        soloButton.addActionListener(e -> getClientFrame().showSoloScreen());
+        add(soloButton);
 
         // Nút "Tạo phòng chơi"
         JButton createRoomButton = new JButton("Tạo phòng");

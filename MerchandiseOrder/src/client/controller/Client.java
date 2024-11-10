@@ -23,7 +23,6 @@ public class Client extends JFrame implements GameInvitationListener {
     private ClientSocket clientSocket;
     private JPanel cardPanel;
     private CardLayout cardLayout;
-    private QuestionScreen questionScreen; // TODO: sau sửa lại
 
     private User currentUser;
 
@@ -47,6 +46,9 @@ public class Client extends JFrame implements GameInvitationListener {
             System.out.println("Lời mời bị từ chối.");
         }
     }
+
+
+
     public Client() {
         popupInvite = new PopupInvite();
         popupInvite.setGameInvitationListener(this);
@@ -135,8 +137,8 @@ public class Client extends JFrame implements GameInvitationListener {
         cardLayout.show(cardPanel, "QuestionScreen");
     }
 
-    public void showSoloScreen(User user, GameSession gameSession, ArrayList<Product> products) {
-        User startingPlayer = new User(6, "test", "123@123", "8776f108e247ab1e2b323042c049c266407c81fbad41bde1e8dfc1bb66fd267e", "", "",  "ONLINE");
+    public void showSoloScreen(User user, GameSession gameSession, ArrayList<Product> products, User startingPlayer) {
+//        User startingPlayer = new User(6, "test", "123@123", "8776f108e247ab1e2b323042c049c266407c81fbad41bde1e8dfc1bb66fd267e", "", "",  "ONLINE");
         SoloScreen soloScreen = new SoloScreen(user, gameSession, products, startingPlayer);
         cardPanel.add(soloScreen, "SoloScreen");
         cardLayout.show(cardPanel, "SoloScreen");
@@ -155,11 +157,6 @@ public class Client extends JFrame implements GameInvitationListener {
 //        repaint();
 //    }
 
-    public void showCreateRoomScreen(User user) {
-        CreateRoomScreen createRoomScreen = new CreateRoomScreen(user); // Tạo màn hình tạo phòng
-        cardPanel.add(createRoomScreen, "CreateRoomScreen"); // Thêm vào card panel
-        cardLayout.show(cardPanel, "CreateRoomScreen"); // Hiển thị màn hình tạo phòng
-    }
 
     public void showSuggestScreen(User user) {
         SuggestScreen suggestScreen = new SuggestScreen(user); // Tạo màn hình gợi ý
