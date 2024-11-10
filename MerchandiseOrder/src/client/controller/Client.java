@@ -150,6 +150,12 @@ public class Client extends JFrame implements GameInvitationListener {
         cardLayout.show(cardPanel, "GameRoomInvitationScreen");
     }
 
+    public void showQuestionScreenSolo(User user, GameSession gameSession, User startingPlayer, Product[] products) {
+        QuestionScreenSolo questionScreen = new QuestionScreenSolo(user, gameSession, startingPlayer, products);
+        cardPanel.add(questionScreen, "QuestionScreenSolo");
+        cardLayout.show(cardPanel, "QuestionScreenSolo");
+    }
+
 
 //    public void showUpdateUserScreen(User user) {
 //        setContentPane(new UpdateUserScreen(user));

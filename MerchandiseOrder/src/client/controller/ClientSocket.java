@@ -9,6 +9,7 @@ import model.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -67,22 +68,10 @@ public class ClientSocket {
                         case "PLAY":
                             DataTransferObject<Pair<GameSession, User>> resPlay = (DataTransferObject<Pair<GameSession, User>>) res;
                             GameSession gameSession3 = resPlay.getData().getFirst();
-                            ArrayList<Product> products = new ArrayList<>();
-                            products.add(new Product(21, "Chuối", "chuoi.png"));
-                            products.add(new Product(22, "Coca", "coca.png"));
-                            products.add(new Product(23, "Hamber", "hamber.png"));
-                            products.add(new Product(24, "Lê", "le.png"));
-                            products.add(new Product(25, "Nước tăng lực", "nctangluc.png"));
-                            products.add(new Product(26, "Ngũ cốc xanh", "ngucocxanh.png"));
-                            products.add(new Product(27, "Nước giặt cam", "nuocgiatcam.png"));
-                            products.add(new Product(28, "Nước giặt trắng", "nuocgiattrang.png"));
-                            products.add(new Product(29, "Nước giặt xanh", "nuocgiatxanh.png"));
-                            products.add(new Product(30, "Trà đào", "quadao.png"));
-                            products.add(new Product(31, "Sữa", "sua.png"));
-                            products.add(new Product(32, "Cà chua", "tomato.png"));
+                            Product[] products = res.getProducts();
                             for (Pair<GamePlayListener, User> p : gamePlayListener) {
                                 if (p.getSecond().equals(gameSession3.getUser1()) || p.getSecond().equals(gameSession3.getUser2())) {
-                                    p.getFirst().onPlay(p.getSecond(), gameSession3, products, gameSession3.getUser1());
+                                    p.getFirst().onPlay(p.getSecond(), gameSession3, gameSession3.getUser1(), products);
                                 }
                             }
                             break;
@@ -171,6 +160,8 @@ public class ClientSocket {
                 if (!"GetProductResponse".equals(res.getType())) {
                     return Optional.empty();
                 }
+                System.out.println("Products clientsocket");
+                System.out.println(Arrays.stream(res.getData()).toArray().length);
                 return Optional.of(res.getData());
             } else {
                 System.err.println("Invalid response type: " + response.getClass().getName());

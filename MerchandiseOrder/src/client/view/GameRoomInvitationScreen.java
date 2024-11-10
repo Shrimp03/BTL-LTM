@@ -13,10 +13,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class GameRoomInvitationScreen extends JPanel implements GamePlayListener {
     private JLabel currentUserAvatar;
@@ -254,7 +253,7 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
     }
 
     @Override
-    public void onPlay(User curUser, GameSession gameSession, ArrayList<Product> products, User startingPlayer) {
-        getClientFrame().showSoloScreen(curUser, gameSession, products, startingPlayer);
+    public void onPlay(User curUser, GameSession gameSession, User startingPlayer, Product[] products) {
+        getClientFrame().showQuestionScreenSolo(curUser, gameSession, startingPlayer, products);
     }
 }

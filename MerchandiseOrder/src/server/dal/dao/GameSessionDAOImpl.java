@@ -62,4 +62,24 @@ public class GameSessionDAOImpl extends DAOConnection implements GameSessionDAO 
             return false;
         }
     }
+
+    @Override
+    public boolean createGameSession(GameSession gameSession) {
+        String query = "INSERT INTO game_sessions (time_start, time_finish, user1_id, user2_id) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(query)) {
+            ps.setTimestamp(1, gameSession.getTimeStart()); // Using Timestamp for start time
+            ps.setTimestamp(2, gameSession.getTimeFinish()); // Using Timestamp for finish time
+            ps.setInt(3, gameSession.getUser1().getId());    // Setting user1's ID
+            ps.setInt(4, gameSession.getUser2().getId());    // Setting user2's ID
+
+            int rowsAffected = ps.executeUpdate();
+
+            // Return true if a row was inserted successfully
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
 }

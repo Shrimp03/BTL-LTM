@@ -1,14 +1,16 @@
 package server.controller.handler;
 
-import model.DataTransferObject;
-import model.GameSession;
-import model.Pair;
-import model.User;
+import model.*;
 import server.controller.ServerThread;
 import server.controller.threadManager.ThreadManager;
+import server.dal.dao.GameSessionDAO;
+import server.dal.dao.GameSessionDAOImpl;
+import server.dal.dao.ProductDAO;
+import server.dal.dao.ProductDAOImpl;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 public class GameSessionHandler {
@@ -33,14 +35,23 @@ public class GameSessionHandler {
     }
 
     public static DataTransferObject<Boolean> sendPlay(DataTransferObject<List<User>> request){
+        GameSessionDAO gameSessionDAO = new GameSessionDAOImpl();
+        ProductDAO productDAO = new ProductDAOImpl();
+        List<Product> products = productDAO.getAllProducts();
+
+        Collections.shuffle(products);
+        Product[] first12ProductsArray = products.stream()
+                .limit(12)
+                .toArray(Product[]::new);
         User userOnline = request.getData().get(0);
         User userInvite = request.getData().get(1);
         GameSession gameSession = new GameSession(LocalDateTime.now(), LocalDateTime.now(), userInvite, userOnline);
+        gameSessionDAO.createGameSession(gameSession);
         ServerThread serverInvite = ThreadManager.getUserThread(userInvite);
         ServerThread serverOnline = ThreadManager.getUserThread(userOnline);
         Pair<GameSession, User> pair = new Pair<>(gameSession, userInvite);
-        serverOnline.sendEvent(new DataTransferObject<>("PLAY", pair));
-        serverInvite.sendEvent(new DataTransferObject<>("PLAY", pair));
+        serverOnline.sendEvent(new DataTransferObject<>("PLAY", pair, first12ProductsArray));
+        serverInvite.sendEvent(new DataTransferObject<>("PLAY", pair, first12ProductsArray));
         return new DataTransferObject<>("Trash", true);
     }
 }
