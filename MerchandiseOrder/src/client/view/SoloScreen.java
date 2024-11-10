@@ -241,6 +241,7 @@ public class SoloScreen extends JPanel implements GameSoloListener {
                 // Tạo một bản sao mới của correctProductIds để gửi
                 ArrayList<Integer> productIdsToSend = new ArrayList<>(correctProductIds);
                 Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>> dataSend = new Pair<>(new Pair<>(currentUser, gameSession), new Pair<>(productIdsToSend, checkShelfFull()));
+                System.out.println(dataSend);
 
                 clientSocket.sendCorrectProductIds(dataSend);
 
