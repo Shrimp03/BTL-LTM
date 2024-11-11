@@ -29,6 +29,7 @@ public class QuestionScreenSolo extends JPanel {
     private GameSession gameSession;
     private User startingPlayer;
     private ImageIcon backgroundImage;
+    private JButton buttonPlay;
 
     public QuestionScreenSolo(User user, GameSession gameSession, User startingPlayer, Product[] products) {
         this.user = user;
@@ -40,7 +41,10 @@ public class QuestionScreenSolo extends JPanel {
         // Tải trước ảnh nền
 //        this.backgroundImage = loadImage("/static/inGameBackground.png", getWidth(), getHeight());
 
-        addShelfScreen();
+        buttonPlay = new JButton("Play");
+        buttonPlay.addActionListener(e -> addShelfScreen());
+
+//        addShelfScreen();
     }
 
     private void addShelfScreen() {
