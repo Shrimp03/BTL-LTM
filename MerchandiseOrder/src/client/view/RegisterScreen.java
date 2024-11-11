@@ -61,7 +61,7 @@ public class RegisterScreen extends JPanel {
         registerButton.setForeground(Color.WHITE); // Đặt màu chữ
 
         // Nút "Quay lại trang đăng nhập"
-        backButton = new JButton("Trang đăng nhập");
+        backButton = new JButton("Quay lại");
         backButton.setContentAreaFilled(false); // Nền trong suốt
         backButton.setFocusPainted(false); // Loại bỏ viền khi nhấn
         backButton.setOpaque(false); // Nền trong suốt
@@ -70,11 +70,11 @@ public class RegisterScreen extends JPanel {
         backButton.setFont(new Font("Arial", Font.BOLD, 26));
 
         // Đặt vị trí cho các thành phần
-        usernameField.setBounds(149, 184, 160, 29);
-        passwordField.setBounds(149, 246, 160, 28);
-        emailField.setBounds(149, 308, 160, 28);
-        registerButton.setBounds(80, 410, 220, 33);
-        backButton.setBounds(83, 476, 220, 33);
+        usernameField.setBounds(152, 188, 160, 30);
+        passwordField.setBounds(152, 272, 160, 30);
+        emailField.setBounds(152, 358, 160, 30);
+        registerButton.setBounds(80, 450, 220, 33);
+        backButton.setBounds(80, 555, 220, 33);
 
         // Thêm các thành phần vào giao diện
         add(usernameField);
@@ -114,7 +114,7 @@ public class RegisterScreen extends JPanel {
     // Phương thức tải hình nền
     private void loadBackgroundImage() {
         try {
-            InputStream imgStream = getClass().getResourceAsStream("/static/Register1.jpg");
+            InputStream imgStream = getClass().getResourceAsStream("/static/dangky.png");
             if (imgStream != null) {
                 backgroundImage = ImageIO.read(imgStream);
             } else {

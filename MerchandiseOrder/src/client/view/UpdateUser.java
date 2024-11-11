@@ -1,80 +1,103 @@
 package client.view;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 import client.controller.Client;
 import client.controller.ClientSocket;
 import model.User;
+import utils.CloudinaryConfig;
 
 public class UpdateUser extends JPanel {
-    private JLabel lblTitle, lblUsername, lblEmail, lblPassword, lblAvatar;
     private JTextField txtUsername, txtEmail;
     private JPasswordField txtPassword;
     private JButton btnUpdate, btnChangeAvatar, btnBack;
     private User currentUser;
+    private JLabel imageLabel;
+    private Image backgroundImage;
     private ClientSocket clientSocket;
 
     public UpdateUser(User currentUser) {
         this.currentUser = currentUser;
         setLayout(null);
+        // Tải ảnh nền
+        loadBackgroundImage();
+        if (backgroundImage != null) {
+            System.out.println("Background image loaded successfully.");
+        } else {
+            System.out.println("Failed to load background image.");
+        }
 
-        // Title
-        lblTitle = new JLabel("Thông tin người dùng", SwingConstants.CENTER);
-        lblTitle.setFont(new Font("Arial", Font.BOLD, 18));
-        lblTitle.setBounds(0, 10, 400, 30);  // Căn giữa với chiều rộng 400
-        add(lblTitle);
 
-        // Username
-        lblUsername = new JLabel("Username:");
-        lblUsername.setBounds(50, 60, 80, 25);
-        add(lblUsername);
 
         txtUsername = new JTextField(currentUser.getUsername());
-        txtUsername.setBounds(140, 60, 200, 25);
+        styleTextField(txtUsername,160,198,175,50);
         add(txtUsername);
 
-        // Email
-        lblEmail = new JLabel("Email:");
-        lblEmail.setBounds(50, 110, 80, 25);
-        add(lblEmail);
 
         txtEmail = new JTextField(currentUser.getEmail());
-        txtEmail.setBounds(140, 110, 200, 25);
+        styleTextField(txtEmail,160,275,175,50);
         add(txtEmail);
 
-        // Password
-        lblPassword = new JLabel("Password:");
-        lblPassword.setBounds(50, 160, 80, 25);
-        add(lblPassword);
 
         txtPassword = new JPasswordField(currentUser.getPassword());
-        txtPassword.setBounds(140, 160, 200, 25);
+        txtPassword.setBounds(160, 355, 175, 50);
+        styleTextField(txtPassword,160,355,175,50);
         add(txtPassword);
 
         // Avatar
-        lblAvatar = new JLabel("Avatar:");
-        lblAvatar.setBounds(50, 210, 80, 25);
-        add(lblAvatar);
-
         btnChangeAvatar = new JButton("Change Avatar");
-        btnChangeAvatar.setBounds(140, 210, 200, 25);
+        styleButton(btnChangeAvatar,157,430,175,50);
+        btnChangeAvatar.addActionListener(e -> uploadImage());
         add(btnChangeAvatar);
+
+
 
         // Update Button
         btnUpdate = new JButton("Update");
-        btnUpdate.setBounds(100, 300, 100, 30);
-        btnUpdate.setBackground(new Color(252, 218, 134));
-        btnUpdate.setForeground(Color.BLACK);
+        styleButton(btnUpdate,50,555,100,30);
         btnUpdate.addActionListener(e -> updateUserProfile());
         add(btnUpdate);
 
         // Back Button
         btnBack = new JButton("Back");
-        btnBack.setBounds(220, 300, 100, 30);
+        styleButton(btnBack,220,555,100,30);
         btnBack.addActionListener(e -> goBack());
         add(btnBack);
     }
+    private void uploadImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(this);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            CloudinaryConfig cloudinaryHelper = new CloudinaryConfig();
+            String imageUrl = cloudinaryHelper.uploadImage(selectedFile.getAbsolutePath());
+
+            if (imageUrl != null) {
+                JOptionPane.showMessageDialog(this, "Upload thành công! URL: " + imageUrl);
+
+                try {
+                    // Tải ảnh từ URL và hiển thị trong JLabel
+                    ImageIcon imageIcon = new ImageIcon(new URL(imageUrl));
+                    Image image = imageIcon.getImage().getScaledInstance(94, 87, Image.SCALE_SMOOTH);
+                    imageLabel.setIcon(new ImageIcon(image));
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi tải ảnh từ URL.");
+                    e.printStackTrace();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Upload thất bại!");
+            }
+        }
+    }
+
 
     // Method to update user profile
     private void updateUserProfile() {
@@ -83,6 +106,48 @@ public class UpdateUser extends JPanel {
         currentUser.setPassword(new String(txtPassword.getPassword()));
         ClientSocket.getInstance().updateUser(currentUser);
         JOptionPane.showMessageDialog(this, "Profile updated successfully!");
+    }
+    private void styleTextField(JTextField textField, int x, int y, int width, int height) {
+        textField.setBounds(x, y, width, height);
+        textField.setBackground(new Color(0, 0, 0, 0)); // Nền trong suốt
+        textField.setForeground(Color.BLACK);
+        textField.setBorder(null); // Loại bỏ viền
+        textField.setOpaque(false); // Nền trong suốt
+        textField.setFont(new Font("Arial", Font.BOLD, 16));
+    }
+
+    private void styleButton(JButton button, int x, int y, int width, int height) {
+        button.setBounds(x, y, width, height);
+        button.setFont(new Font("Arial", Font.PLAIN, 18));
+        button.setFocusPainted(false); // Loại bỏ viền khi nhấn
+        button.setContentAreaFilled(false); // Loại bỏ màu nền
+        button.setOpaque(false); // Không vẽ nền
+        button.setBorderPainted(false); // Loại bỏ viền của nút
+        button.setForeground(Color.WHITE); // Đặt màu chữ
+        button.setFont(new Font("Arial", Font.BOLD, 18));
+    }
+
+    // Phương thức tải hình nền
+    private void loadBackgroundImage() {
+        try {
+            InputStream imgStream = getClass().getResourceAsStream("/static/userprofile.png");
+            if (imgStream != null) {
+                backgroundImage = ImageIO.read(imgStream);
+            } else {
+                System.out.println("Background image not found, proceeding without it.");
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading background image: " + e.getMessage());
+        }
+    }
+
+    // Vẽ hình nền
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
     // Go back to previous screen
