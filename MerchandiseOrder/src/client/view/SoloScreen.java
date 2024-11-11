@@ -485,6 +485,7 @@ public class SoloScreen extends JPanel implements GameSoloListener {
 
     @Override
     public void onProductOrderReceived(Pair<User, ArrayList<Integer>> dataReceived) {
+        System.out.println("123");
         User nextUser = dataReceived.getFirst();
         if (dataReceived.getFirst().equals(currentUser)) {
             isPlayerTurn = true;

@@ -2,6 +2,8 @@ package server.controller.handler;
 
 import model.*;
 import server.controller.ServerThread;
+import server.controller.threadManager.GameSessionManager;
+import server.controller.threadManager.Session;
 import server.controller.threadManager.ThreadManager;
 import server.dal.dao.GameSessionDAO;
 import server.dal.dao.GameSessionDAOImpl;
@@ -47,6 +49,13 @@ public class GameSessionHandler {
         User userInvite = request.getData().get(1);
         GameSession gameSession = new GameSession(LocalDateTime.now(), LocalDateTime.now(), userInvite, userOnline);
         gameSessionDAO.createGameSession(gameSession);
+        Session session = GameSessionManager.getSession(gameSession);
+        if (session == null) {
+            GameSessionManager.createSession(gameSession);
+            session = GameSessionManager.getSession(gameSession);
+        }
+        session.addPlayer(ThreadManager.getUserThread(userOnline));
+        session.addPlayer(ThreadManager.getUserThread(userInvite));
         ServerThread serverInvite = ThreadManager.getUserThread(userInvite);
         ServerThread serverOnline = ThreadManager.getUserThread(userOnline);
         Pair<GameSession, User> pairInvite = new Pair<>(gameSession, userInvite);

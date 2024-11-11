@@ -1,10 +1,9 @@
 package client.controller;
 
-import client.view.*;
+import client.view.GamePlayListener;
+import client.view.GameSoloListener;
+import client.view.PopupInvite;
 import dto.UserStatusDto;
-import model.DataTransferObject;
-import model.Product;
-import model.User;
 import model.*;
 
 import java.io.IOException;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 public class ClientSocket {
     // Áp dụng Singleton
@@ -36,6 +34,7 @@ public class ClientSocket {
     }
 
     public void addGameSoloListener(GameSoloListener listener, User user) {
+        System.out.println(user);
         listeners.add(new Pair<>(listener, user));
     }
 
@@ -49,6 +48,7 @@ public class ClientSocket {
                 while (true) {
                     Object response = Client.ois.readObject();
                     DataTransferObject<?> res = (DataTransferObject<?>) response;
+                    System.out.println(res.getType());
 
                     switch (res.getType()) {
                         case "INVITE":
@@ -77,6 +77,7 @@ public class ClientSocket {
                             break;
 
                         case "BroadCastProductIds":
+                            System.out.println("broadcast1243");
                             Object data = res.getData();
                             if (data instanceof Pair<?, ?> outerPair) {
                                 if (outerPair.getFirst() instanceof Pair<?, ?> innerPair && outerPair.getSecond() instanceof ArrayList) {
@@ -85,7 +86,9 @@ public class ClientSocket {
 
                                     // Notify listeners
                                     for (Pair<GameSoloListener, User> p : listeners) {
-                                        if (p.getSecond().equals(userGameSessionPair.getFirst()) ||
+                                        System.out.println("listener");
+                                        System.out.println(listeners.size());
+                                        if (p.getSecond().equals(userGameSessionPair.getSecond().getUser1()) ||
                                                 p.getSecond().equals(userGameSessionPair.getSecond().getUser2())) {
                                             p.getFirst().onProductOrderReceived(new Pair<>(userGameSessionPair.getFirst(), productIds));
                                         }

@@ -90,7 +90,7 @@ public class ServerThread implements Runnable {
             if (oos != null) {
                 oos.writeObject(event);
                 oos.flush();
-                System.out.println("Event sent to client: " + event);
+                System.out.println("Event sent to client: " + event.getType());
             }
         } catch (IOException e) {
             System.err.println("Lỗi khi gửi sự kiện đến client: " + e.getMessage());
