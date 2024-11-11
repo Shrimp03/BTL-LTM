@@ -38,7 +38,7 @@ public class HomeScreen extends JPanel {
 
         // Khởi tạo JLabel cho ảnh
         imageLabel = new JLabel();
-        imageLabel.setBounds(9, 5, 92, 87);
+        imageLabel.setBounds(5, 5, 95, 95);
         imageLabel.setBorder(BorderFactory.createLineBorder(Color.white, 5));
         add(imageLabel);
 
@@ -55,22 +55,17 @@ public class HomeScreen extends JPanel {
 
 
         // Nút "Bắt đầu chơi"
-        playButton = new JButton("Bắt đầu chơi");
-        styleButton(playButton, 98, 313, 170, 60); // Đặt vị trí và kích thước
-        playButton.addActionListener(e -> getClientFrame().showQuestionScreen(user ));
+        playButton = new JButton("1 PHAYER");
+        styleButton(playButton, 98, 300, 170, 60); // Đặt vị trí và kích thước
+        playButton.addActionListener(e -> getClientFrame().showQuestionScreen(user));
         add(playButton);
 
         // Nút "Bảng xếp hạng"
         rankingButton = new JButton("Bảng xếp hạng");
-        styleButton(rankingButton, 88, 392, 200, 60); // Đặt vị trí và kích thước
+        styleButton(rankingButton, 88, 490, 200, 60); // Đặt vị trí và kích thước
         rankingButton.addActionListener(e -> getClientFrame().showRankingScreen(user));
         add(rankingButton);
 
-        // Nút "Upload Ảnh"
-        uploadButton = new JButton("Upload Ảnh");
-        styleButton(uploadButton, 20, 21, 60, 50); // Đặt vị trí và kích thước
-        uploadButton.addActionListener(e -> uploadImage());
-        add(uploadButton);
 
         soloButton = new JButton("Solo");
         styleButton(uploadButton, 20, 21, 60, 50);
@@ -78,8 +73,8 @@ public class HomeScreen extends JPanel {
         add(soloButton);
 
         // Nút "Tạo phòng chơi"
-        JButton createRoomButton = new JButton("Tạo phòng");
-        styleButton(createRoomButton, 88, 476, 200, 60);
+        JButton createRoomButton = new JButton("PvP");
+        styleButton(createRoomButton, 88, 392, 200, 60);
         createRoomButton.setFocusPainted(false); // Loại bỏ viền khi focus
         createRoomButton.setContentAreaFilled(false); // Loại bỏ màu nền
         createRoomButton.setOpaque(false); // Không vẽ nền
@@ -117,7 +112,7 @@ public class HomeScreen extends JPanel {
                 return new Dimension(60, 60);
             }
         };
-        logoutButton.setBounds(280, 560, 58, 58); // Đặt vị trí và kích thước
+        logoutButton.setBounds(315, 600, 58, 58); // Đặt vị trí và kích thước
         logoutButton.setFocusPainted(false); // Loại bỏ viền khi focus
         logoutButton.setContentAreaFilled(false); // Loại bỏ màu nền
         logoutButton.setOpaque(false); // Không vẽ nền
@@ -150,16 +145,7 @@ public class HomeScreen extends JPanel {
         add(logoutButton);
 
 
-        hintButton = new JButton("?") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                // Vẽ hình tròn trong suốt
-                g.setColor(new Color(0, 0, 0, 0)); // Màu nền trong suốt
-                g.fillOval(0, 0, getWidth(), getHeight()); // Vẽ hình tròn
-
-                // Vẽ ký tự "?" mà không thay đổi khi nhấn
-                super.paintComponent(g);
-            }
+        hintButton = new JButton() {
 
             @Override
             public Dimension getPreferredSize() {
@@ -174,7 +160,7 @@ public class HomeScreen extends JPanel {
         hintButton.setFont(new Font("Arial", Font.BOLD, 18));
         hintButton.setForeground(Color.WHITE); // Màu chữ
         hintButton.setBorderPainted(false); // Loại bỏ viền của nút
-        hintButton.addActionListener(e -> getClientFrame().showSuggestScreen(user)); // Chuyển đến màn hình gợi ý
+        hintButton.addActionListener(e -> getClientFrame().showRuleScreen(user)); // Chuyển đến màn hình gợi ý
         // Sự kiện click
         add(hintButton);
 
@@ -242,7 +228,7 @@ public class HomeScreen extends JPanel {
     // Phương thức tải hình nền
     private void loadBackgroundImage() {
         try {
-            InputStream imgStream = getClass().getResourceAsStream("/static/home.jpg");
+            InputStream imgStream = getClass().getResourceAsStream("/static/home.png");
             if (imgStream != null) {
                 backgroundImage = ImageIO.read(imgStream);
             } else {

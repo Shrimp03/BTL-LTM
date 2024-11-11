@@ -50,7 +50,7 @@ public class LoginScreen extends JPanel {
         loginButton.setFocusPainted(false); // Loại bỏ viền khi nhấn
         loginButton.setOpaque(false); // Nền trong suốt
         loginButton.setBorder(null); // Loại bỏ viền
-        loginButton.setForeground(Color.WHITE);
+        loginButton.setForeground(Color.BLACK);
         loginButton.setFont(new Font("Arial", Font.BOLD, 26));
 
         // Nút "Đăng ký"
@@ -59,14 +59,14 @@ public class LoginScreen extends JPanel {
         registerButton.setFocusPainted(false); // Loại bỏ viền khi nhấn
         registerButton.setOpaque(false); // Nền trong suốt
         registerButton.setBorder(null); // Loại bỏ viền
-        registerButton.setForeground(Color.WHITE); // Văn bản màu trắng
+        registerButton.setForeground(Color.BLACK); // Văn bản màu trắng
         registerButton.setFont(new Font("Arial", Font.BOLD, 26));
 
         // Đặt vị trí cho các thành phần
-        usernameField.setBounds(138, 224, 175, 28);
-        passwordField.setBounds(138, 295, 175, 28);
-        loginButton.setBounds(89, 393, 200, 30);
-        registerButton.setBounds(89, 468, 200, 35);
+        usernameField.setBounds(160, 230, 175, 50);
+        passwordField.setBounds(160, 315, 175, 50);
+        loginButton.setBounds(89, 450, 200, 30);
+        registerButton.setBounds(89, 550, 200, 35);
 
         // Thêm các thành phần vào màn hình
         add(usernameField);
@@ -109,7 +109,7 @@ public class LoginScreen extends JPanel {
     // Phương thức tải hình nền
     private void loadBackgroundImage() {
         try {
-            InputStream imgStream = getClass().getResourceAsStream("/static/Login1.jpg");
+            InputStream imgStream = getClass().getResourceAsStream("/static/dangnhap.png");
             if (imgStream != null) {
                 backgroundImage = ImageIO.read(imgStream);
             } else {
