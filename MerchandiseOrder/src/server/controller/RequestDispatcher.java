@@ -41,6 +41,8 @@ public class RequestDispatcher {
                 return GameSessionHandler.sendLeave((DataTransferObject<List<User>>) request);
             case "PLAY":
                 return GameSessionHandler.sendPlay((DataTransferObject<List<User>>) request);
+            case "UpdateStatusUser":
+                return UserHandler.updateStatusUser((DataTransferObject<User>) request);
             default:
                 return new DataTransferObject<>("Error", "Unknown request type");
         }

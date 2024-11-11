@@ -111,5 +111,9 @@ public class UserHandler {
         return new DataTransferObject<>("LOGOUT_FAIL", false); // Trả về thất bại nếu có lỗi
     }
 
+    public static DataTransferObject<Boolean> updateStatusUser(DataTransferObject<?> request) {
+        UserDAO userDAO = new UserDAOImpl();
+        return new DataTransferObject<>("UpdateStatusUser", userDAO.updateStatusUser((User) request.getData()));
+    }
 
 }

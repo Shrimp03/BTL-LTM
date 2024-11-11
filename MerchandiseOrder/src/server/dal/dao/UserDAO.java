@@ -9,6 +9,7 @@ public interface UserDAO {
     public User getUser(String username, String password);
     public User getUserById(int id);
     public boolean updateUser(User user);
+    public boolean updateStatusUser(User user);
     // Thêm phương thức mới để tìm user theo username
     public User getUserByUsername(String username);
     boolean saveUser(User user);

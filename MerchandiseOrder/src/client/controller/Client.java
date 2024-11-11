@@ -151,6 +151,8 @@ public class Client extends JFrame implements GameInvitationListener {
     }
 
     public void showQuestionScreenSolo(User user, GameSession gameSession, User startingPlayer, Product[] products) {
+        System.out.println("user question solo: ");
+        System.out.println(user);
         QuestionScreenSolo questionScreen = new QuestionScreenSolo(user, gameSession, startingPlayer, products);
         cardPanel.add(questionScreen, "QuestionScreenSolo");
         cardLayout.show(cardPanel, "QuestionScreenSolo");

@@ -7,5 +7,5 @@ import model.User;
 import java.util.ArrayList;
 
 public interface GamePlayListener {
-    void onPlay(User curUser, GameSession gameSession,  User startingPlayer, Product[] products);
+    void onPlay( GameSession gameSession,  User startingPlayer, Product[] products);
 }

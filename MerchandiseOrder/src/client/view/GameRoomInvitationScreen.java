@@ -253,7 +253,11 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
     }
 
     @Override
-    public void onPlay(User curUser, GameSession gameSession, User startingPlayer, Product[] products) {
-        getClientFrame().showQuestionScreenSolo(curUser, gameSession, startingPlayer, products);
+    public void onPlay(GameSession gameSession, User startingPlayer, Product[] products) {
+//        User userStatus = user;
+        user.setStatus(UserStatus.PLAYING);
+        Boolean updateStatusUser = ClientSocket.getInstance().updateStatusUser("UpdateStatusUser", user);
+        System.out.println(updateStatusUser);
+        getClientFrame().showQuestionScreenSolo(user, gameSession, startingPlayer, products);
     }
 }

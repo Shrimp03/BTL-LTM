@@ -49,9 +49,10 @@ public class GameSessionHandler {
         gameSessionDAO.createGameSession(gameSession);
         ServerThread serverInvite = ThreadManager.getUserThread(userInvite);
         ServerThread serverOnline = ThreadManager.getUserThread(userOnline);
-        Pair<GameSession, User> pair = new Pair<>(gameSession, userInvite);
-        serverOnline.sendEvent(new DataTransferObject<>("PLAY", pair, first12ProductsArray));
-        serverInvite.sendEvent(new DataTransferObject<>("PLAY", pair, first12ProductsArray));
+        Pair<GameSession, User> pairInvite = new Pair<>(gameSession, userInvite);
+        Pair<GameSession, User> pairOnline = new Pair<>(gameSession, userOnline);
+        serverOnline.sendEvent(new DataTransferObject<>("PLAY", pairOnline, first12ProductsArray));
+        serverInvite.sendEvent(new DataTransferObject<>("PLAY", pairInvite, first12ProductsArray));
         return new DataTransferObject<>("Trash", true);
     }
 }

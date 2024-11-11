@@ -71,7 +71,7 @@ public class ClientSocket {
                             Product[] products = res.getProducts();
                             for (Pair<GamePlayListener, User> p : gamePlayListener) {
                                 if (p.getSecond().equals(gameSession3.getUser1()) || p.getSecond().equals(gameSession3.getUser2())) {
-                                    p.getFirst().onPlay(p.getSecond(), gameSession3, gameSession3.getUser1(), products);
+                                    p.getFirst().onPlay( gameSession3, gameSession3.getUser1(), products);
                                 }
                             }
                             break;
@@ -381,6 +381,28 @@ public class ClientSocket {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public Boolean updateStatusUser(String responseType, User user) {
+        try {
+            DataTransferObject<?> dto = new DataTransferObject<>(responseType, user);
+
+            // Gửi yêu cầu tới server
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+            Object response = getNextMessage();
+            if (response instanceof DataTransferObject<?>) {
+                DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) response;
+                if ("UpdateStatusUser".equals(res.getType())) {
+                    return res.getData();
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void setAccepted(Boolean accepted){

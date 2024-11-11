@@ -24,7 +24,7 @@ public class PopupInvite {
 //        this.setGameInvitationListener(Client.getInstance()); // Đăng ký Client là listener
     }
 
-    public static void showInvitationDialog(User inviter, User currentUser) {
+    public static void showInvitationDialog(User currentUser, User inviter) {
         // Biến lưu trạng thái lựa chọn của người dùng
         final boolean[] hasResponded = {false};
 
@@ -60,8 +60,8 @@ public class PopupInvite {
         System.out.println(responseType);
 
         List<User> twoUsers = new ArrayList<>();
-        twoUsers.add(inviter);
         twoUsers.add(currentUser);
+        twoUsers.add(inviter);
 
         if ("ACCEPT".equals(responseType)) {
 //            ClientSocket.getInstance().setAccepted(true);
