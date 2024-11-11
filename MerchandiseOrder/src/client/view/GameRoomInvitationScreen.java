@@ -4,10 +4,13 @@ import client.controller.Client;
 import client.controller.ClientSocket;
 import model.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,6 +32,7 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
     private User onlineUser;
     private Boolean isOnlineUser ;
     private User inviteUser;
+    private Image backgroundImage;
 
     public GameRoomInvitationScreen(User user, Boolean isOnlineUser, User inviteUser) {
         this.isOnlineUser = isOnlineUser;
@@ -38,7 +42,7 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         setLayout(new BorderLayout());
 
         ClientSocket.getInstance().addGamePlayListener(this, user);
-
+        loadBackgroundImage();
         initializeUI();
         setVisible(true);
     }
@@ -47,11 +51,16 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
     private void initializeUI() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(null);
-        mainPanel.setBackground(new Color(173, 216, 230)); // Light blue background
+        mainPanel.setOpaque(false);
+
+//        mainPanel.setBackground(new Color(173, 216, 230)); // Light blue background
 
         // Home button
-        homeButton = new JButton("Home");
-        homeButton.setBounds(300, 20, 80, 30);
+        homeButton = new JButton();
+        homeButton.setBounds(10, 20, 50, 30);
+        homeButton.setContentAreaFilled(false);
+        homeButton.setBorder(null);
+        homeButton.setOpaque(false);
         mainPanel.add(homeButton);
 
         homeButton.addActionListener(new ActionListener() {
@@ -64,37 +73,35 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
 
         // Current user's avatar and name
         currentUserAvatar = new JLabel(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
-        currentUserAvatar.setBounds(90, 150, 50, 50);
+        currentUserAvatar.setBounds(155, 180, 60, 60);
         mainPanel.add(currentUserAvatar);
 
         currentUserName = new JLabel(user.getUsername());
         currentUserName.setHorizontalAlignment(SwingConstants.CENTER);
-        currentUserName.setBounds(80, 210, 70, 20);
+        currentUserName.setBounds(150, 240, 70, 20);
         mainPanel.add(currentUserName);
 
-        // "VS" ở giữa
-        JLabel vsLabel = new JLabel("VS");
-        vsLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        vsLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        vsLabel.setBounds(175, 175, 50, 20);
-        mainPanel.add(vsLabel);
 
         // Avatar và tên của người dùng được mời (ban đầu ẩn)
         invitedUserAvatar = new JLabel();
-        invitedUserAvatar.setBounds(260, 150, 50, 50);
+        invitedUserAvatar.setBounds(165, 340, 60, 60);
         invitedUserAvatar.setVisible(true);
         mainPanel.add(invitedUserAvatar);
 
         invitedUserName = new JLabel();
         invitedUserName.setHorizontalAlignment(SwingConstants.CENTER);
-        invitedUserName.setBounds(250, 210, 70, 20);
+        invitedUserName.setBounds(155, 400, 70, 20);
         invitedUserName.setVisible(true); // Ban đầu ẩn
         mainPanel.add(invitedUserName);
 
 
         // Nút Invite User (ban đầu hiện)
         inviteButton = new JButton("+");
-        inviteButton.setBounds(270, 175, 50, 30);
+        inviteButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        inviteButton.setBorder(null);
+        inviteButton.setContentAreaFilled(false);
+        inviteButton.setOpaque(false);
+        inviteButton.setBounds(150, 350, 50, 50);
         inviteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -104,8 +111,10 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         mainPanel.add(inviteButton);
 
         // Nút Play ở dưới
-        playButton = new JButton("Play");
-        playButton.setBounds(150, 400, 100, 40);
+        playButton = new JButton();
+        playButton.setBounds(140, 580, 100, 40);
+        playButton.setContentAreaFilled(false);
+        playButton.setBorder(null);
         playButton.setEnabled(false); // Chỉ khả dụng khi có người dùng được mời
         playButton.addActionListener(new ActionListener() {
             @Override
@@ -215,6 +224,29 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    // Phương thức tải hình nền
+    private void loadBackgroundImage() {
+        try {
+            InputStream imgStream = getClass().getResourceAsStream("/static/pvp.png");
+            if (imgStream != null) {
+                backgroundImage = ImageIO.read(imgStream);
+            } else {
+                System.out.println("Không tìm thấy hình nền, tiếp tục không có ảnh nền.");
+            }
+        } catch (IOException e) {
+            System.out.println("Lỗi khi tải hình nền: " + e.getMessage());
+        }
+    }
+
+    // Vẽ hình nền
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
 
