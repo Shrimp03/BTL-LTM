@@ -386,9 +386,9 @@ public class ClientSocket {
         }
     }
 
-    public Boolean updateStatusUser(String responseType, User user) {
+    public Boolean updateStatusUser(String responseType, Pair<Integer, String> pair) {
         try {
-            DataTransferObject<?> dto = new DataTransferObject<>(responseType, user);
+            DataTransferObject<?> dto = new DataTransferObject<>(responseType, pair);
 
             // Gửi yêu cầu tới server
             Client.oos.writeObject(dto);

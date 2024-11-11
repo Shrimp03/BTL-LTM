@@ -1,10 +1,7 @@
 package server.controller.handler;
 
 import dto.UserStatusDto;
-import model.DataTransferObject;
-import model.Product;
-import model.User;
-import model.UserStatus;
+import model.*;
 import server.controller.threadManager.ThreadManager;
 import server.dal.dao.ProductDAO;
 import server.dal.dao.ProductDAOImpl;
@@ -113,7 +110,7 @@ public class UserHandler {
 
     public static DataTransferObject<Boolean> updateStatusUser(DataTransferObject<?> request) {
         UserDAO userDAO = new UserDAOImpl();
-        return new DataTransferObject<>("UpdateStatusUser", userDAO.updateStatusUser((User) request.getData()));
+        return new DataTransferObject<>("UpdateStatusUser", userDAO.updateStatusUser((Pair<Integer, String>) request.getData()));
     }
 
 }

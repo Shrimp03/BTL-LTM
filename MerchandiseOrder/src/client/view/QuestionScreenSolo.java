@@ -28,6 +28,7 @@ public class QuestionScreenSolo extends JPanel {
     private JLabel countdownLabel;
     private GameSession gameSession;
     private User startingPlayer;
+    private ImageIcon backgroundImage;
 
     public QuestionScreenSolo(User user, GameSession gameSession, User startingPlayer, Product[] products) {
         this.user = user;
@@ -35,6 +36,10 @@ public class QuestionScreenSolo extends JPanel {
         this.startingPlayer = startingPlayer;
         this.products = new ArrayList<>(Arrays.asList(products));
         this.clientSocket = ClientSocket.getInstance();
+
+        // Tải trước ảnh nền
+//        this.backgroundImage = loadImage("/static/inGameBackground.png", getWidth(), getHeight());
+
         addShelfScreen();
     }
 
@@ -54,8 +59,13 @@ public class QuestionScreenSolo extends JPanel {
             shelfMerchandise.add(shelfPanels[i]);
         }
 
-        shelfMerchandise.setBounds(0, 225, getWidth(), 150);
-        add(shelfMerchandise);
+        // Cập nhật kích thước và vị trí của shelfMerchandise sau khi thêm các thành phần
+        SwingUtilities.invokeLater(() -> {
+            shelfMerchandise.setBounds(0, 225, getWidth(), 150);
+            add(shelfMerchandise);
+            revalidate();
+            repaint();
+        });
 
         countdownLabel = new JLabel("Time left: " + countdownSeconds + "s");
         countdownLabel.setFont(new Font("Arial", Font.BOLD, 24));
@@ -69,21 +79,24 @@ public class QuestionScreenSolo extends JPanel {
     private void startCountdownTimer() {
         countdownSeconds = 5;
 
-        countdownTimer = new Timer(1000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                countdownSeconds--;
-                countdownLabel.setText("Time left: " + countdownSeconds + "s");
+        Timer delayTimer = new Timer(100, e -> {
+            countdownTimer = new Timer(1000, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    countdownSeconds--;
+                    countdownLabel.setText("Time left: " + countdownSeconds + "s");
 
-                if (countdownSeconds <= 0) {
-                    countdownTimer.stop();
-                    getClientFrame().showSoloScreen(user, gameSession, products, startingPlayer);
+                    if (countdownSeconds <= 0) {
+                        countdownTimer.stop();
+                        getClientFrame().showSoloScreen(user, gameSession, products, startingPlayer);
+                    }
                 }
-            }
+            });
+            countdownTimer.start();
         });
-        countdownTimer.start();
+        delayTimer.setRepeats(false);
+        delayTimer.start();
     }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -105,6 +118,7 @@ public class QuestionScreenSolo extends JPanel {
         for (int i = 0; i < shelfSlots[shelfIndex].length; i++) {
             shelfSlots[shelfIndex][i] = createSlotLabel();
             String imagePath = "/static/item/" + products.get(imgIndex + i).getImageUrl();
+            System.out.println(imagePath);
             ImageIcon icon = loadImage(imagePath, 50, 50);
             if (icon != null) {
                 shelfSlots[shelfIndex][i].setIcon(icon);
@@ -126,8 +140,11 @@ public class QuestionScreenSolo extends JPanel {
     private static ImageIcon loadImage(String imagePath, Integer width, Integer height) {
         try {
             System.out.println("Loading image from path: " + imagePath);
+
+            // Bảo đảm rằng đường dẫn ảnh bắt đầu bằng "/"
             imagePath = imagePath.startsWith("/") ? imagePath : "/" + imagePath;
 
+            // Tải ảnh từ classpath
             InputStream input = QuestionScreenSolo.class.getResourceAsStream(imagePath);
             if (input == null) {
                 System.err.println("Image not found at path: " + imagePath);
@@ -140,11 +157,14 @@ public class QuestionScreenSolo extends JPanel {
                 return null;
             }
 
-            if (height == null) {
-                double aspectRatio = (double) image.getHeight(null) / image.getWidth(null);
-                height = (int) (width * aspectRatio);
+            // Kiểm tra lại width và height
+            if (width == 0 || height == 0) {
+                System.err.println("Invalid width or height for image scaling.");
+                return new ImageIcon(image); // Trả về ảnh gốc nếu width hoặc height không hợp lệ
             }
+
             Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            System.out.println(scaledImage);
             return new ImageIcon(scaledImage);
 
         } catch (IOException e) {
@@ -153,6 +173,8 @@ public class QuestionScreenSolo extends JPanel {
             return null;
         }
     }
+
+
 
     private Client getClientFrame() {
         return (Client) SwingUtilities.getWindowAncestor(this);

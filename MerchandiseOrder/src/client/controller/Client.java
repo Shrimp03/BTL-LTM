@@ -1,7 +1,6 @@
 package client.controller;
 
 import client.view.*;
-import model.DataTransferObject;
 import model.GameSession;
 import model.Product;
 import model.User;
@@ -37,10 +36,10 @@ public class Client extends JFrame implements GameInvitationListener {
     }
 
     @Override
-    public void onInvitationReceived(boolean isAccepted, User currentUser) {
+    public void onInvitationReceived(boolean isAccepted, User currentUser, User inviteUser) {
         if (isAccepted) {
             // Nếu lời mời được chấp nhận, hiển thị màn hình Game Room Invitation
-            showInvitaionScreen(currentUser, true);
+            showInvitaionScreen(currentUser, true, inviteUser);
         } else {
             // Nếu lời mời bị từ chối, bạn có thể hiển thị thông báo khác hoặc cập nhật giao diện
             System.out.println("Lời mời bị từ chối.");
@@ -144,15 +143,13 @@ public class Client extends JFrame implements GameInvitationListener {
         cardLayout.show(cardPanel, "SoloScreen");
     }
 
-    public void showInvitaionScreen(User user, Boolean isOnlineUser) {
-        GameRoomInvitationScreen gameRoomInvitationScreen = new GameRoomInvitationScreen(user, isOnlineUser);
+    public void showInvitaionScreen(User user, Boolean isOnlineUser, User inviteUser) {
+        GameRoomInvitationScreen gameRoomInvitationScreen = new GameRoomInvitationScreen(user, isOnlineUser, inviteUser);
         cardPanel.add(gameRoomInvitationScreen, "GameRoomInvitationScreen");
         cardLayout.show(cardPanel, "GameRoomInvitationScreen");
     }
 
     public void showQuestionScreenSolo(User user, GameSession gameSession, User startingPlayer, Product[] products) {
-        System.out.println("user question solo: ");
-        System.out.println(user);
         QuestionScreenSolo questionScreen = new QuestionScreenSolo(user, gameSession, startingPlayer, products);
         cardPanel.add(questionScreen, "QuestionScreenSolo");
         cardLayout.show(cardPanel, "QuestionScreenSolo");

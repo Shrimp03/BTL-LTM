@@ -1,5 +1,6 @@
 package server.dal.dao;
 
+import model.Pair;
 import model.User;
 import model.UserStatus;
 
@@ -71,14 +72,14 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     }
 
     @Override
-    public boolean updateStatusUser(User user) {
+    public boolean updateStatusUser(Pair<Integer, String> pair) {
         String query = "UPDATE users SET  status = ? WHERE id = ?";
         try (PreparedStatement ps = con.prepareStatement(query)) {
             System.out.println("UserStatus");
-            System.out.println(user.getStatus());
-            System.out.println(user.getId());
-            ps.setString(1, user.getStatus().toString());
-            ps.setInt(2, user.getId());
+            System.out.println(pair.getSecond());
+            System.out.println(pair.getFirst());
+            ps.setString(1, pair.getSecond());
+            ps.setInt(2, pair.getFirst());
 
             int rowsAffected = ps.executeUpdate();
 

@@ -28,7 +28,6 @@ public class HomeScreen extends JPanel {
     private Image backgroundImage;
     private JButton hintButton;
     private JLabel imageLabel;
-    private JButton soloButton;
     public HomeScreen(User user) {
         this.user = user;
         setSize(385, 685); // Đặt kích thước lớn
@@ -67,11 +66,6 @@ public class HomeScreen extends JPanel {
         add(rankingButton);
 
 
-        soloButton = new JButton("Solo");
-        styleButton(uploadButton, 20, 21, 60, 50);
-//        soloButton.addActionListener(e -> getClientFrame().showSoloScreen());
-        add(soloButton);
-
         // Nút "Tạo phòng chơi"
         JButton createRoomButton = new JButton("PvP");
         styleButton(createRoomButton, 88, 392, 200, 60);
@@ -80,7 +74,7 @@ public class HomeScreen extends JPanel {
         createRoomButton.setOpaque(false); // Không vẽ nền
         createRoomButton.setBorderPainted(false); // Loại bỏ viền của nút
 
-        createRoomButton.addActionListener(e -> getClientFrame().showInvitaionScreen(user, false)); // Chuyển đến màn hình tạo phòng
+        createRoomButton.addActionListener(e -> getClientFrame().showInvitaionScreen(user, false, null)); // Chuyển đến màn hình tạo phòng
         add(createRoomButton);
 
         // Nút "Đăng Xuất" hình tròn

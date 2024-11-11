@@ -67,7 +67,7 @@ public class PopupInvite {
 //            ClientSocket.getInstance().setAccepted(true);
             // Nếu chọn chấp nhận, thông báo cho Client và gửi mời
             if (gameInvitationListener != null) {
-                gameInvitationListener.onInvitationReceived(true, currentUser);
+                gameInvitationListener.onInvitationReceived(true, currentUser, inviter);
             }
             ClientSocket.getInstance().sendAcceptInvite(responseType, twoUsers);
         } else {
