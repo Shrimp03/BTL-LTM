@@ -25,6 +25,7 @@ public class PasswordUtil {
     // Xác minh mật khẩu (so sánh với mật khẩu đã mã hóa)
     public static boolean verifyPassword(String rawPassword, String hashedPassword) {
         return hashPassword(rawPassword).equals(hashedPassword);
+
     }
 
     // Kiểm tra mật khẩu có tuân thủ các quy tắc không
