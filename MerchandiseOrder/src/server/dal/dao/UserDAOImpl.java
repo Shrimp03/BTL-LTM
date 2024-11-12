@@ -51,25 +51,49 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
         return null;
     }
 
+//    @Override
+//    public boolean updateUser(User user) {
+//        String query = "UPDATE users SET email = ?, points = ?, avatar = ?, status = ? WHERE id = ?";
+//        try (PreparedStatement ps = con.prepareStatement(query)) {
+//            ps.setString(1, user.getEmail());
+//            ps.setString(2, user.getPoints());
+//            ps.setString(3, user.getAvatar());
+//            ps.setString(4, user.getStatus().toString());
+//            ps.setInt(5, user.getId());
+//
+//            int rowsAffected = ps.executeUpdate();
+//
+//            // If at least one row was updated, return true
+//            return rowsAffected > 0;
+//        } catch (SQLException e) {
+//            System.out.println(e.getMessage());
+//            return false;
+//        }
+//    }
     @Override
     public boolean updateUser(User user) {
-        String query = "UPDATE users SET email = ?, points = ?, avatar = ?, status = ? WHERE id = ?";
+        String query = "UPDATE users SET password = ?, email = ?, points = ?, avatar = ?, status = ? WHERE id = ?";
         try (PreparedStatement ps = con.prepareStatement(query)) {
-            ps.setString(1, user.getEmail());
-            ps.setString(2, user.getPoints());
-            ps.setString(3, user.getAvatar());
-            ps.setString(4, user.getStatus().toString());
-            ps.setInt(5, user.getId());
+            ps.setString(1, user.getPassword());  // Mật khẩu đã mã hóa mới
+            ps.setString(2, user.getEmail());
+            ps.setString(3, user.getPoints());
+            ps.setString(4, user.getAvatar());
+            ps.setString(5, user.getStatus().toString());
+            ps.setInt(6, user.getId());
 
             int rowsAffected = ps.executeUpdate();
 
-            // If at least one row was updated, return true
+            // Log số hàng được cập nhật để xác nhận quá trình
+            System.out.println("Rows affected (updateUser): " + rowsAffected);
+
+            // Trả về true nếu có ít nhất một hàng được cập nhật
             return rowsAffected > 0;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return false;
         }
     }
+
 
     @Override
     public boolean updateStatusUser(Pair<Integer, String> pair) {

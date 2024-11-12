@@ -65,12 +65,31 @@ public class UserHandler {
         return new DataTransferObject<>("FAIL", null);  // Trả về thất bại nếu sai
     }
 
+//    public static DataTransferObject<Boolean> updateUser(DataTransferObject<?> request) {
+//        UserDAO userDAO = new UserDAOImpl();
+//        User user = (User) request.getData();
+//        boolean updateSuccess = userDAO.updateUser(user);
+//        return new DataTransferObject<>("Update user response", updateSuccess);
+//    }
     public static DataTransferObject<Boolean> updateUser(DataTransferObject<?> request) {
         UserDAO userDAO = new UserDAOImpl();
-        User user = (User) request.getData();
-        boolean updateSuccess = userDAO.updateUser(user);
+        User updatedUser = (User) request.getData();
+        User existingUser = userDAO.getUserByUsername(updatedUser.getUsername());
+        if (existingUser != null) {
+            // Kiểm tra nếu mật khẩu đã thay đổi và chưa được mã hóa
+            if (!PasswordUtil.verifyPassword(updatedUser.getPassword(), existingUser.getPassword())) {
+                // Mã hóa mật khẩu mới nếu mật khẩu đã thay đổi
+                String hashedPassword = PasswordUtil.hashPassword(updatedUser.getPassword());
+                updatedUser.setPassword(hashedPassword);
+            } else {
+                // Nếu mật khẩu không thay đổi, giữ nguyên mật khẩu đã mã hóa
+                updatedUser.setPassword(existingUser.getPassword());
+            }
+        }
+        boolean updateSuccess = userDAO.updateUser(updatedUser);
         return new DataTransferObject<>("Update user response", updateSuccess);
     }
+
     public static DataTransferObject<List<User>> getAllUsers(DataTransferObject<?> request) {
         UserDAO userDAO = new UserDAOImpl();
         List<User> users = userDAO.getAllUsers();
