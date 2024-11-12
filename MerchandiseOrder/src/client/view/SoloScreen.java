@@ -55,8 +55,6 @@ public class SoloScreen extends JPanel implements GameSoloListener {
 
     public SoloScreen(User currentUser, GameSession gameSession, ArrayList<Product> products, User startingPlayer) {
         this.currentUser = currentUser;
-        System.out.println("currentUser");
-        System.out.println(this.currentUser);
         this.gameSession = gameSession;
         this.products = products;
         this.startingPlayer = startingPlayer;

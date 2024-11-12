@@ -29,25 +29,25 @@ public class PopupInvite {
         final JDialog dialog = new JDialog();
         dialog.setModal(true);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.setTitle("Game Invitation");
+        dialog.setTitle("Mời người chơi.");
 
         // Create a panel to hold components
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
         // Label to display the invitation message
-        JLabel messageLabel = new JLabel(inviter.getUsername() + " has invited you to join the game. Do you want to join?");
+        JLabel messageLabel = new JLabel(inviter.getUsername() + " đã mời bạn tham gia. Bạn có muốn tham gia chơi?");
         messageLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         panel.add(messageLabel);
 
         // Label to display countdown
-        JLabel countdownLabel = new JLabel("Time remaining: 5 seconds");
+        JLabel countdownLabel = new JLabel("Thời gian chờ: 5 s");
         countdownLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         panel.add(countdownLabel);
 
         // Buttons for accepting or declining the invitation
-        JButton acceptButton = new JButton("Accept");
-        JButton declineButton = new JButton("Decline");
+        JButton acceptButton = new JButton("Chấp nhận");
+        JButton declineButton = new JButton("Từ chối");
 
         // Track if the user has responded
         final boolean[] hasResponded = {false};
@@ -60,7 +60,7 @@ public class PopupInvite {
             @Override
             public void run() {
                 if (secondsLeft > 0) {
-                    countdownLabel.setText("Time remaining: " + secondsLeft + " seconds");
+                    countdownLabel.setText("Thời gian chờ " + secondsLeft + " s");
                     secondsLeft--;
                 } else {
                     // Time ran out, auto-decline and close dialog

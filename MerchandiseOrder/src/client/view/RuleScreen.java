@@ -42,7 +42,7 @@ public class RuleScreen extends JPanel {
 
 
         // Tạo nút quay lại
-        backButton = new JButton("Home");
+        backButton = new JButton("Trang chủ");
         backButton.setBounds(0, 0, 102, 32);
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
         backButton.setBackground(new Color(252, 218, 134));

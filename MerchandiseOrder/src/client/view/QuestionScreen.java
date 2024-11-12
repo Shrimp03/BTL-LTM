@@ -135,7 +135,7 @@ public class QuestionScreen extends JPanel{
 
         add(shelfMechandise);
 
-        countdownLabel = new JLabel("Time left: " + countdownSeconds + "s");
+        countdownLabel = new JLabel("Thời gian chờ: " + countdownSeconds + "s");
         countdownLabel.setFont(new Font("Arial", Font.BOLD, 24));
         countdownLabel.setForeground(Color.RED);
         countdownLabel.setBounds(10, 10, 200, 50);  // Vị trí của label đếm ngược
@@ -153,7 +153,7 @@ public class QuestionScreen extends JPanel{
             @Override
             public void actionPerformed(ActionEvent e) {
                 countdownSeconds--;
-                countdownLabel.setText("Time left: " + countdownSeconds + "s");
+                countdownLabel.setText("Thời gian chờ: " + countdownSeconds + "s");
 
                 if (countdownSeconds <= 0) {
                     countdownTimer.stop();
