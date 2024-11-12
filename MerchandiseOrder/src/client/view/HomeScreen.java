@@ -54,7 +54,7 @@ public class HomeScreen extends JPanel {
 
 
         // Nút "Bắt đầu chơi"
-        playButton = new JButton("1 PHAYER");
+        playButton = new JButton("1 PLAYER");
         styleButton(playButton, 98, 300, 170, 60); // Đặt vị trí và kích thước
         playButton.addActionListener(e -> getClientFrame().showQuestionScreen(user));
         add(playButton);
