@@ -19,16 +19,15 @@ public class RankingScreen extends JPanel {
     private ArrayList<User> userList;
     private JLabel titleLabel;
     private JTable leaderboardTable;
+    private JTable yourRankingTable;
     private JScrollPane leaderboardScrollPane;
     private JButton backButton;
     private User currentUser;
     private ClientSocket clientSocket;
     public RankingScreen(User currentUser ) {
         this.currentUser = currentUser;
-        this.clientSocket = new ClientSocket();
+        clientSocket = ClientSocket.getInstance();
         this.userList = new ArrayList<>(clientSocket.getAllUsers());
-
-
 
         // Tải ảnh nền
         loadBackgroundImage();
@@ -53,7 +52,7 @@ public class RankingScreen extends JPanel {
 
         // Chỉ hiển thị 10 người chơi xếp hạng đầu tiên
         int numberOfPlayersToShow = Math.min(10, userList.size());
-        Object[][] leaderboardData = new Object[numberOfPlayersToShow][4];
+        Object[][] leaderboardData = new Object[userList.size()][4];
         for (int i = 0; i < numberOfPlayersToShow; i++) {
             User user = userList.get(i);
             leaderboardData[i][0] = (i + 1); // Số thứ tự
@@ -110,11 +109,71 @@ public class RankingScreen extends JPanel {
         leaderboardScrollPane.setOpaque(false);
         leaderboardScrollPane.getViewport().setOpaque(false);
         leaderboardScrollPane.setBorder(BorderFactory.createEmptyBorder());
-        leaderboardScrollPane.setBounds(18, 185, 340, 500);
+        leaderboardScrollPane.setBounds(18, 165, 340, 500);
+        // Cài đặt không hiển thị thanh cuộn cho leaderboardScrollPane
+        leaderboardScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        leaderboardScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
         add(leaderboardScrollPane);
 
+
+        int currentUserRank = -1;
+        for (int i = 0; i < userList.size(); i++) {
+            if (userList.get(i).getUsername().equals(currentUser.getUsername())) {
+                currentUserRank = i + 1; // Cộng 1 để thành số thứ tự (1-based)
+                break;
+            }
+        }
+
+        // Thông tin người chơi hiện tại
+        Object[][] yourRankingData = {
+                {currentUserRank, currentUser.getUsername(), currentUser.getTotalPoints(), currentUser.getHighScore()}
+        };
+
+        // Tạo bảng hiển thị thông tin người chơi hiện tại
+        String[] yourRankingColumnNames = {"#", "Name", "Total Score", "High Score"};
+        JTable yourRankingTable = new JTable(yourRankingData, yourRankingColumnNames) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Không cho phép chỉnh sửa ô
+            }
+
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (c instanceof JComponent) {
+                    ((JComponent) c).setOpaque(false); // Làm cho ô trong suốt
+                }
+                return c;
+            }
+        };
+
+        yourRankingTable.setRowHeight(38); // Chiều cao của mỗi dòng
+        yourRankingTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        yourRankingTable.setShowGrid(false); // Ẩn lưới của bảng
+        yourRankingTable.setOpaque(false); // Bảng trong suốt
+        yourRankingTable.setTableHeader(null); // Loại bỏ tiêu đề của bảng
+
+        // Căn giữa nội dung các ô và đặt màu chữ trắng
+        for (int i = 0; i < yourRankingTable.getColumnCount(); i++) {
+            yourRankingTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        // Tạo JScrollPane cho bảng
+        JScrollPane yourRankingScrollPane = new JScrollPane(yourRankingTable);
+        yourRankingScrollPane.setOpaque(false);
+        yourRankingScrollPane.getViewport().setOpaque(false);
+        yourRankingScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        yourRankingScrollPane.setBounds(18, 595, 340, 50); // Đặt vị trí bảng hiển thị thông tin người chơi
+        add(yourRankingScrollPane);
+
+        yourRankingTable.getColumnModel().getColumn(0).setPreferredWidth(50);  // Cột "Rank"
+        yourRankingTable.getColumnModel().getColumn(1).setPreferredWidth(170); // Cột "Name"
+        yourRankingTable.getColumnModel().getColumn(2).setPreferredWidth(100);  // Cột "Total Score"
+        yourRankingTable.getColumnModel().getColumn(3).setPreferredWidth(100);  // Cột "High Score"
+
         // Tạo nút quay lại
-        backButton = new JButton("Trở về trang chủ");
+        backButton = new JButton("Home");
         backButton.setBounds(0, 0, 150, 40);
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
         backButton.setBackground(new Color(100, 149, 237));

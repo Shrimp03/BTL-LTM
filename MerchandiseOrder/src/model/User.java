@@ -1,21 +1,26 @@
 package model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class User implements Serializable {
+    private static final long serialVersionUID = 5L;
     private int id;
     private String username;
     private String password;
     private String email;
     private String points;
     private String avatar;
+    private UserStatus status;
 
-    public User(int id, String username, String password, String email, String points, String avatar) {
+    public User(int id, String username, String password, String email, String points, String avatar, String status) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
+        this.points = points;
         this.avatar = avatar;
+        this.status = UserStatus.valueOf(status.toUpperCase());
         if(points == null){
             this.points = "0";
         }
@@ -26,8 +31,6 @@ public class User implements Serializable {
         this.username = username;
         this.password = password;
     }
-
-
 
     public User(String username, String password, String email) {
         this.username = username;
@@ -88,6 +91,14 @@ public class User implements Serializable {
         this.username = username;
     }
 
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
     public int getHighScore() {
         String[] points = this.points.split(" ");
         int result = 0;
@@ -98,6 +109,19 @@ public class User implements Serializable {
             }
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", points='" + points + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", status=" + status +
+                '}';
     }
 
     public int getTotalPoints() {
@@ -111,4 +135,17 @@ public class User implements Serializable {
 
 
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id == user.id; // So sánh theo ID hoặc thuộc tính đặc biệt xác định người dùng
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id); // Sử dụng ID để tạo mã băm
+    }
 }

@@ -17,73 +17,71 @@ public class RegisterScreen extends JPanel {
     private JPasswordField passwordField;
     private JTextField emailField;
     private JButton registerButton;
-    private JButton backButton;  // Thêm nút quay lại màn hình đăng nhập
-    private ClientSocket clientSocket;
+    private JButton backButton;  // Nút quay lại màn hình đăng nhập
     private Image backgroundImage;
 
     public RegisterScreen() {
         loadBackgroundImage();
         setSize(400, 300);
-        setLayout(null);  // Kích thước khung giống PlayScreen
-        Color customColor = new Color(230, 227, 227); // Màu xám nhạt
-        //Login
+        setLayout(null);
 
-        JTextField usernameField = new JTextField(15);
-        usernameField.setBackground(customColor); // Đặt màu nền
-        usernameField.setForeground(Color.BLACK); // Đặt màu chữ
-        usernameField.setBorder(BorderFactory.createLineBorder(customColor));
-        usernameField.setFont(new Font("Arial", Font.BOLD, 16));
-        usernameField.setForeground(new Color(0, 0, 0));
-        //password
-        JPasswordField passwordField = new JPasswordField(15);
-        passwordField.setBackground(customColor); // Đặt màu nền
-        passwordField.setForeground(Color.BLACK); // Đặt màu chữ
-        passwordField.setBorder(BorderFactory.createLineBorder(customColor));
-        passwordField.setForeground(new Color(0, 0, 0));
+        // Màu xám nhạt cho các trường văn bản
+        Color customColor = new Color(230, 227, 227);
 
-        JTextField emailField  = new JTextField(15);
-        emailField.setBackground(customColor); // Đặt màu nền
-        emailField.setForeground(Color.BLACK); // Đặt màu chữ
-        emailField.setBorder(BorderFactory.createLineBorder(customColor));
-        emailField.setFont(new Font("Arial", Font.BOLD, 16));
-        emailField.setForeground(new Color(0, 0, 0));
+        // Trường nhập tên người dùng
+        usernameField = new JTextField(15);
+        usernameField.setBackground(new Color(0, 0, 0, 0)); // Nền trong suốt
+        usernameField.setForeground(Color.BLACK);
+        usernameField.setBorder(null); // Loại bỏ viền
+        usernameField.setOpaque(false); // Nền trong suốt
+        usernameField.setFont(new Font("Arial", Font.BOLD, 17));
 
+        // Trường nhập mật khẩu
+        passwordField = new JPasswordField(15);
+        passwordField.setBackground(new Color(0, 0, 0, 0)); // Nền trong suốt
+        passwordField.setForeground(Color.BLACK);
+        passwordField.setBorder(null); // Loại bỏ viền
+        passwordField.setOpaque(false); // Nền trong suốt
+        passwordField.setFont(new Font("Arial", Font.BOLD, 17));
+        // Trường nhập email
+        emailField = new JTextField(15);
+        emailField.setBackground(new Color(0, 0, 0, 0)); // Nền trong suốt
+        emailField.setForeground(Color.BLACK);
+        emailField.setBorder(null); // Loại bỏ viền
+        emailField.setOpaque(false); // Nền trong suốt
+        emailField.setFont(new Font("Arial", Font.BOLD, 17));
 
-
+        // Nút "Đăng kí"
         registerButton = new JButton("Đăng kí");
-        // Làm cho nền trong suốt
         registerButton.setContentAreaFilled(false); // Nền trong suốt
-        registerButton.setFocusPainted(false); // Xóa viền tập trung
-        registerButton.setOpaque(false); // Không vẽ nền
-        registerButton.setFont(new Font("Arial", Font.BOLD, 26)); // Đặt font chữ
-        // Cài đặt màu viền
-        Color customPurple = new Color(126, 38, 197); // Màu tím cho viền
-        registerButton.setBorder(BorderFactory.createLineBorder(customPurple, 2)); // Viền màu tím dày 2px
+        registerButton.setFocusPainted(false); // Loại bỏ viền khi nhấn
+        registerButton.setOpaque(false); // Nền trong suốt
+        registerButton.setBorder(null); // Loại bỏ viền hoàn toàn
+        registerButton.setFont(new Font("Arial", Font.BOLD, 26));
+        registerButton.setForeground(Color.WHITE); // Đặt màu chữ
 
-
-        backButton = new JButton("Trang đăng nhập");  // Thêm nút quay lại màn hình đăng nhập
-        backButton.setContentAreaFilled(true); // Đặt nền
-        backButton.setBackground(Color.BLACK); // Nền màu đen
+        // Nút "Quay lại trang đăng nhập"
+        backButton = new JButton("Quay lại");
+        backButton.setContentAreaFilled(false); // Nền trong suốt
+        backButton.setFocusPainted(false); // Loại bỏ viền khi nhấn
+        backButton.setOpaque(false); // Nền trong suốt
+        backButton.setBorder(null); // Loại bỏ viền
         backButton.setForeground(Color.WHITE); // Văn bản màu trắng
-        backButton.setFocusPainted(false); // Xóa viền tập trung
-        backButton.setBorder(BorderFactory.createLineBorder(Color.BLACK));// Không vẽ nền
-        // Làm cho văn bản màu trắng
-        backButton.setForeground(Color.WHITE);
         backButton.setFont(new Font("Arial", Font.BOLD, 26));
 
-        // Set bounds for the components to position them in the center
-        usernameField.setBounds(149, 184, 160, 29);
-        passwordField.setBounds(149, 246, 160, 28);
-        passwordField.setForeground(new Color(138, 43, 226));
-        emailField.setBounds(149, 308, 160, 28);
-        registerButton.setBounds(90, 411, 220, 33);
-        backButton.setBounds(90, 480, 220, 33);
+        // Đặt vị trí cho các thành phần
+        usernameField.setBounds(152, 188, 160, 30);
+        passwordField.setBounds(152, 272, 160, 30);
+        emailField.setBounds(152, 358, 160, 30);
+        registerButton.setBounds(80, 450, 220, 33);
+        backButton.setBounds(80, 555, 220, 33);
 
+        // Thêm các thành phần vào giao diện
         add(usernameField);
         add(passwordField);
         add(emailField);
         add(registerButton);
-        add(backButton);  // Thêm nút Back to Login vào giao diện
+        add(backButton);
 
         // Thêm sự kiện khi nhấn nút "Register"
         registerButton.addActionListener(new ActionListener() {
@@ -94,8 +92,7 @@ public class RegisterScreen extends JPanel {
                 String email = emailField.getText();
 
                 // Gửi yêu cầu đăng ký qua ClientSocket
-                ClientSocket clientSocket = new ClientSocket();
-                Boolean success = clientSocket.registerUser(new User(username, password, email));
+                Boolean success = ClientSocket.getInstance().registerUser(new User(username, password, email));
                 if (success) {
                     JOptionPane.showMessageDialog(null, "Đăng kí thành công!");
                     getClientFrame().showLoginScreen();  // Chuyển về màn hình đăng nhập nếu đăng ký thành công
@@ -105,7 +102,7 @@ public class RegisterScreen extends JPanel {
             }
         });
 
-        // Thêm sự kiện khi nhấn nút "Đăng kí thành công" để quay lại màn hình đăng nhập
+        // Thêm sự kiện khi nhấn nút "Trang đăng nhập" để quay lại màn hình đăng nhập
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -117,7 +114,7 @@ public class RegisterScreen extends JPanel {
     // Phương thức tải hình nền
     private void loadBackgroundImage() {
         try {
-            InputStream imgStream = getClass().getResourceAsStream("/static/Register.jpg");
+            InputStream imgStream = getClass().getResourceAsStream("/static/dangky.png");
             if (imgStream != null) {
                 backgroundImage = ImageIO.read(imgStream);
             } else {
@@ -136,6 +133,7 @@ public class RegisterScreen extends JPanel {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
+
     private Client getClientFrame() {
         return (Client) SwingUtilities.getWindowAncestor(this);
     }

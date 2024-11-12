@@ -1,6 +1,8 @@
 package server.dal.dao;
 
+import model.Pair;
 import model.User;
+import model.UserStatus;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,7 +23,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             while (rs.next()) {
                 return new User(rs.getInt("id"), rs.getString("username"),
                         rs.getString("password"), rs.getString("email"),
-                        rs.getString("points"), rs.getString("avatar")
+                        rs.getString("points"), rs.getString("avatar"), rs.getString("status")
                 );
             }
         } catch (SQLException e) {
@@ -32,13 +34,32 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     }
 
     @Override
+    public User getUserById(int id) {
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM users WHERE id = ?");
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new User(rs.getInt("id"), rs.getString("username"),
+                        rs.getString("password"), rs.getString("email"),
+                        rs.getString("points"), rs.getString("avatar"), rs.getString("status")
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
     public boolean updateUser(User user) {
-        String query = "UPDATE users SET email = ?, points = ?, avatar = ? WHERE id = ?";
+        String query = "UPDATE users SET email = ?, points = ?, avatar = ?, status = ? WHERE id = ?";
         try (PreparedStatement ps = con.prepareStatement(query)) {
             ps.setString(1, user.getEmail());
             ps.setString(2, user.getPoints());
             ps.setString(3, user.getAvatar());
-            ps.setInt(4, user.getId());
+            ps.setString(4, user.getStatus().toString());
+            ps.setInt(5, user.getId());
 
             int rowsAffected = ps.executeUpdate();
 
@@ -49,6 +70,27 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             return false;
         }
     }
+
+    @Override
+    public boolean updateStatusUser(Pair<Integer, String> pair) {
+        String query = "UPDATE users SET  status = ? WHERE id = ?";
+        try (PreparedStatement ps = con.prepareStatement(query)) {
+            System.out.println("UserStatus");
+            System.out.println(pair.getSecond());
+            System.out.println(pair.getFirst());
+            ps.setString(1, pair.getSecond());
+            ps.setInt(2, pair.getFirst());
+
+            int rowsAffected = ps.executeUpdate();
+
+            // If at least one row was updated, return true
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
     @Override
     public User getUserByUsername(String username) {
         try {
@@ -58,7 +100,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             if (rs.next()) {
                 return new User(rs.getInt("id"), rs.getString("username"),
                         rs.getString("password"), rs.getString("email"),
-                        rs.getString("points"), rs.getString("avatar")
+                        rs.getString("points"), rs.getString("avatar"), rs.getString("status")
                 );
             }
         } catch (SQLException e) {
@@ -77,6 +119,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             ps.setString(3, user.getEmail());
             ps.setString(4, user.getPoints());
             ps.setString(5, user.getAvatar());
+//            ps.setString(6, user.getStatus().toString());
 
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;  // Trả về true nếu thêm thành công
@@ -95,7 +138,7 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             while (rs.next()) {
                  User user = new User(rs.getInt("id"), rs.getString("username"),
                         rs.getString("password"), rs.getString("email"),
-                        rs.getString("points"), rs.getString("avatar")
+                        rs.getString("points"), rs.getString("avatar"), rs.getString("status")
                 );
                  users.add(user);
             }
@@ -106,6 +149,29 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
         }
         return null;
     }
+
+    @Override
+    public List<User> getUserByStatus(String userStatus, String userName) {
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM users WHERE status = ? AND userName != ?");
+            ps.setString(1, userStatus);
+            ps.setString(2, userName);
+            ResultSet rs = ps.executeQuery();
+            List<User> users = new ArrayList<>();
+            while (rs.next()) {
+                User user =  new User(rs.getInt("id"), rs.getString("username"),
+                        rs.getString("password"), rs.getString("email"),
+                        rs.getString("points"), rs.getString("avatar"), rs.getString("status")
+                );
+                users.add(user);
+            }
+            return users;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
 
     public static void main(String[] args) {
         UserDAOImpl dao = new UserDAOImpl();

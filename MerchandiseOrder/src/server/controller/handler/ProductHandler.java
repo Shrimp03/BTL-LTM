@@ -22,7 +22,7 @@ public class ProductHandler {
                 .limit(12)
                 .toArray(Product[]::new);
 
-        System.out.println(first12ProductsArray);
+        System.out.println(first12ProductsArray.length);
 
         return new DataTransferObject<>("GetProductResponse", first12ProductsArray);
     }

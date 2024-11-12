@@ -6,11 +6,9 @@ import model.User;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -18,69 +16,68 @@ public class LoginScreen extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
-    private JButton registerButton;  // Thêm nút Register
-
+    private JButton registerButton; // Nút Register
     private Image backgroundImage;
+
     public LoginScreen() {
         // Tải ảnh nền
         loadBackgroundImage();
+
         setSize(400, 300);
         setLayout(null);
-        Color customColor = new Color(230, 227, 227); // Màu xám nhạt
 
-        JTextField usernameField = new JTextField(15);
-        usernameField.setBackground(customColor); // Đặt màu nền
-        usernameField.setForeground(Color.BLACK); // Đặt màu chữ
-        usernameField.setBorder(BorderFactory.createLineBorder(customColor));
+        // Màu xám nhạt cho các trường văn bản
+        Color customColor = new Color(230, 227, 227);
+
+        // Trường nhập tên người dùng
+        usernameField = new JTextField(15);
+        usernameField.setBackground(new Color(0, 0, 0, 0)); // Nền trong suốt
+        usernameField.setForeground(Color.BLACK);
+        usernameField.setBorder(null); // Loại bỏ viền
+        usernameField.setOpaque(false); // Nền trong suốt
         usernameField.setFont(new Font("Arial", Font.BOLD, 16));
-        usernameField.setForeground(new Color(0, 0, 0));
-        //password
-        JPasswordField passwordField = new JPasswordField(15);
-        passwordField.setBackground(customColor); // Đặt màu nền
-        passwordField.setForeground(Color.BLACK); // Đặt màu chữ
-        passwordField.setBorder(BorderFactory.createLineBorder(customColor));
-        passwordField.setForeground(new Color(0, 0, 0));
 
-        JButton loginButton = new JButton("Đăng nhập");
-        // Làm cho nền trong suốt
+        // Trường nhập mật khẩu
+        passwordField = new JPasswordField(15);
+        passwordField.setBackground(new Color(0, 0, 0, 0)); // Nền trong suốt
+        passwordField.setForeground(Color.BLACK);
+        passwordField.setBorder(null); // Loại bỏ viền
+        passwordField.setOpaque(false); // Nền trong suốt
+
+        // Nút "Đăng nhập"
+        loginButton = new JButton("Đăng nhập");
         loginButton.setContentAreaFilled(false); // Nền trong suốt
-        loginButton.setFocusPainted(false); // Xóa viền tập trung
-        loginButton.setOpaque(false); // Không vẽ nền
-        loginButton.setFont(new Font("Arial", Font.BOLD, 26)); // Phông chữ lớn hơn
+        loginButton.setFocusPainted(false); // Loại bỏ viền khi nhấn
+        loginButton.setOpaque(false); // Nền trong suốt
+        loginButton.setBorder(null); // Loại bỏ viền
+        loginButton.setForeground(Color.BLACK);
+        loginButton.setFont(new Font("Arial", Font.BOLD, 26));
 
-        JButton registerButton = new JButton("Đăng ký");
-        // Làm cho nền trong suốt
-        // Cài đặt nền và viền
-        registerButton.setContentAreaFilled(true); // Đặt nền
-        registerButton.setBackground(Color.BLACK); // Nền màu đen
-        registerButton.setForeground(Color.WHITE); // Văn bản màu trắng
-        registerButton.setFocusPainted(false); // Xóa viền tập trung
-        registerButton.setBorder(BorderFactory.createLineBorder(Color.BLACK));// Không vẽ nền
-        // Làm cho văn bản màu trắng
-        registerButton.setForeground(Color.WHITE);
+        // Nút "Đăng ký"
+        registerButton = new JButton("Đăng ký");
+        registerButton.setContentAreaFilled(false); // Nền trong suốt
+        registerButton.setFocusPainted(false); // Loại bỏ viền khi nhấn
+        registerButton.setOpaque(false); // Nền trong suốt
+        registerButton.setBorder(null); // Loại bỏ viền
+        registerButton.setForeground(Color.BLACK); // Văn bản màu trắng
         registerButton.setFont(new Font("Arial", Font.BOLD, 26));
 
-        // Set bounds for the components to position them in the center
-        usernameField.setBounds(138, 224, 175, 28);
+        // Đặt vị trí cho các thành phần
+        usernameField.setBounds(160, 230, 175, 50);
+        passwordField.setBounds(160, 315, 175, 50);
+        loginButton.setBounds(89, 450, 200, 30);
+        registerButton.setBounds(89, 550, 200, 35);
 
-        passwordField.setBounds(138, 295, 175, 28);
-        passwordField.setForeground(new Color(138, 43, 226));
-        loginButton.setBounds(89, 393, 200, 30);
-        registerButton.setBounds(89, 468, 200, 35);
-
-        // Add components to the frame
+        // Thêm các thành phần vào màn hình
         add(usernameField);
         add(passwordField);
         add(loginButton);
         add(registerButton);
 
-        // Make the frame visible
+        // Hiển thị màn hình
         setVisible(true);
 
-
-
-
-        // Thêm sự kiện khi nhấn nút "Login"
+        // Xử lý sự kiện khi nhấn nút "Đăng nhập"
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -88,23 +85,23 @@ public class LoginScreen extends JPanel {
                 String password = new String(passwordField.getPassword());
 
                 // Gửi yêu cầu đăng nhập qua ClientSocket
-                ClientSocket clientSocket = new ClientSocket();
+                ClientSocket clientSocket = ClientSocket.getInstance();
                 User user = clientSocket.loginUser(username, password);
                 if (user != null) {
                     JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");
-                    getClientFrame().setCurrentUser(user);  // Lưu thông tin người dùng
-                    getClientFrame().showHomeScreen(user);  // Chuyển sang màn hình HomeScreen nếu đăng nhập thành công
+                    getClientFrame().setCurrentUser(user); // Lưu thông tin người dùng
+                    getClientFrame().showHomeScreen(user); // Chuyển sang màn hình HomeScreen
                 } else {
                     JOptionPane.showMessageDialog(null, "Tên đăng nhập hoặc mật khẩu không đúng");
                 }
             }
         });
 
-        // Thêm sự kiện khi nhấn nút "Register" để chuyển sang màn hình đăng ký
+        // Xử lý sự kiện khi nhấn nút "Đăng ký"
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                getClientFrame().showRegisterScreen();  // Chuyển sang màn hình đăng ký
+                getClientFrame().showRegisterScreen(); // Chuyển sang màn hình đăng ký
             }
         });
     }
@@ -112,7 +109,7 @@ public class LoginScreen extends JPanel {
     // Phương thức tải hình nền
     private void loadBackgroundImage() {
         try {
-            InputStream imgStream = getClass().getResourceAsStream("/static/Login.jpg");
+            InputStream imgStream = getClass().getResourceAsStream("/static/dangnhap.png");
             if (imgStream != null) {
                 backgroundImage = ImageIO.read(imgStream);
             } else {
@@ -131,6 +128,7 @@ public class LoginScreen extends JPanel {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
+
     private Client getClientFrame() {
         return (Client) SwingUtilities.getWindowAncestor(this);
     }

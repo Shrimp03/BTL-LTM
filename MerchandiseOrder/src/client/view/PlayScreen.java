@@ -47,7 +47,7 @@ public class PlayScreen extends JPanel {
         this.points = 500; // Điểm ban đầu
         this.remainingTime = 60; // Thời gian đếm ngược
         this.penaltyTime = 0; // Bộ đếm thời gian phạt
-        this.clientSocket = new ClientSocket();
+        clientSocket = ClientSocket.getInstance();
 
         // Xáo trộn sản phẩm
         Collections.shuffle(products);
@@ -77,7 +77,10 @@ public class PlayScreen extends JPanel {
         JPanel floorPanel = createFloorPanel(products);
         add(floorPanel);
     }
-
+//    làm giúp tôi 1 ảnh game xếp đồ lên kệ với các chức năng như này
+//    DUngalo12 là tên
+//    bên dưới là point
+//    có 2 nút là bắt đầu chơi và bảng xếp hạng làm giúp tôi
     // Tải hình nền
     private void loadBackgroundImage() {
         try {
