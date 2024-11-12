@@ -25,55 +25,96 @@ public class PopupInvite {
     }
 
     public static void showInvitationDialog(User currentUser, User inviter) {
-        // Biến lưu trạng thái lựa chọn của người dùng
+        // Create a dialog to contain the invitation message and countdown
+        final JDialog dialog = new JDialog();
+        dialog.setModal(true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setTitle("Game Invitation");
+
+        // Create a panel to hold components
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        // Label to display the invitation message
+        JLabel messageLabel = new JLabel(inviter.getUsername() + " has invited you to join the game. Do you want to join?");
+        messageLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        panel.add(messageLabel);
+
+        // Label to display countdown
+        JLabel countdownLabel = new JLabel("Time remaining: 5 seconds");
+        countdownLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        panel.add(countdownLabel);
+
+        // Buttons for accepting or declining the invitation
+        JButton acceptButton = new JButton("Accept");
+        JButton declineButton = new JButton("Decline");
+
+        // Track if the user has responded
         final boolean[] hasResponded = {false};
 
-        // Tạo một Timer để đếm ngược 5 giây
-        Timer declineTimer = new Timer();
-        declineTimer.schedule(new TimerTask() {
+        // Timer for the countdown
+        Timer countdownTimer = new Timer();
+        countdownTimer.scheduleAtFixedRate(new TimerTask() {
+            int secondsLeft = 5; // Countdown from 5 seconds
+
             @Override
             public void run() {
-                if (!hasResponded[0]) {
-                    // Người dùng không phản hồi sau 5 giây, tự động gửi "DECLINE"
-                    ClientSocket.getInstance().sendAcceptInvite("DECLINE", null);
+                if (secondsLeft > 0) {
+                    countdownLabel.setText("Time remaining: " + secondsLeft + " seconds");
+                    secondsLeft--;
+                } else {
+                    // Time ran out, auto-decline and close dialog
+                    if (!hasResponded[0]) {
+                        hasResponded[0] = true;
+                        ClientSocket.getInstance().sendAcceptInvite("DECLINE", null);
+                        dialog.dispose();
+                    }
+                    countdownTimer.cancel();
                 }
-                declineTimer.cancel();
             }
-        }, 5000); // Thời gian chờ 5 giây
+        }, 0, 1000);
 
-        int option = JOptionPane.showOptionDialog(
-                null,
-                inviter.getUsername() + " đã mời bạn tham gia game. Bạn có muốn tham gia?",
-                "Game Invitation",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new Object[]{"Chấp nhận", "Từ chối"},
-                "Chấp nhận"
-        );
+        // Action listeners for the buttons
+        acceptButton.addActionListener(e -> {
+            hasResponded[0] = true;
+            countdownTimer.cancel();
+            dialog.dispose();
+            List<User> twoUsers = new ArrayList<>();
+            twoUsers.add(currentUser);
+            twoUsers.add(inviter);
 
-        // Khi người dùng chọn, hủy timer và xử lý phản hồi
-        declineTimer.cancel();
-        hasResponded[0] = true;
-
-        String responseType = (option == JOptionPane.YES_OPTION) ? "ACCEPT" : "DECLINE";
-        System.out.println(responseType);
-
-        List<User> twoUsers = new ArrayList<>();
-        twoUsers.add(currentUser);
-        twoUsers.add(inviter);
-
-        if ("ACCEPT".equals(responseType)) {
-//            ClientSocket.getInstance().setAccepted(true);
-            // Nếu chọn chấp nhận, thông báo cho Client và gửi mời
             if (gameInvitationListener != null) {
                 gameInvitationListener.onInvitationReceived(true, currentUser, inviter);
             }
-            ClientSocket.getInstance().sendAcceptInvite(responseType, twoUsers);
-        } else {
-            // Nếu chọn từ chối, thông báo từ chối và gửi yêu cầu
+            ClientSocket.getInstance().sendAcceptInvite("ACCEPT", twoUsers);
+        });
+
+        declineButton.addActionListener(e -> {
+            hasResponded[0] = true;
+            countdownTimer.cancel();
+            dialog.dispose();
+            List<User> twoUsers = new ArrayList<>();
+            twoUsers.add(currentUser);
+            twoUsers.add(inviter);
+
             ClientSocket.getInstance().setAccepted(false);
-            ClientSocket.getInstance().sendAcceptInvite(responseType, twoUsers);
-        }
+            ClientSocket.getInstance().sendAcceptInvite("DECLINE", twoUsers);
+        });
+
+        // Add buttons to a button panel
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(acceptButton);
+        buttonPanel.add(declineButton);
+
+        // Add button panel to the main panel
+        panel.add(buttonPanel);
+
+        // Add panel to dialog
+        dialog.getContentPane().add(panel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(null); // Center the dialog on the screen
+        dialog.setVisible(true);
     }
+
+
 }

@@ -1,15 +1,12 @@
 package server.controller.handler;
 
-import dto.UserStatusDto;
+import model.UserStatusDto;
 import model.*;
 import server.controller.threadManager.ThreadManager;
-import server.dal.dao.ProductDAO;
-import server.dal.dao.ProductDAOImpl;
 import server.dal.dao.UserDAO;
 import server.dal.dao.UserDAOImpl;
 import utils.PasswordUtil;
 
-import java.util.Collections;
 import java.util.List;
 
 public class UserHandler {

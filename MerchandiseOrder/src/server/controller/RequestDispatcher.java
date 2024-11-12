@@ -1,8 +1,7 @@
 package server.controller;
 
-import dto.UserStatusDto;
+import model.UserStatusDto;
 import model.DataTransferObject;
-import model.Product;
 import model.User;
 import server.controller.handler.GameSessionHandler;
 import server.controller.handler.GameSoloHandler;

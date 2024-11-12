@@ -3,7 +3,7 @@ package client.controller;
 import client.view.GamePlayListener;
 import client.view.GameSoloListener;
 import client.view.PopupInvite;
-import dto.UserStatusDto;
+import model.UserStatusDto;
 import model.*;
 
 import java.io.IOException;
