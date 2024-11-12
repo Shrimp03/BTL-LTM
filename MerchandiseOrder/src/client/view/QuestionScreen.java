@@ -2,8 +2,10 @@ package client.view;
 
 import client.controller.Client;
 import client.controller.ClientSocket;
+import model.Pair;
 import model.Product;
 import model.User;
+import model.UserStatus;
 import utils.RoundedBorder;
 
 import javax.imageio.ImageIO;
@@ -21,7 +23,8 @@ public class QuestionScreen extends JPanel{
     private User user;
     private ClientSocket clientSocket;
     private ArrayList<Product> products;
-    private JButton btnGoToPlay;
+    private JLabel imgGoToPlay;
+    private JButton homeButton;
     private int animatedBarWidth = 10; // Initial width of the white bar
     private Timer animationTimer;
     private JLabel[][] shelfSlots;
@@ -47,18 +50,30 @@ public class QuestionScreen extends JPanel{
 
         this.products = products;
 
+        this.setLayout(null);
 
-        btnGoToPlay = new JButton("Open the door!");
-        styleButton(btnGoToPlay);
-        btnGoToPlay.addActionListener(new ActionListener() {
+
+        homeButton = new JButton("Trang chủ");
+        styleButton(homeButton);
+        homeButton.setBounds(0, 10, 100, 40);
+        homeButton.addActionListener(e -> getClientFrame().showHomeScreen(user));
+
+        this.add(homeButton);
+
+        imgGoToPlay = new JLabel(showImage("/static/door.png", 100, 100));
+        imgGoToPlay.setBounds(135, 250, 100, 100);// Đường dẫn tới hình ảnh
+        imgGoToPlay.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Thay đổi con trỏ khi di chuột qua ảnh
+        imgGoToPlay.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                Pair<Integer, String> pair = new Pair<>(user.getId(), String.valueOf(UserStatus.PLAYING));
+                Boolean updateStatusUser = ClientSocket.getInstance().updateStatusUser("UpdateStatusUser", pair);
+                System.out.println(updateStatusUser);
                 startBarAnimation();
             }
         });
 
-
-        this.add(btnGoToPlay);
+        this.add(imgGoToPlay);
     }
 
     private void startBarAnimation() {
@@ -229,7 +244,7 @@ public class QuestionScreen extends JPanel{
     private void styleButton(JButton button) {
         button.setBackground(new Color(58, 164, 246)); // Màu nền của nút #3AA4F6
         button.setForeground(Color.WHITE); // Màu chữ
-        button.setFont(new Font("Arial", Font.BOLD, 16)); // Kiểu chữ
+        button.setFont(new Font("Arial", Font.BOLD, 13)); // Kiểu chữ
 
         // Tạo đường viền bằng cách kết hợp với EmptyBorder
         button.setBorder(BorderFactory.createCompoundBorder(
@@ -239,7 +254,7 @@ public class QuestionScreen extends JPanel{
         ));
         button.setBorderPainted(false);
         button.setFocusPainted(false); // Không hiển thị viền khi chọn
-        button.setPreferredSize(new Dimension(150, 50)); // Kích thước nút
+        button.setPreferredSize(new Dimension(130, 30)); // Kích thước nút
     }
 
 

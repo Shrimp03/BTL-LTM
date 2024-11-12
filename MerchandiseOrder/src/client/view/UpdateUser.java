@@ -19,7 +19,7 @@ public class UpdateUser extends JPanel {
     private JPasswordField txtPassword;
     private JButton btnUpdate, btnChangeAvatar, btnBack;
     private User currentUser;
-    private JLabel imageLabel;
+    private String imgUrl;
     private Image backgroundImage;
     private ClientSocket clientSocket;
 
@@ -81,17 +81,8 @@ public class UpdateUser extends JPanel {
             String imageUrl = cloudinaryHelper.uploadImage(selectedFile.getAbsolutePath());
 
             if (imageUrl != null) {
-                JOptionPane.showMessageDialog(this, "Upload thành công! URL: " + imageUrl);
-
-                try {
-                    // Tải ảnh từ URL và hiển thị trong JLabel
-                    ImageIcon imageIcon = new ImageIcon(new URL(imageUrl));
-                    Image image = imageIcon.getImage().getScaledInstance(94, 87, Image.SCALE_SMOOTH);
-                    imageLabel.setIcon(new ImageIcon(image));
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(this, "Lỗi khi tải ảnh từ URL.");
-                    e.printStackTrace();
-                }
+                this.imgUrl = imageUrl;
+                System.out.println(imageUrl);
             } else {
                 JOptionPane.showMessageDialog(this, "Upload thất bại!");
             }
@@ -101,11 +92,18 @@ public class UpdateUser extends JPanel {
 
     // Method to update user profile
     private void updateUserProfile() {
-        currentUser.setUsername(txtUsername.getText());
-        currentUser.setEmail(txtEmail.getText());
-        currentUser.setPassword(new String(txtPassword.getPassword()));
-        ClientSocket.getInstance().updateUser(currentUser);
-        JOptionPane.showMessageDialog(this, "Profile updated successfully!");
+        if(txtUsername.getText() != "" && txtEmail.getText() != "" && new String(txtPassword.getPassword()) != "" && imgUrl != "" ){
+            currentUser.setUsername(txtUsername.getText());
+            currentUser.setEmail(txtEmail.getText());
+            currentUser.setPassword(new String(txtPassword.getPassword()));
+            currentUser.setAvatar(this.imgUrl);
+            System.out.println(currentUser);
+            ClientSocket.getInstance().updateUser(currentUser);
+            JOptionPane.showMessageDialog(this, "Cập nhật thông tin cá nhân thành công!");
+        }
+        else {
+            JOptionPane.showMessageDialog(this, "Không được để trống các trường!");
+        }
     }
     private void styleTextField(JTextField textField, int x, int y, int width, int height) {
         textField.setBounds(x, y, width, height);

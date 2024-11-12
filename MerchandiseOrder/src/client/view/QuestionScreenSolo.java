@@ -38,14 +38,10 @@ public class QuestionScreenSolo extends JPanel {
         this.products = new ArrayList<>(Arrays.asList(products));
         this.clientSocket = ClientSocket.getInstance();
 
-        // Tải trước ảnh nền
-//        this.backgroundImage = loadImage("/static/inGameBackground.png", getWidth(), getHeight());
-
-        buttonPlay = new JButton("Play");
-        buttonPlay.addActionListener(e -> addShelfScreen());
-
-//        addShelfScreen();
+        // Gọi trực tiếp addShelfScreen để hiển thị sản phẩm ngay lập tức
+        SwingUtilities.invokeLater(this::addShelfScreen);
     }
+
 
     private void addShelfScreen() {
         this.setLayout(null);
@@ -101,6 +97,7 @@ public class QuestionScreenSolo extends JPanel {
         delayTimer.setRepeats(false);
         delayTimer.start();
     }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -121,12 +118,14 @@ public class QuestionScreenSolo extends JPanel {
 
         for (int i = 0; i < shelfSlots[shelfIndex].length; i++) {
             shelfSlots[shelfIndex][i] = createSlotLabel();
-            String imagePath = "/static/item/" + products.get(imgIndex + i).getImageUrl();
-            System.out.println(imagePath);
-            ImageIcon icon = loadImage(imagePath, 50, 50);
-            if (icon != null) {
-                shelfSlots[shelfIndex][i].setIcon(icon);
-                shelfSlots[shelfIndex][i].putClientProperty("product", products.get(imgIndex + i));
+            if (imgIndex + i < products.size()) { // Đảm bảo không vượt quá số lượng sản phẩm
+                String imagePath = "/static/item/" + products.get(imgIndex + i).getImageUrl();
+                System.out.println(imagePath);
+                ImageIcon icon = loadImage(imagePath, 50, 50);
+                if (icon != null) {
+                    shelfSlots[shelfIndex][i].setIcon(icon);
+                    shelfSlots[shelfIndex][i].putClientProperty("product", products.get(imgIndex + i));
+                }
             }
             shelfPanel.add(shelfSlots[shelfIndex][i]);
         }
@@ -145,10 +144,8 @@ public class QuestionScreenSolo extends JPanel {
         try {
             System.out.println("Loading image from path: " + imagePath);
 
-            // Bảo đảm rằng đường dẫn ảnh bắt đầu bằng "/"
             imagePath = imagePath.startsWith("/") ? imagePath : "/" + imagePath;
 
-            // Tải ảnh từ classpath
             InputStream input = QuestionScreenSolo.class.getResourceAsStream(imagePath);
             if (input == null) {
                 System.err.println("Image not found at path: " + imagePath);
@@ -161,7 +158,6 @@ public class QuestionScreenSolo extends JPanel {
                 return null;
             }
 
-            // Kiểm tra lại width và height
             if (width == 0 || height == 0) {
                 System.err.println("Invalid width or height for image scaling.");
                 return new ImageIcon(image); // Trả về ảnh gốc nếu width hoặc height không hợp lệ
@@ -177,8 +173,6 @@ public class QuestionScreenSolo extends JPanel {
             return null;
         }
     }
-
-
 
     private Client getClientFrame() {
         return (Client) SwingUtilities.getWindowAncestor(this);

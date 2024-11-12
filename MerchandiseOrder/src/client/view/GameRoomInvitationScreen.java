@@ -61,6 +61,7 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         homeButton.setContentAreaFilled(false);
         homeButton.setBorder(null);
         homeButton.setOpaque(false);
+        homeButton.setFocusPainted(false);
         mainPanel.add(homeButton);
 
         homeButton.addActionListener(new ActionListener() {
@@ -84,24 +85,25 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
 
         // Avatar và tên của người dùng được mời (ban đầu ẩn)
         invitedUserAvatar = new JLabel();
-        invitedUserAvatar.setBounds(165, 340, 60, 60);
+        invitedUserAvatar.setBounds(160, 335, 60, 60);
         invitedUserAvatar.setVisible(true);
         mainPanel.add(invitedUserAvatar);
 
         invitedUserName = new JLabel();
         invitedUserName.setHorizontalAlignment(SwingConstants.CENTER);
-        invitedUserName.setBounds(155, 400, 70, 20);
+        invitedUserName.setBounds(152, 395, 70, 20);
         invitedUserName.setVisible(true); // Ban đầu ẩn
         mainPanel.add(invitedUserName);
 
 
         // Nút Invite User (ban đầu hiện)
         inviteButton = new JButton("+");
-        inviteButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        inviteButton.setFont(new Font("Tahoma", Font.PLAIN, 50));
         inviteButton.setBorder(null);
         inviteButton.setContentAreaFilled(false);
         inviteButton.setOpaque(false);
-        inviteButton.setBounds(150, 350, 50, 50);
+        inviteButton.setFocusPainted(false);
+        inviteButton.setBounds(162, 340, 50, 50);
         inviteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -116,6 +118,7 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         playButton.setContentAreaFilled(false);
         playButton.setBorder(null);
         playButton.setEnabled(false); // Chỉ khả dụng khi có người dùng được mời
+        playButton.setBorderPainted(false);
         playButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -147,6 +150,9 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         // Panel chứa danh sách người dùng với chức năng cuộn
         JPanel popupPanel = new JPanel();
         popupPanel.setLayout(new BoxLayout(popupPanel, BoxLayout.Y_AXIS));
+        popupPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+        popupPanel.setPreferredSize(new Dimension(300, 200)); // Adjust according to preferred scroll pane view
+        popupPanel.setMaximumSize(new Dimension(300, 200));
 
         List<User> onlineUsers = ClientSocket.getInstance().getUsersByStatus(user.getUsername(), String.valueOf(UserStatus.ONLINE));
         if( onlineUsers == null || onlineUsers.size() == 0 ) {
@@ -156,6 +162,7 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         for (User onlineUser : onlineUsers) {
             JPanel userPanel = new JPanel();
             userPanel.setLayout(new BorderLayout());
+            userPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50)); // Fixed height, flexible width
             userPanel.setPreferredSize(new Dimension(280, 50)); // Kích thước cố định cho mỗi hàng
 
             JLabel userAvatar = new JLabel(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
