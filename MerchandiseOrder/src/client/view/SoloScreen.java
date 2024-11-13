@@ -2,18 +2,12 @@ package client.view;
 
 import client.controller.Client;
 import client.controller.ClientSocket;
-import model.GameSession;
-import model.Pair;
-import model.Product;
-import model.User;
+import model.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,6 +49,7 @@ public class SoloScreen extends JPanel implements GameSoloListener {
 
     public SoloScreen(User currentUser, GameSession gameSession, ArrayList<Product> products, User startingPlayer) {
         this.currentUser = currentUser;
+        System.out.println("soloscreen game session is: " + gameSession);
         this.gameSession = gameSession;
         this.products = products;
         this.startingPlayer = startingPlayer;
@@ -140,7 +135,19 @@ public class SoloScreen extends JPanel implements GameSoloListener {
         homeButton.setFocusPainted(false);
 
         homeButton.addActionListener(e -> {
-            getClientFrame().showHomeScreen(currentUser);
+            int response = JOptionPane.showConfirmDialog(
+                    getClientFrame(),
+                    "Sau khi về trang chủ sẽ bị xử thua.",
+                    "Xác nhận",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            // Kiểm tra người dùng có chọn "Yes" hay không
+            if (response == JOptionPane.YES_OPTION) {
+                clientSocket.sendOutSoloToHome(new Pair<User, GameSession>(this.currentUser, this.gameSession));
+                getClientFrame().showHomeScreen(currentUser);
+            }
         });
 
         add(homeButton);
@@ -211,7 +218,7 @@ public class SoloScreen extends JPanel implements GameSoloListener {
             public void actionPerformed(ActionEvent e) {
                 timeRemaining = Math.max(timeRemaining - 1, 0);
                 timerLabel.setText("Time: " + timeRemaining + "s");
-                if (checkShelfFull()) {
+                if (checkShelfFull() || gameFinish) {
                     timerLabel.setText("Game over");
                     timeRemaining = -1;
                     timer.stop();
@@ -481,6 +488,43 @@ public class SoloScreen extends JPanel implements GameSoloListener {
         repaint(); // Vẽ lại giao diện
     }
 
+    private void createEndDialog(boolean win) {
+        JDialog dialog = new JDialog(getClientFrame(), "Tổng kết", true);
+        dialog.setSize(300, 200);
+        dialog.setLayout(new BorderLayout());
+        dialog.setUndecorated(true);
+
+        // Tạo nhãn tiêu đề "Win" hoặc "Loss"
+        JLabel resultLabel = new JLabel(win ? "WIN" : "LOSS", JLabel.CENTER);
+        resultLabel.setFont(new Font("Arial", Font.BOLD, 30));
+        resultLabel.setForeground(win ? new Color(34, 139, 34) : Color.RED);  // Màu xanh lá cây cho Win, đỏ cho Loss
+        resultLabel.setOpaque(true);
+        resultLabel.setBackground(win ? new Color(220, 255, 220) : new Color(255, 220, 220));  // Màu nền tương ứng
+        resultLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+
+        // Nút về trang chủ
+        JButton mainMenuButton = new JButton("Về trang chủ");
+        mainMenuButton.setFont(new Font("Arial", Font.BOLD, 16));
+        mainMenuButton.setForeground(Color.WHITE);
+        mainMenuButton.setBackground(new Color(100, 149, 237));
+        mainMenuButton.setFocusPainted(false);
+        mainMenuButton.addActionListener(e -> {
+            dialog.dispose();
+            getClientFrame().showHomeScreen(this.currentUser);  // Quay lại màn hình chính
+        });
+
+        // Panel chứa nút
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(mainMenuButton);
+
+        // Thêm các thành phần vào dialog
+        dialog.add(resultLabel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
     @Override
     public void onProductOrderReceived(Pair<User, ArrayList<Integer>> dataReceived) {
         System.out.println("123");
@@ -509,13 +553,14 @@ public class SoloScreen extends JPanel implements GameSoloListener {
     @Override
     public void onFinishGame(User winner) {
         gameFinish = true;
+        gameOver = true;
 
         // Đưa dialog vào luồng khác để tránh xung đột trên EDT
         SwingUtilities.invokeLater(() -> {
-            if (winner.equals(currentUser)) {
-                JOptionPane.showMessageDialog(this, "Chúc mừng! Bạn đã thắng!", "Kết thúc Trò Chơi", JOptionPane.INFORMATION_MESSAGE);
+            if (winner.getId() == this.currentUser.getId()) {
+                createEndDialog(true);
             } else {
-                JOptionPane.showMessageDialog(this, "Rất tiếc! Bạn đã thua!", "Kết thúc Trò Chơi", JOptionPane.INFORMATION_MESSAGE);
+                createEndDialog(false);
             }
         });
     }

@@ -17,6 +17,10 @@ public class Session {
         this.players = new CopyOnWriteArrayList<>();
     }
 
+    public List<ServerThread> getPlayers() {
+        return players;
+    }
+
     // Method to add a player to the session
     public void addPlayer(ServerThread player) {
         players.add(player);

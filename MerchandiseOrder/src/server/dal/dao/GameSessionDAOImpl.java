@@ -3,10 +3,7 @@ package server.dal.dao;
 import model.GameSession;
 import model.User;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 
 public class GameSessionDAOImpl extends DAOConnection implements GameSessionDAO {
     private UserDAO userDAO = new UserDAOImpl();
@@ -64,9 +61,9 @@ public class GameSessionDAOImpl extends DAOConnection implements GameSessionDAO 
     }
 
     @Override
-    public boolean createGameSession(GameSession gameSession) {
+    public int createGameSession(GameSession gameSession) {
         String query = "INSERT INTO game_sessions (time_start, time_finish, user1_id, user2_id) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement ps = con.prepareStatement(query)) {
+        try (PreparedStatement ps = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             ps.setTimestamp(1, gameSession.getTimeStart()); // Using Timestamp for start time
             ps.setTimestamp(2, gameSession.getTimeFinish()); // Using Timestamp for finish time
             ps.setInt(3, gameSession.getUser1().getId());    // Setting user1's ID
@@ -74,11 +71,19 @@ public class GameSessionDAOImpl extends DAOConnection implements GameSessionDAO 
 
             int rowsAffected = ps.executeUpdate();
 
-            // Return true if a row was inserted successfully
-            return rowsAffected > 0;
+            // Check if a row was inserted
+            if (rowsAffected > 0) {
+                // Retrieve the generated keys
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        return generatedKeys.getInt(1); // Return the generated id
+                    }
+                }
+            }
+            return -1; // Return -1 if no id was generated
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            return false;
+            return -1; // Return -1 in case of an error
         }
     }
 

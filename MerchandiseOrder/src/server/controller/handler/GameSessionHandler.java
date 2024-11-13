@@ -48,7 +48,8 @@ public class GameSessionHandler {
         User userOnline = request.getData().get(0);
         User userInvite = request.getData().get(1);
         GameSession gameSession = new GameSession(LocalDateTime.now(), LocalDateTime.now(), userInvite, userOnline);
-        gameSessionDAO.createGameSession(gameSession);
+        int gameSessionId = gameSessionDAO.createGameSession(gameSession);
+        gameSession.setId(gameSessionId);
         Session session = GameSessionManager.getSession(gameSession);
         if (session == null) {
             GameSessionManager.createSession(gameSession);

@@ -77,7 +77,6 @@ public class ClientSocket {
                             break;
 
                         case "BroadCastProductIds":
-                            System.out.println("broadcast1243");
                             Object data = res.getData();
                             if (data instanceof Pair<?, ?> outerPair) {
                                 if (outerPair.getFirst() instanceof Pair<?, ?> innerPair && outerPair.getSecond() instanceof ArrayList) {
@@ -133,6 +132,8 @@ public class ClientSocket {
 
     public boolean updateUser(User user) {
         try {
+            Client.oos.reset();
+            System.out.println("Call updateUser, user is: " + user);
             DataTransferObject<User> dto = new DataTransferObject<>("UpdateUser", user);
             Client.oos.writeObject(dto);
             Client.oos.flush();
@@ -343,6 +344,25 @@ public class ClientSocket {
         return false;
     }
 
+    public boolean sendOutSoloToHome(Pair<User, GameSession> dataSend) {
+        try {
+            DataTransferObject<Pair<User, GameSession>> dto = new DataTransferObject<>("SendOutSoloToHome", dataSend);
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+            Object response = getNextMessage();
+            if (response instanceof DataTransferObject<?>) {
+                DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) response;
+                if ("ReceiveOutSoloToHome".equals(res.getType())) {
+                    return res.getData();
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public void sendInvite(User onlineUser, User inviter) {
         try {
             // Tạo đối tượng truyền dữ liệu yêu cầu danh sách người dùng
@@ -388,6 +408,7 @@ public class ClientSocket {
 
     public Boolean updateStatusUser(String responseType, Pair<Integer, String> pair) {
         try {
+            Client.oos.reset();
             DataTransferObject<?> dto = new DataTransferObject<>(responseType, pair);
 
             // Gửi yêu cầu tới server

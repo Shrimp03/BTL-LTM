@@ -4,6 +4,7 @@ import client.controller.Client;
 import client.controller.ClientSocket;
 import model.Product;
 import model.User;
+import model.UserStatus;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -41,7 +42,7 @@ public class PlayScreen extends JPanel {
 
     public PlayScreen(User user, ArrayList<Product> products) {
         this.user = user;
-        System.out.println(user);
+        System.out.println("new play screen, user is: " + user);
         this.products = products;
         this.correctOrder = new ArrayList<>(products); // Lưu trữ thứ tự đúng
         this.points = 500; // Điểm ban đầu
@@ -77,10 +78,7 @@ public class PlayScreen extends JPanel {
         JPanel floorPanel = createFloorPanel(products);
         add(floorPanel);
     }
-//    làm giúp tôi 1 ảnh game xếp đồ lên kệ với các chức năng như này
-//    DUngalo12 là tên
-//    bên dưới là point
-//    có 2 nút là bắt đầu chơi và bảng xếp hạng làm giúp tôi
+
     // Tải hình nền
     private void loadBackgroundImage() {
         try {
@@ -198,7 +196,8 @@ public class PlayScreen extends JPanel {
 
         homeButton.addActionListener(e -> {
             gameTimer.stop();  // Dừng bộ đếm thời gian
-            System.out.println(user.getUsername());
+            updateUser(true);
+            System.out.println("call home screen, user is: " + user);
             getClientFrame().showHomeScreen(user);  // Quay lại màn hình chính
         });
 
@@ -424,12 +423,24 @@ public class PlayScreen extends JPanel {
 
     // Cập nhật người dùng
     private void updateUser() {
-        this.user.setPoints(this.user.getPoints() + " " + Math.max(points, 0));
+        this.user.addPoint(Math.max(points, 0));
+        this.user.setStatus(UserStatus.ONLINE);
+        System.out.println(user);
         boolean update = clientSocket.updateUser(this.user);
+        System.out.println(update);
         if (update) {
             createSuccessDialog();
         } else {
             createErrorDialog();
+        }
+    }
+
+    private void updateUser(boolean out) {
+        if (out) {
+            this.user.addPoint(0);
+            this.user.setStatus(UserStatus.ONLINE);
+            System.out.println("play update 2 " + user);
+            clientSocket.updateUser(this.user);
         }
     }
 
@@ -487,7 +498,7 @@ public class PlayScreen extends JPanel {
         titleLabel.setBackground(new Color(220, 255, 220));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel scoreLabel = new JLabel("Điểm của bạn: " + points, JLabel.CENTER);
+        JLabel scoreLabel = new JLabel("Điểm của bạn: " + Math.max(points, 0), JLabel.CENTER);
         scoreLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         scoreLabel.setForeground(Color.BLACK);
         scoreLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));

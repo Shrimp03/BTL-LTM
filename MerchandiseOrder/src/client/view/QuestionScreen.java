@@ -75,13 +75,18 @@ public class QuestionScreen extends JPanel{
                     Pair<Integer, String> pair = new Pair<>(user.getId(), String.valueOf(UserStatus.PLAYING));
                     Boolean updateStatusUser = ClientSocket.getInstance().updateStatusUser("UpdateStatusUser", pair);
                     System.out.println(updateStatusUser);
+                    user.setStatus(UserStatus.PLAYING);
+
+                    if (!user.getPoints().equals("0")) {
+                        user.setPoints(user.getPoints() + " 0");
+                    }
+                    System.out.println("update user question, user is: " + user);
+                    ClientSocket.getInstance().updateUser(user);
 
                     startBarAnimation();
                 }
             }
         });
-
-
 
         this.add(imgGoToPlay);
     }
