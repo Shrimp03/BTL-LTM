@@ -85,8 +85,6 @@ public class ClientSocket {
 
                                     // Notify listeners
                                     for (Pair<GameSoloListener, User> p : listeners) {
-                                        System.out.println("listener");
-                                        System.out.println(listeners.size());
                                         if (p.getSecond().equals(userGameSessionPair.getSecond().getUser1()) ||
                                                 p.getSecond().equals(userGameSessionPair.getSecond().getUser2())) {
                                             p.getFirst().onProductOrderReceived(new Pair<>(userGameSessionPair.getFirst(), productIds));
@@ -269,16 +267,18 @@ public class ClientSocket {
         return null;
     }
 
-    public List<User> getUsersByStatus(String status, String username) {
+    public List<User> getUsersByStatus(String username, String status) {
         try {
-            // Tạo đối tượng truyền dữ liệu yêu cầu danh sách người dùng
-            DataTransferObject<?> dto = new DataTransferObject<>("GetUserByStatus", new UserStatusDto(status, username));
+            Client.oos.reset();
+            System.out.println(username);
+            DataTransferObject<?> dto = new DataTransferObject<>("GetUserByStatus", new UserStatusDto(username, status));
 
             // Gửi yêu cầu tới server
             Client.oos.writeObject(dto);
             Client.oos.flush();
 
             Object response = getNextMessage();
+            System.out.println((DataTransferObject<?>) response);
 
             // Nhận phản hồi từ server
             if(response instanceof DataTransferObject<?>) {

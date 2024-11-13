@@ -66,7 +66,10 @@ public class PopupInvite {
                     // Time ran out, auto-decline and close dialog
                     if (!hasResponded[0]) {
                         hasResponded[0] = true;
-                        ClientSocket.getInstance().sendAcceptInvite("DECLINE", null);
+                        List<User> twoUsers = new ArrayList<>();
+                        twoUsers.add(currentUser);
+                        twoUsers.add(inviter);
+                        ClientSocket.getInstance().sendAcceptInvite("DECLINE", twoUsers);
                         dialog.dispose();
                     }
                     countdownTimer.cancel();
