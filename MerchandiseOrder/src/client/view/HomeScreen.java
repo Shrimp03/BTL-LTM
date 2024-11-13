@@ -29,6 +29,7 @@ public class HomeScreen extends JPanel {
     private JButton hintButton;
     private JLabel imageLabel;
     public HomeScreen(User user) {
+        System.out.println("new home screen, user is: " + user);
         this.user = user;
         setSize(385, 685); // Đặt kích thước lớn
         setLayout(null);

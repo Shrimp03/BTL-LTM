@@ -16,6 +16,7 @@ public class RequestDispatcher {
     public static DataTransferObject<?> dispatch(DataTransferObject<?> request) {
         switch (request.getType()) {
             case "UpdateUser":
+                System.out.println(request);
                 return UserHandler.updateUser(request);
             case "GetProduct":
                 return ProductHandler.getProduct(request);

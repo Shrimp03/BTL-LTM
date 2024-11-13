@@ -19,7 +19,6 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             ps.setString(1, username);
             ps.setString(2, password);
             ResultSet rs = ps.executeQuery();
-            System.out.println(rs.toString() + "jfkdjkdjkf");
             while (rs.next()) {
                 return new User(rs.getInt("id"), rs.getString("username"),
                         rs.getString("password"), rs.getString("email"),
@@ -75,9 +74,6 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
     public boolean updateStatusUser(Pair<Integer, String> pair) {
         String query = "UPDATE users SET  status = ? WHERE id = ?";
         try (PreparedStatement ps = con.prepareStatement(query)) {
-            System.out.println("UserStatus");
-            System.out.println(pair.getSecond());
-            System.out.println(pair.getFirst());
             ps.setString(1, pair.getSecond());
             ps.setInt(2, pair.getFirst());
 
@@ -170,13 +166,5 @@ public class UserDAOImpl extends DAOConnection implements UserDAO {
             System.out.println(e.getMessage());
         }
         return null;
-    }
-
-
-    public static void main(String[] args) {
-        UserDAOImpl dao = new UserDAOImpl();
-        User user = dao.getUser("user1", "password1");
-        System.out.println(user.getHighScore());
-
     }
 }

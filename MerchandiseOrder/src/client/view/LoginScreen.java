@@ -89,7 +89,6 @@ public class LoginScreen extends JPanel {
                 User user = clientSocket.loginUser(username, password);
                 if (user != null) {
                     JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");
-                    getClientFrame().setCurrentUser(user); // Lưu thông tin người dùng
                     getClientFrame().showHomeScreen(user); // Chuyển sang màn hình HomeScreen
                 } else {
                     JOptionPane.showMessageDialog(null, "Tên đăng nhập hoặc mật khẩu không đúng");

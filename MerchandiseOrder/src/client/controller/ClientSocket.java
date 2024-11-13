@@ -133,6 +133,8 @@ public class ClientSocket {
 
     public boolean updateUser(User user) {
         try {
+            Client.oos.reset();
+            System.out.println("Call updateUser, user is: " + user);
             DataTransferObject<User> dto = new DataTransferObject<>("UpdateUser", user);
             Client.oos.writeObject(dto);
             Client.oos.flush();
@@ -388,6 +390,7 @@ public class ClientSocket {
 
     public Boolean updateStatusUser(String responseType, Pair<Integer, String> pair) {
         try {
+            Client.oos.reset();
             DataTransferObject<?> dto = new DataTransferObject<>(responseType, pair);
 
             // Gửi yêu cầu tới server

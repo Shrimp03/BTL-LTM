@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 public class DataTransferObject<T> implements Serializable {
@@ -42,5 +43,14 @@ public class DataTransferObject<T> implements Serializable {
 
     public Product[] getProducts() {
         return products;
+    }
+
+    @Override
+    public String toString() {
+        return "DataTransferObject{" +
+                "type='" + type + '\'' +
+                ", data=" + data +
+                ", products=" + Arrays.toString(products) +
+                '}';
     }
 }

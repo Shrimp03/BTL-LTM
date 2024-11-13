@@ -74,7 +74,6 @@ public class UserHandler {
     public static DataTransferObject<List<User>> getAllUsers(DataTransferObject<?> request) {
         UserDAO userDAO = new UserDAOImpl();
         List<User> users = userDAO.getAllUsers();
-        System.out.println(users.get(0).getUsername());
 
         return new DataTransferObject<>("GetUsersResponse", users);
     }

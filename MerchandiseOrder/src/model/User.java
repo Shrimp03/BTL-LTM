@@ -99,6 +99,16 @@ public class User implements Serializable {
         this.status = status;
     }
 
+    public void addPoint(int point) {
+        String[] points = this.points.split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < points.length - 1; i++) {
+            sb.append(points[i]).append(" ");
+        }
+        sb.append(point);
+        this.points = sb.toString();
+    }
+
     public int getHighScore() {
         String[] points = this.points.split(" ");
         int result = 0;
@@ -132,9 +142,6 @@ public class User implements Serializable {
         }
         return result;
     }
-
-
-
 
     @Override
     public boolean equals(Object o) {
