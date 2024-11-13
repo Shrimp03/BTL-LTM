@@ -34,6 +34,8 @@ public class RequestDispatcher {
                 return GameSoloHandler.requestSolo(request);
             case "SendCorrectProductIds":
                 return GameSoloHandler.sendCorrectProductIds(request);
+            case "SendOutSoloToHome":
+                return GameSoloHandler.sendOutSoloToHome(request);
             case "INVITE":
                 return GameSessionHandler.sendInvite((DataTransferObject<List<User>>) request);
             case "ACCEPT":

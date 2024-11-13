@@ -1,14 +1,13 @@
 package server.controller.handler;
 
-import model.DataTransferObject;
-import model.GameSession;
-import model.Pair;
-import model.User;
+import model.*;
 import server.controller.threadManager.GameSessionManager;
 import server.controller.threadManager.Session;
 import server.controller.threadManager.ThreadManager;
 import server.dal.dao.GameSessionDAO;
 import server.dal.dao.GameSessionDAOImpl;
+import server.dal.dao.UserDAO;
+import server.dal.dao.UserDAOImpl;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -34,6 +33,7 @@ public class GameSoloHandler {
 
     public static DataTransferObject<Boolean> sendCorrectProductIds(DataTransferObject<?> request) {
         GameSessionDAO gameSessionDAO = new GameSessionDAOImpl();
+        UserDAO userDAO = new UserDAOImpl();
         Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>> dataRecive = (Pair<Pair<User, GameSession>, Pair<ArrayList<Integer>, Boolean>>) request.getData();
         User currentUser = dataRecive.getFirst().getFirst();
         GameSession gameSession = dataRecive.getFirst().getSecond();
@@ -52,10 +52,37 @@ public class GameSoloHandler {
             gameSession.setWinner(currentUser);
             gameSession.setTimeFinish(Timestamp.valueOf(LocalDateTime.now()));
             gameSessionDAO.updateGameSession(gameSession);
+            gameSession.getUser1().setStatus(UserStatus.ONLINE);
+            gameSession.getUser2().setStatus(UserStatus.ONLINE);
+            userDAO.updateUser(gameSession.getUser1());
+            userDAO.updateUser(gameSession.getUser2());
 
             GameSessionManager.broadcastToSession(gameSession, new DataTransferObject<Pair<User, GameSession>>("GameSoloFinish", new Pair<>(currentUser, gameSession)));
         }
 
         return new DataTransferObject<>("ReceiveCorrectProductIds", true);
+    }
+
+    public static DataTransferObject<Boolean> sendOutSoloToHome(DataTransferObject<?> request) {
+        GameSessionDAO gameSessionDAO = new GameSessionDAOImpl();
+        UserDAO userDAO = new UserDAOImpl();
+        Pair<User, GameSession> dataRecive = (Pair<User, GameSession>) request.getData();
+        User currentUser = dataRecive.getFirst();
+        GameSession gameSession = dataRecive.getSecond();
+        User winner = (currentUser.equals(gameSession.getUser1())) ? gameSession.getUser2() : gameSession.getUser1();
+
+        if (gameSessionDAO.getGameSessionById(gameSession.getId()).getWinner() == null) {
+            gameSession.setWinner(winner);
+            gameSession.setTimeFinish(Timestamp.valueOf(LocalDateTime.now()));
+            gameSessionDAO.updateGameSession(gameSession);
+            gameSession.getUser1().setStatus(UserStatus.ONLINE);
+            gameSession.getUser2().setStatus(UserStatus.ONLINE);
+            userDAO.updateUser(gameSession.getUser1());
+            userDAO.updateUser(gameSession.getUser2());
+
+            GameSessionManager.broadcastToSession(gameSession, new DataTransferObject<Pair<User, GameSession>>("GameSoloFinish", new Pair<>(winner, gameSession)));
+        }
+
+        return new DataTransferObject<>("ReceiveOutSoloToHome", true);
     }
 }
