@@ -158,28 +158,29 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         popup.setSize(300, 400);
         popup.setLocationRelativeTo(this);
 
-        // Create a panel to hold the list of online users
+        // Panel chính cho các user online
         JPanel popupPanel = new JPanel();
         popupPanel.setLayout(new BoxLayout(popupPanel, BoxLayout.Y_AXIS));
         popupPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+        popupPanel.setBackground(new Color(245, 231, 202));
+        popupPanel.setOpaque(true);
 
         List<User> onlineUsers = ClientSocket.getInstance().getUsersByStatus(user.getUsername(), String.valueOf(UserStatus.ONLINE));
         if (onlineUsers == null || onlineUsers.size() == 0) {
-            JOptionPane.showMessageDialog(null, "Hiện không có người chơi nào trực tuyến!");
+            LoginScreen.CustomDialog.showDialog(getClientFrame(),"Hiện không có người chơi nào trực tuyến!",true);
             return;
         }
 
         for (User onlineUser : onlineUsers) {
             JPanel userPanel = new JPanel(new BorderLayout());
-            userPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50)); // Fixed height for each user panel
+            userPanel.setOpaque(true); // Đảm bảo userPanel là đục
+            userPanel.setBackground(new Color(245, 231, 202)); // Cùng màu với popupPanel
+            userPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
             JLabel userAvatar = new JLabel();
-            System.out.println("avatar");
-            System.out.println(onlineUser.getAvatar());
-            if(onlineUser.getAvatar() != null){
+            if(onlineUser.getAvatar() != null) {
                 userAvatar.setIcon(loadImageFromURL(onlineUser.getAvatar()));
-            }
-            else {
+            } else {
                 userAvatar.setIcon(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
             }
             userAvatar.setPreferredSize(new Dimension(50, 50));
@@ -188,14 +189,12 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
 
             JButton inviteUserButton = new JButton("Mời");
             inviteUserButton.setPreferredSize(new Dimension(80, 30));
+            inviteUserButton.setFont(new Font("Arial", Font.BOLD, 16));
+            inviteUserButton.setForeground(Color.WHITE);
+            inviteUserButton.setBackground(new Color(134, 202, 1));
             inviteUserButton.addActionListener(e -> {
                 invitedUserName.setText(onlineUser.getUsername());
-                if(onlineUser.getAvatar() != null){
-                    invitedUserAvatar.setIcon(loadImageFromURL(onlineUser.getAvatar()));
-                }
-                else {
-                    invitedUserAvatar.setIcon(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
-                }
+                invitedUserAvatar.setIcon(userAvatar.getIcon());
                 ClientSocket.getInstance().sendInvite(onlineUser, user);
                 playButton.setEnabled(true);
 
@@ -218,11 +217,11 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
                                 invitedUserAvatar.setVisible(false);
                                 inviteButton.setVisible(true);
                                 isUserInvited = false;
-                                JOptionPane.showMessageDialog(null, "Người chơi không chấp nhận lời mời!");
+                                LoginScreen.CustomDialog.showDialog(getClientFrame(),"Người chơi không chấp nhận lời mời!",false);
                             }
                         });
                     }
-                }, 5000); // Delay for 5 seconds
+                }, 5000);
             });
 
             userPanel.add(userAvatar, BorderLayout.WEST);
@@ -231,14 +230,15 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
             popupPanel.add(userPanel);
         }
 
-        // Add the popupPanel to a scroll pane for vertical scrolling
         JScrollPane scrollPane = new JScrollPane(popupPanel);
+        scrollPane.getViewport().setBackground(new Color(245, 231, 202)); // Cùng màu nền với popupPanel
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         popup.add(scrollPane);
         popup.setVisible(true);
     }
+
 
 
     // Phương thức để tải ảnh từ URL và chỉnh sửa kích thước

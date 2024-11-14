@@ -20,6 +20,8 @@ public class RegisterScreen extends JPanel {
     private JButton backButton;  // Nút quay lại màn hình đăng nhập
     private Image backgroundImage;
 
+
+
     public RegisterScreen() {
         loadBackgroundImage();
         setSize(400, 300);
@@ -94,10 +96,10 @@ public class RegisterScreen extends JPanel {
                 // Gửi yêu cầu đăng ký qua ClientSocket
                 Boolean success = ClientSocket.getInstance().registerUser(new User(username, password, email));
                 if (success) {
-                    JOptionPane.showMessageDialog(null, "Đăng kí thành công!");
+                    LoginScreen.CustomDialog.showDialog(getClientFrame(), "Đăng kí thành công!", true);
                     getClientFrame().showLoginScreen();  // Chuyển về màn hình đăng nhập nếu đăng ký thành công
                 } else {
-                    JOptionPane.showMessageDialog(null, "Đăng kí thất bại!");
+                    LoginScreen.CustomDialog.showDialog(getClientFrame(), "Đăng kí thất bại!", false);
                 }
             }
         });

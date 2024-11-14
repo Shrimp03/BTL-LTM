@@ -19,6 +19,81 @@ public class LoginScreen extends JPanel {
     private JButton registerButton; // Nút Register
     private Image backgroundImage;
 
+
+
+    public static class CustomDialog extends JDialog {
+
+        private Image backgroundImage;
+
+        public CustomDialog(JFrame parent, String message, boolean success) {
+            super(parent, "Thông báo", true);
+
+            // Tải ảnh nền
+            loadBackgroundImage();
+
+            // Đặt layout cho nội dung của hộp thoại
+            JPanel contentPanel = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    // Vẽ ảnh nền
+                    if (backgroundImage != null) {
+                        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                    }
+                }
+            };
+            contentPanel.setLayout(new BorderLayout());
+            contentPanel.setOpaque(false); // Nền trong suốt cho panel
+
+            // Tạo nhãn với nội dung và màu chữ
+            JLabel label = new JLabel(message);
+            label.setForeground(Color.BLACK);
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            label.setFont(new Font("Arial", Font.BOLD, 18));
+            label.setOpaque(false); // Nền trong suốt cho nhãn
+
+            // Tạo nút đóng
+            JButton closeButton = new JButton("Đóng");
+            closeButton.setBackground(new Color(0, 0, 0, 100)); // Nền xám trong suốt cho nút
+            closeButton.setFont(new Font("Arial", Font.BOLD, 16));
+            closeButton.setForeground(Color.WHITE);
+            closeButton.setOpaque(false);
+            closeButton.setContentAreaFilled(false);
+            closeButton.setBorderPainted(false);
+            closeButton.setFocusPainted(false);
+            closeButton.addActionListener(e -> dispose());
+
+            // Thêm các thành phần vào contentPanel
+            contentPanel.add(label, BorderLayout.CENTER);
+            contentPanel.add(closeButton, BorderLayout.SOUTH);
+
+            // Đặt contentPanel làm nội dung của hộp thoại
+            setContentPane(contentPanel);
+
+            setSize(300, 150);
+            setLocationRelativeTo(parent);
+        }
+
+        // Phương thức tải hình nền
+        private void loadBackgroundImage() {
+            try {
+                InputStream imgStream = getClass().getResourceAsStream("/static/popup1.png"); // Đảm bảo đường dẫn ảnh đúng
+                if (imgStream != null) {
+                    backgroundImage = ImageIO.read(imgStream);
+                } else {
+                    System.out.println("Background image not found, proceeding without it.");
+                }
+            } catch (IOException e) {
+                System.out.println("Error loading background image: " + e.getMessage());
+            }
+        }
+
+        public static void showDialog(JFrame parent, String message, boolean success) {
+            new CustomDialog(parent, message, success).setVisible(true);
+        }
+    }
+
+
     public LoginScreen() {
         // Tải ảnh nền
         loadBackgroundImage();
@@ -88,11 +163,13 @@ public class LoginScreen extends JPanel {
                 ClientSocket clientSocket = ClientSocket.getInstance();
                 User user = clientSocket.loginUser(username, password);
                 if (user != null) {
-                    JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");
+                    // Sử dụng CustomDialog để hiển thị thông báo thành công
+                    CustomDialog.showDialog(getClientFrame(), "Đăng nhập thành công!", true);
                     getClientFrame().setCurrentUser(user); // Lưu thông tin người dùng
                     getClientFrame().showHomeScreen(user); // Chuyển sang màn hình HomeScreen
                 } else {
-                    JOptionPane.showMessageDialog(null, "Tên đăng nhập hoặc mật khẩu không đúng");
+                    // Sử dụng CustomDialog để hiển thị thông báo thất bại
+                    CustomDialog.showDialog(getClientFrame(), "Tên đăng nhập hoặc mật khẩu không đúng", false);
                 }
             }
         });
