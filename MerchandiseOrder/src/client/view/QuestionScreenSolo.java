@@ -68,7 +68,7 @@ public class QuestionScreenSolo extends JPanel {
         });
 
         countdownLabel = new JLabel("Thời gian chờ: " + countdownSeconds + "s");
-        countdownLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        countdownLabel.setFont(new Font("Arial", Font.BOLD, 16));
         countdownLabel.setForeground(Color.RED);
         countdownLabel.setBounds(10, 10, 200, 50);
         add(countdownLabel);
@@ -77,26 +77,23 @@ public class QuestionScreenSolo extends JPanel {
     }
 
     private void startCountdownTimer() {
-        countdownSeconds = 5;
+        countdownSeconds = 5;  // Start from 5 seconds
 
-        Timer delayTimer = new Timer(100, e -> {
-            countdownTimer = new Timer(1000, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    countdownSeconds--;
-                    countdownLabel.setText("Thời gian chờ: " + countdownSeconds + "s");
+        countdownTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                countdownSeconds--;
+                countdownLabel.setText("Thời gian chờ: " + countdownSeconds + "s");
 
-                    if (countdownSeconds <= 0) {
-                        countdownTimer.stop();
-                        getClientFrame().showSoloScreen(user, gameSession, products, startingPlayer);
-                    }
+                if (countdownSeconds <= 0) {
+                    countdownTimer.stop();
+                    getClientFrame().showSoloScreen(user, gameSession, products, startingPlayer);
                 }
-            });
-            countdownTimer.start();
+            }
         });
-        delayTimer.setRepeats(false);
-        delayTimer.start();
+        countdownTimer.start();  // Start the timer immediately
     }
+
 
     @Override
     protected void paintComponent(Graphics g) {

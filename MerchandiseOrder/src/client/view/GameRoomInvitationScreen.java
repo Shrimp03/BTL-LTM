@@ -75,7 +75,7 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         // Current user's avatar and name
         currentUserAvatar = new JLabel();
         if(user.getAvatar() != null){
-            currentUserAvatar.setIcon(loadImageFromURL(inviteUser.getAvatar()));
+            currentUserAvatar.setIcon(loadImageFromURL(user.getAvatar()));
         }
         else {
             currentUserAvatar.setIcon(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));

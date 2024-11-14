@@ -4,6 +4,7 @@ import client.controller.ClientSocket;
 import model.User;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -13,57 +14,71 @@ public class PopupInvite {
 
     private static GameInvitationListener gameInvitationListener;
 
-    // Phương thức đăng ký listener
     public void setGameInvitationListener(GameInvitationListener listener) {
         this.gameInvitationListener = listener;
     }
 
-    // Constructor
     public PopupInvite() {
-        // Đảm bảo listener được set khi khởi tạo
-//        this.setGameInvitationListener(Client.getInstance()); // Đăng ký Client là listener
     }
 
     public static void showInvitationDialog(User currentUser, User inviter) {
-        // Create a dialog to contain the invitation message and countdown
         final JDialog dialog = new JDialog();
         dialog.setModal(true);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.setTitle("Mời người chơi.");
+        dialog.setTitle("Game Invitation");
 
-        // Create a panel to hold components
+        // Set preferred size for the dialog
+        dialog.setPreferredSize(new Dimension(400, 250));
+        dialog.setMinimumSize(new Dimension(400, 250));  // Ensure minimum size
+
+        // Create a panel with a dark background color
         JPanel panel = new JPanel();
+        panel.setBackground(new Color(245, 231, 202)); // Dark background for contrast
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Add padding
 
-        // Label to display the invitation message
-        JLabel messageLabel = new JLabel(inviter.getUsername() + " đã mời bạn tham gia. Bạn có muốn tham gia chơi?");
-        messageLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-        panel.add(messageLabel);
+        // Invitation message
+        JTextArea messageArea = new JTextArea(inviter.getUsername() + " đã mời bạn tham gia trò chơi. Bạn có muốn tham gia?");
+        messageArea.setFont(new Font("Arial", Font.BOLD, 14));
+        messageArea.setForeground(Color.BLACK); // Darker text for readability
+        messageArea.setBackground(new Color(245, 231, 202)); // Match panel background color
+        messageArea.setLineWrap(true);  // Enable line wrapping
+        messageArea.setWrapStyleWord(true);  // Wrap at word boundaries
+        messageArea.setEditable(false);  // Make it non-editable
+        messageArea.setFocusable(false);  // Remove focus for better UI experience
+        messageArea.setAlignmentX(JTextArea.CENTER_ALIGNMENT);
+        panel.add(messageArea);
 
-        // Label to display countdown
-        JLabel countdownLabel = new JLabel("Thời gian chờ: 5 s");
+        // Countdown label
+        JLabel countdownLabel = new JLabel("Thời gian: 5 s");
+        countdownLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        countdownLabel.setForeground(new Color(184, 134, 11)); // Gold color for visibility
         countdownLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        countdownLabel.setPreferredSize(new Dimension(360, 50));
         panel.add(countdownLabel);
 
-        // Buttons for accepting or declining the invitation
+        // Accept and Decline buttons with themed colors
         JButton acceptButton = new JButton("Chấp nhận");
         JButton declineButton = new JButton("Từ chối");
 
-        // Track if the user has responded
-        final boolean[] hasResponded = {false};
+        // Set button colors to match the game theme
+        acceptButton.setBackground(new Color(34, 139, 34)); // Green for "Accept"
+        acceptButton.setForeground(Color.WHITE); // White text for contrast
+        acceptButton.setFont(new Font("Arial", Font.BOLD, 14));
+        declineButton.setBackground(new Color(178, 34, 34)); // Red for "Decline"
+        declineButton.setForeground(Color.WHITE);
+        declineButton.setFont(new Font("Arial", Font.BOLD, 14));
 
-        // Timer for the countdown
+        final boolean[] hasResponded = {false};
         Timer countdownTimer = new Timer();
         countdownTimer.scheduleAtFixedRate(new TimerTask() {
-            int secondsLeft = 5; // Countdown from 5 seconds
+            int secondsLeft = 5;
 
             @Override
             public void run() {
                 if (secondsLeft > 0) {
-                    countdownLabel.setText("Thời gian chờ " + secondsLeft + " s");
+                    countdownLabel.setText("Thời gian: " + secondsLeft + " s");
                     secondsLeft--;
                 } else {
-                    // Time ran out, auto-decline and close dialog
                     if (!hasResponded[0]) {
                         hasResponded[0] = true;
                         List<User> twoUsers = new ArrayList<>();
@@ -77,7 +92,6 @@ public class PopupInvite {
             }
         }, 0, 1000);
 
-        // Action listeners for the buttons
         acceptButton.addActionListener(e -> {
             hasResponded[0] = true;
             countdownTimer.cancel();
@@ -104,20 +118,15 @@ public class PopupInvite {
             ClientSocket.getInstance().sendAcceptInvite("DECLINE", twoUsers);
         });
 
-        // Add buttons to a button panel
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(new Color(245, 231, 202)); // Match background color
         buttonPanel.add(acceptButton);
         buttonPanel.add(declineButton);
 
-        // Add button panel to the main panel
         panel.add(buttonPanel);
-
-        // Add panel to dialog
         dialog.getContentPane().add(panel);
         dialog.pack();
-        dialog.setLocationRelativeTo(null); // Center the dialog on the screen
+        dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
     }
-
-
 }

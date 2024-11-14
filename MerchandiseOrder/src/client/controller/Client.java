@@ -23,6 +23,8 @@ public class Client extends JFrame implements GameInvitationListener {
     private JPanel cardPanel;
     private CardLayout cardLayout;
 
+    private User currentUser;
+
     private static Client instance;
     private PopupInvite popupInvite;
 
@@ -80,6 +82,14 @@ public class Client extends JFrame implements GameInvitationListener {
 
     public void showRegisterScreen() {
         cardLayout.show(cardPanel, "RegisterScreen");
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
     }
 
     public void showHomeScreen(User user) {

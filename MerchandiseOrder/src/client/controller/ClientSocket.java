@@ -52,9 +52,14 @@ public class ClientSocket {
 
                     switch (res.getType()) {
                         case "INVITE":
-                            DataTransferObject<List<User>> resInvite = (DataTransferObject<List<User>>) res;
-                            PopupInvite.showInvitationDialog(resInvite.getData().get(0), resInvite.getData().get(1));
+                            if (res.getData() instanceof List) { // Check if the data is a List
+                                DataTransferObject<List<User>> resInvite = (DataTransferObject<List<User>>) res;
+                                PopupInvite.showInvitationDialog(resInvite.getData().get(0), resInvite.getData().get(1));
+                            } else {
+                                System.err.println("Expected List<User> for 'INVITE' type but received: " + res.getData().getClass().getName());
+                            }
                             break;
+
 
                         case "ACCEPT":
                             setAccepted(true);
@@ -276,26 +281,28 @@ public class ClientSocket {
             // Gửi yêu cầu tới server
             Client.oos.writeObject(dto);
             Client.oos.flush();
+            Boolean flag = true;
+            while (flag){
+                Object response = getNextMessage();
 
-            Object response = getNextMessage();
-            System.out.println((DataTransferObject<?>) response);
+                // Nhận phản hồi từ server
+                if(response instanceof DataTransferObject<?>) {
+                    DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) response;
+                    if(!"Trash".equals(res.getType()) && !"GetUserByStatus".equals(res.getType())){
+                        messageQueue.put(response);
+                    }
+                    // Kiểm tra phản hồi từ server
+                    if ("GetUserByStatus".equals(res.getType())) {
+                        List<User> users = res.getData();
 
-            // Nhận phản hồi từ server
-            if(response instanceof DataTransferObject<?>) {
-                DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) response;
-
-                // Kiểm tra phản hồi từ server
-                if ("GetUserByStatus".equals(res.getType())) {
-                    List<User> users = res.getData();
-                    System.out.println("size user status online");
-                    System.out.println(users.size());
-
-                    // Kiểm tra nếu dữ liệu người dùng bị null
-                    if (users != null) {
-                        System.out.println(users);
-                        return users;  // Trả về danh sách người dùng nếu thành công
-                    } else {
-                        System.out.println("No users found.");
+                        // Kiểm tra nếu dữ liệu người dùng bị null
+                        if (users != null) {
+                            System.out.println(users);
+                            return users;  // Trả về danh sách người dùng nếu thành công
+                        } else {
+                            System.out.println("No users found.");
+                        }
+                        flag = false;
                     }
                 }
             }
@@ -305,6 +312,7 @@ public class ClientSocket {
 
         return null;  // Trả về null nếu có lỗi xảy ra
     }
+
 
     public GameSession requestSolo(User user) {
         try {
