@@ -24,6 +24,3 @@ public abstract class DAOConnection {
         }
     }
 }
-
-
-

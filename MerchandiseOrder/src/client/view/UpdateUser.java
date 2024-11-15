@@ -23,6 +23,8 @@ public class UpdateUser extends JPanel {
     private Image backgroundImage;
     private ClientSocket clientSocket;
 
+
+
     public UpdateUser(User currentUser) {
         this.currentUser = currentUser;
         setLayout(null);
@@ -99,10 +101,10 @@ public class UpdateUser extends JPanel {
             currentUser.setAvatar(this.imgUrl);
             System.out.println(currentUser);
             ClientSocket.getInstance().updateUser(currentUser);
-            JOptionPane.showMessageDialog(this, "Cập nhật thông tin cá nhân thành công!");
+            LoginScreen.CustomDialog.showDialog(getClientFrame(),"Cập nhật thông tin thành công", true);
         }
         else {
-            JOptionPane.showMessageDialog(this, "Không được để trống các trường!");
+            LoginScreen.CustomDialog.showDialog(getClientFrame(), "Không được để trống các trường!" , false);
         }
     }
     private void styleTextField(JTextField textField, int x, int y, int width, int height) {

@@ -92,8 +92,8 @@ public class RankingScreen extends JPanel {
 
         leaderboardTable.getColumnModel().getColumn(0).setPreferredWidth(50);  // Cột "Rank"
         leaderboardTable.getColumnModel().getColumn(1).setPreferredWidth(170); // Cột "Name"
-        leaderboardTable.getColumnModel().getColumn(2).setPreferredWidth(100);  // Cột "Total Score"
-        leaderboardTable.getColumnModel().getColumn(3).setPreferredWidth(100);  // Cột "High Score"
+        leaderboardTable.getColumnModel().getColumn(2).setPreferredWidth(70);  // Cột "Total Score"
+        leaderboardTable.getColumnModel().getColumn(3).setPreferredWidth(130);  // Cột "High Score"
 
         // Căn giữa nội dung các ô và đặt màu chữ trắng
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -173,7 +173,7 @@ public class RankingScreen extends JPanel {
         yourRankingTable.getColumnModel().getColumn(3).setPreferredWidth(100);  // Cột "High Score"
 
         // Tạo nút quay lại
-        backButton = new JButton("Home");
+        backButton = new JButton("Trang chủ");
         backButton.setBounds(0, 0, 150, 40);
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
         backButton.setBackground(new Color(100, 149, 237));

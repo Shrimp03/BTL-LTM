@@ -37,6 +37,23 @@ public class GameSessionManager {
         }
     }
 
+    public static void removeUserFromAllSession(ServerThread userThread) {
+        if (userThread == null) return; // Kiểm tra nếu userThread là null
+
+        // Duyệt qua tất cả các phiên
+        for (Map.Entry<GameSession, Session> entry : sessions.entrySet()) {
+            Session session = entry.getValue();
+
+            // Xóa người dùng khỏi phiên
+            session.removePlayer(userThread);
+
+            // Nếu phiên không còn người chơi nào, xóa phiên khỏi danh sách sessions
+            if (session.isEmpty()) {
+                sessions.remove(entry.getKey());
+            }
+        }
+    }
+
     // Method to broadcast an event to all players in a session
     public static void broadcastToSession(GameSession gameSession, DataTransferObject<?> event) {
         Session session = sessions.get(gameSession);

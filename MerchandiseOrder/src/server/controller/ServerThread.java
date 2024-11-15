@@ -4,6 +4,7 @@ import model.DataTransferObject;
 import model.GameSession;
 import model.User;
 import model.UserStatus;
+import server.controller.threadManager.GameSessionManager;
 import server.controller.threadManager.ThreadManager;
 import server.dal.dao.UserDAO;
 import server.dal.dao.UserDAOImpl;
@@ -45,6 +46,7 @@ public class ServerThread implements Runnable {
                         if (user != null) {
                             user.setStatus(UserStatus.OFFLINE);
                             ThreadManager.removeUserThread(user);
+                            GameSessionManager.removeUserFromAllSession(this);
                         }
                         System.out.println("Client requested disconnect. Closing connection...");
                         break; // Thoát khỏi vòng lặp để ngắt kết nối
@@ -63,6 +65,7 @@ public class ServerThread implements Runnable {
                     if (user != null) {
                         user.setStatus(UserStatus.OFFLINE);
                         ThreadManager.removeUserThread(user);
+                        GameSessionManager.removeUserFromAllSession(this);
                     }
                     userDAO.updateUser(user);
                     System.out.println("Client has closed the connection unexpectedly.");

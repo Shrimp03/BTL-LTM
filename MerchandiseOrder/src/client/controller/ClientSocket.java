@@ -3,7 +3,7 @@ package client.controller;
 import client.view.GamePlayListener;
 import client.view.GameSoloListener;
 import client.view.PopupInvite;
-import dto.UserStatusDto;
+import model.UserStatusDto;
 import model.*;
 
 import java.io.IOException;
@@ -52,9 +52,14 @@ public class ClientSocket {
 
                     switch (res.getType()) {
                         case "INVITE":
-                            DataTransferObject<List<User>> resInvite = (DataTransferObject<List<User>>) res;
-                            PopupInvite.showInvitationDialog(resInvite.getData().get(0), resInvite.getData().get(1));
+                            if (res.getData() instanceof List) { // Check if the data is a List
+                                DataTransferObject<List<User>> resInvite = (DataTransferObject<List<User>>) res;
+                                PopupInvite.showInvitationDialog(resInvite.getData().get(0), resInvite.getData().get(1));
+                            } else {
+                                System.err.println("Expected List<User> for 'INVITE' type but received: " + res.getData().getClass().getName());
+                            }
                             break;
+
 
                         case "ACCEPT":
                             setAccepted(true);
@@ -77,7 +82,6 @@ public class ClientSocket {
                             break;
 
                         case "BroadCastProductIds":
-                            System.out.println("broadcast1243");
                             Object data = res.getData();
                             if (data instanceof Pair<?, ?> outerPair) {
                                 if (outerPair.getFirst() instanceof Pair<?, ?> innerPair && outerPair.getSecond() instanceof ArrayList) {
@@ -86,8 +90,6 @@ public class ClientSocket {
 
                                     // Notify listeners
                                     for (Pair<GameSoloListener, User> p : listeners) {
-                                        System.out.println("listener");
-                                        System.out.println(listeners.size());
                                         if (p.getSecond().equals(userGameSessionPair.getSecond().getUser1()) ||
                                                 p.getSecond().equals(userGameSessionPair.getSecond().getUser2())) {
                                             p.getFirst().onProductOrderReceived(new Pair<>(userGameSessionPair.getFirst(), productIds));
@@ -133,6 +135,8 @@ public class ClientSocket {
 
     public boolean updateUser(User user) {
         try {
+            Client.oos.reset();
+            System.out.println("Call updateUser, user is: " + user);
             DataTransferObject<User> dto = new DataTransferObject<>("UpdateUser", user);
             Client.oos.writeObject(dto);
             Client.oos.flush();
@@ -268,33 +272,37 @@ public class ClientSocket {
         return null;
     }
 
-    public List<User> getUsersByStatus(String status, String username) {
+    public List<User> getUsersByStatus(String username, String status) {
         try {
-            // Tạo đối tượng truyền dữ liệu yêu cầu danh sách người dùng
-            DataTransferObject<?> dto = new DataTransferObject<>("GetUserByStatus", new UserStatusDto(status, username));
+            Client.oos.reset();
+            System.out.println(username);
+            DataTransferObject<?> dto = new DataTransferObject<>("GetUserByStatus", new UserStatusDto(username, status));
 
             // Gửi yêu cầu tới server
             Client.oos.writeObject(dto);
             Client.oos.flush();
+            Boolean flag = true;
+            while (flag){
+                Object response = getNextMessage();
 
-            Object response = getNextMessage();
+                // Nhận phản hồi từ server
+                if(response instanceof DataTransferObject<?>) {
+                    DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) response;
+                    if(!"Trash".equals(res.getType()) && !"GetUserByStatus".equals(res.getType())){
+                        messageQueue.put(response);
+                    }
+                    // Kiểm tra phản hồi từ server
+                    if ("GetUserByStatus".equals(res.getType())) {
+                        List<User> users = res.getData();
 
-            // Nhận phản hồi từ server
-            if(response instanceof DataTransferObject<?>) {
-                DataTransferObject<List<User>> res = (DataTransferObject<List<User>>) response;
-
-                // Kiểm tra phản hồi từ server
-                if ("GetUserByStatus".equals(res.getType())) {
-                    List<User> users = res.getData();
-                    System.out.println("size user status online");
-                    System.out.println(users.size());
-
-                    // Kiểm tra nếu dữ liệu người dùng bị null
-                    if (users != null) {
-                        System.out.println(users);
-                        return users;  // Trả về danh sách người dùng nếu thành công
-                    } else {
-                        System.out.println("No users found.");
+                        // Kiểm tra nếu dữ liệu người dùng bị null
+                        if (users != null) {
+                            System.out.println(users);
+                            return users;  // Trả về danh sách người dùng nếu thành công
+                        } else {
+                            System.out.println("No users found.");
+                        }
+                        flag = false;
                     }
                 }
             }
@@ -304,6 +312,7 @@ public class ClientSocket {
 
         return null;  // Trả về null nếu có lỗi xảy ra
     }
+
 
     public GameSession requestSolo(User user) {
         try {
@@ -334,6 +343,25 @@ public class ClientSocket {
             if (response instanceof DataTransferObject<?>) {
                 DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) response;
                 if ("ReceiveCorrectProductIds".equals(res.getType())) {
+                    return res.getData();
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean sendOutSoloToHome(Pair<User, GameSession> dataSend) {
+        try {
+            DataTransferObject<Pair<User, GameSession>> dto = new DataTransferObject<>("SendOutSoloToHome", dataSend);
+            Client.oos.writeObject(dto);
+            Client.oos.flush();
+
+            Object response = getNextMessage();
+            if (response instanceof DataTransferObject<?>) {
+                DataTransferObject<Boolean> res = (DataTransferObject<Boolean>) response;
+                if ("ReceiveOutSoloToHome".equals(res.getType())) {
                     return res.getData();
                 }
             }
@@ -388,6 +416,7 @@ public class ClientSocket {
 
     public Boolean updateStatusUser(String responseType, Pair<Integer, String> pair) {
         try {
+            Client.oos.reset();
             DataTransferObject<?> dto = new DataTransferObject<>(responseType, pair);
 
             // Gửi yêu cầu tới server

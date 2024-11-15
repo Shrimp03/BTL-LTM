@@ -28,7 +28,105 @@ public class HomeScreen extends JPanel {
     private Image backgroundImage;
     private JButton hintButton;
     private JLabel imageLabel;
+
+    public static class CustomDialog extends JDialog {
+
+        private Image backgroundImage;
+
+        public CustomDialog(JFrame parent, String message, boolean success, Runnable onConfirm) {
+            super(parent, "Thông báo", true);
+
+            // Tải ảnh nền
+            loadBackgroundImage();
+
+            // Đặt layout cho nội dung của hộp thoại
+            JPanel contentPanel = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    // Vẽ ảnh nền
+                    if (backgroundImage != null) {
+                        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                    }
+                }
+            };
+            contentPanel.setLayout(new BorderLayout());
+            contentPanel.setOpaque(false); // Nền trong suốt cho panel
+
+            // Tạo nhãn với nội dung và màu chữ
+            JLabel label = new JLabel(message);
+            label.setForeground(Color.BLACK);
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            label.setFont(new Font("Arial", Font.BOLD, 18));
+            label.setOpaque(false); // Nền trong suốt cho nhãn
+
+            // Tạo các nút "Có" và "Không"
+            JButton yesButton = createCustomButton("Có");
+            yesButton.addActionListener(e -> {
+                dispose();
+                if (onConfirm != null) {
+                    onConfirm.run(); // Thực thi hành động khi bấm "Có"
+                }
+            });
+
+            JButton noButton = createCustomButton("Không");
+            noButton.addActionListener(e -> dispose());
+
+            // Tạo panel cho các nút và đặt chúng cạnh nhau
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 5));
+            buttonPanel.setOpaque(false); // Nền trong suốt cho panel nút
+            buttonPanel.add(yesButton);
+            buttonPanel.add(noButton);
+
+            // Thêm các thành phần vào contentPanel
+            contentPanel.add(label, BorderLayout.CENTER);
+            contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+            // Đặt contentPanel làm nội dung của hộp thoại
+            setContentPane(contentPanel);
+
+            setSize(300, 180);
+            setLocationRelativeTo(parent);
+        }
+
+        // Tạo nút tùy chỉnh để dễ thay đổi giao diện
+        private JButton createCustomButton(String text) {
+            JButton button = new JButton(text);
+            button.setBackground(new Color(0, 0, 0, 100)); // Nền xám trong suốt cho nút
+            button.setFont(new Font("Arial", Font.BOLD, 16));
+            button.setForeground(Color.WHITE);
+            button.setOpaque(false);
+            button.setContentAreaFilled(false);
+            button.setBorderPainted(false);
+            button.setFocusPainted(false);
+            return button;
+        }
+
+        // Phương thức tải hình nền
+        private void loadBackgroundImage() {
+            try {
+                InputStream imgStream = getClass().getResourceAsStream("/static/popup2.png"); // Đảm bảo đường dẫn ảnh đúng
+                if (imgStream != null) {
+                    backgroundImage = ImageIO.read(imgStream);
+                } else {
+                    System.out.println("Background image not found, proceeding without it.");
+                }
+            } catch (IOException e) {
+                System.out.println("Error loading background image: " + e.getMessage());
+            }
+        }
+
+        // Hiển thị hộp thoại với hành động xác nhận
+        public static void showDialog(JFrame parent, String message, boolean success, Runnable onConfirm) {
+            new CustomDialog(parent, message, success, onConfirm).setVisible(true);
+        }
+    }
+
+
+
+
     public HomeScreen(User user) {
+        System.out.println("new home screen, user is: " + user);
         this.user = user;
         setSize(385, 685); // Đặt kích thước lớn
         setLayout(null);
@@ -114,27 +212,19 @@ public class HomeScreen extends JPanel {
 
         // Thêm sự kiện click
         logoutButton.addActionListener(e -> {
-            // Hiển thị hộp thoại xác nhận
-            int response = JOptionPane.showConfirmDialog(
-                    this,
-                    "Bạn có muốn đăng xuất không?",
-                    "Xác nhận đăng xuất",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
-
-            // Kiểm tra phản hồi của người dùng
-            if (response == JOptionPane.YES_OPTION) {
+            // Hiển thị hộp thoại xác nhận bằng CustomDialog
+            CustomDialog.showDialog(getClientFrame(), "Bạn có muốn đăng xuất không?", true, () -> {
+                // Xử lý khi người dùng chọn "Có"
                 boolean logoutSuccess = ClientSocket.getInstance().logoutUser(user); // Gửi yêu cầu logout tới server
 
                 if (logoutSuccess) {
                     // Chuyển về màn hình đăng nhập
                     getClientFrame().showLoginScreen();
-                    JOptionPane.showMessageDialog(this, "Bạn đã đăng xuất thành công!");
+                    LoginScreen.CustomDialog.showDialog(getClientFrame(),"Bạn đã đăng xuất thành công!", true);
                 } else {
-                    JOptionPane.showMessageDialog(this, "Đăng xuất thất bại. Vui lòng thử lại.");
+                    LoginScreen.CustomDialog.showDialog(getClientFrame(),"Đăng xuất thất bại. Vui lòng thử lại.",false);
                 }
-            }
+            });
         });
         add(logoutButton);
 

@@ -73,7 +73,13 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         });
 
         // Current user's avatar and name
-        currentUserAvatar = new JLabel(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
+        currentUserAvatar = new JLabel();
+        if(user.getAvatar() != null){
+            currentUserAvatar.setIcon(loadImageFromURL(user.getAvatar()));
+        }
+        else {
+            currentUserAvatar.setIcon(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
+        }
         currentUserAvatar.setBounds(155, 180, 60, 60);
         mainPanel.add(currentUserAvatar);
 
@@ -134,7 +140,12 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         mainPanel.add(playButton);
 
         if(isOnlineUser){
-            invitedUserAvatar.setIcon(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));// Ban đầu ẩn
+            if(inviteUser.getAvatar() != null){
+                invitedUserAvatar.setIcon(loadImageFromURL(inviteUser.getAvatar()));
+            }
+            else {
+                invitedUserAvatar.setIcon(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
+            }
             invitedUserName.setText(inviteUser.getUsername());
             inviteButton.setVisible(false);
         }
@@ -147,65 +158,70 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         popup.setSize(300, 400);
         popup.setLocationRelativeTo(this);
 
-        // Panel chứa danh sách người dùng với chức năng cuộn
+        // Panel chính cho các user online
         JPanel popupPanel = new JPanel();
         popupPanel.setLayout(new BoxLayout(popupPanel, BoxLayout.Y_AXIS));
         popupPanel.setAlignmentY(Component.TOP_ALIGNMENT);
-        popupPanel.setPreferredSize(new Dimension(300, 200)); // Adjust according to preferred scroll pane view
-        popupPanel.setMaximumSize(new Dimension(300, 200));
+        popupPanel.setBackground(new Color(245, 231, 202));
+        popupPanel.setOpaque(true);
 
         List<User> onlineUsers = ClientSocket.getInstance().getUsersByStatus(user.getUsername(), String.valueOf(UserStatus.ONLINE));
-        if( onlineUsers == null || onlineUsers.size() == 0 ) {
-            JOptionPane.showMessageDialog(null, "Hiện không có người chơi nào trực tuyến!");
+        if (onlineUsers == null || onlineUsers.size() == 0) {
+            LoginScreen.CustomDialog.showDialog(getClientFrame(),"Hiện không có người chơi nào trực tuyến!",true);
             return;
         }
-        for (User onlineUser : onlineUsers) {
-            JPanel userPanel = new JPanel();
-            userPanel.setLayout(new BorderLayout());
-            userPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50)); // Fixed height, flexible width
-            userPanel.setPreferredSize(new Dimension(280, 50)); // Kích thước cố định cho mỗi hàng
 
-            JLabel userAvatar = new JLabel(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
-            userAvatar.setPreferredSize(new Dimension(50, 50)); // Kích thước ảnh avatar
+        for (User onlineUser : onlineUsers) {
+            JPanel userPanel = new JPanel(new BorderLayout());
+            userPanel.setOpaque(true); // Đảm bảo userPanel là đục
+            userPanel.setBackground(new Color(245, 231, 202)); // Cùng màu với popupPanel
+            userPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+            JLabel userAvatar = new JLabel();
+            if(onlineUser.getAvatar() != null) {
+                userAvatar.setIcon(loadImageFromURL(onlineUser.getAvatar()));
+            } else {
+                userAvatar.setIcon(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
+            }
+            userAvatar.setPreferredSize(new Dimension(50, 50));
             JLabel userName = new JLabel(onlineUser.getUsername());
             userName.setHorizontalAlignment(SwingConstants.LEFT);
 
             JButton inviteUserButton = new JButton("Mời");
-            inviteUserButton.setPreferredSize(new Dimension(80, 30)); // Kích thước nút Invite
-            inviteUserButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    invitedUserName.setText(onlineUser.getUsername());
-                    invitedUserAvatar.setIcon(loadImageFromURL("https://th.bing.com/th/id/OIP.xyVi_Y3F3YwEIKzQm_j_jQHaHa?rs=1&pid=ImgDetMain"));
-                    ClientSocket.getInstance().sendInvite(onlineUser, user);
-                    playButton.setEnabled(true);
-                    inviteTimer = new Timer();
-                    inviteTimer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            SwingUtilities.invokeLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Boolean accepted = ClientSocket.getInstance().getAccepted();
-                                    if (accepted) {
-                                        popup.dispose();
-                                        invitedUserName.setVisible(true);
-                                        invitedUserAvatar.setVisible(true);
-                                        inviteButton.setVisible(false);
-                                        setOnlineUser(onlineUser);
-                                        isUserInvited = true;
-                                    } else {
-                                        invitedUserName.setVisible(false);
-                                        invitedUserAvatar.setVisible(false);
-                                        inviteButton.setVisible(true);
-                                        isUserInvited = false;
-                                        JOptionPane.showMessageDialog(null, "Người chơi không chấp nhận lời mời!");
-                                    }
-                                }
-                            });
-                        }
-                    }, 5000); // Dela
-                }
+            inviteUserButton.setPreferredSize(new Dimension(80, 30));
+            inviteUserButton.setFont(new Font("Arial", Font.BOLD, 16));
+            inviteUserButton.setForeground(Color.WHITE);
+            inviteUserButton.setBackground(new Color(134, 202, 1));
+            inviteUserButton.addActionListener(e -> {
+                invitedUserName.setText(onlineUser.getUsername());
+                invitedUserAvatar.setIcon(userAvatar.getIcon());
+                ClientSocket.getInstance().sendInvite(onlineUser, user);
+                playButton.setEnabled(true);
+
+                inviteTimer = new Timer();
+                inviteTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        SwingUtilities.invokeLater(() -> {
+                            Boolean accepted = ClientSocket.getInstance().getAccepted();
+                            popup.dispose();
+
+                            if (accepted) {
+                                invitedUserName.setVisible(true);
+                                invitedUserAvatar.setVisible(true);
+                                inviteButton.setVisible(false);
+                                setOnlineUser(onlineUser);
+                                isUserInvited = true;
+                            } else {
+                                invitedUserName.setVisible(false);
+                                invitedUserAvatar.setVisible(false);
+                                inviteButton.setVisible(true);
+                                isUserInvited = false;
+                                LoginScreen.CustomDialog.showDialog(getClientFrame(),"Người chơi không chấp nhận lời mời!",false);
+                            }
+                        });
+                    }
+                }, 5000);
             });
 
             userPanel.add(userAvatar, BorderLayout.WEST);
@@ -215,10 +231,15 @@ public class GameRoomInvitationScreen extends JPanel implements GamePlayListener
         }
 
         JScrollPane scrollPane = new JScrollPane(popupPanel);
+        scrollPane.getViewport().setBackground(new Color(245, 231, 202)); // Cùng màu nền với popupPanel
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
         popup.add(scrollPane);
         popup.setVisible(true);
     }
+
+
 
     // Phương thức để tải ảnh từ URL và chỉnh sửa kích thước
     private ImageIcon loadImageFromURL(String urlString) {

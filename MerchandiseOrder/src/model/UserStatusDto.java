@@ -1,6 +1,4 @@
-package dto;
-
-import model.User;
+package model;
 
 import java.io.Serializable;
 

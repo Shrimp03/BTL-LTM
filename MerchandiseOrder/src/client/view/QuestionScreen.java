@@ -33,6 +33,7 @@ public class QuestionScreen extends JPanel{
     private int countdownSeconds = 5; // Set the countdown time to 15 seconds
     private JLabel countdownLabel;
     private Timer countdownTimer;
+    private boolean isClicked = false;
 
     public QuestionScreen(User user) {
         this.user = user;
@@ -61,15 +62,29 @@ public class QuestionScreen extends JPanel{
         this.add(homeButton);
 
         imgGoToPlay = new JLabel(showImage("/static/door.png", 100, 100));
-        imgGoToPlay.setBounds(135, 250, 100, 100);// Đường dẫn tới hình ảnh
-        imgGoToPlay.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Thay đổi con trỏ khi di chuột qua ảnh
+        imgGoToPlay.setBounds(135, 250, 100, 100);  // Set image path
+        imgGoToPlay.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));  // Change cursor on hover
         imgGoToPlay.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                Pair<Integer, String> pair = new Pair<>(user.getId(), String.valueOf(UserStatus.PLAYING));
-                Boolean updateStatusUser = ClientSocket.getInstance().updateStatusUser("UpdateStatusUser", pair);
-                System.out.println(updateStatusUser);
-                startBarAnimation();
+                // Only allow a single click to execute the action
+                if (!isClicked) {
+                    isClicked = true;  // Set flag to true on first click
+                    imgGoToPlay.setEnabled(false);  // Disable further interaction
+
+                    Pair<Integer, String> pair = new Pair<>(user.getId(), String.valueOf(UserStatus.PLAYING));
+                    Boolean updateStatusUser = ClientSocket.getInstance().updateStatusUser("UpdateStatusUser", pair);
+                    System.out.println(updateStatusUser);
+                    user.setStatus(UserStatus.PLAYING);
+
+                    if (!user.getPoints().equals("0")) {
+                        user.setPoints(user.getPoints() + " 0");
+                    }
+                    System.out.println("update user question, user is: " + user);
+                    ClientSocket.getInstance().updateUser(user);
+
+                    startBarAnimation();
+                }
             }
         });
 
@@ -125,7 +140,7 @@ public class QuestionScreen extends JPanel{
 
         add(shelfMechandise);
 
-        countdownLabel = new JLabel("Time left: " + countdownSeconds + "s");
+        countdownLabel = new JLabel("Thời gian chờ: " + countdownSeconds + "s");
         countdownLabel.setFont(new Font("Arial", Font.BOLD, 24));
         countdownLabel.setForeground(Color.RED);
         countdownLabel.setBounds(10, 10, 200, 50);  // Vị trí của label đếm ngược
@@ -143,7 +158,7 @@ public class QuestionScreen extends JPanel{
             @Override
             public void actionPerformed(ActionEvent e) {
                 countdownSeconds--;
-                countdownLabel.setText("Time left: " + countdownSeconds + "s");
+                countdownLabel.setText("Thời gian chờ: " + countdownSeconds + "s");
 
                 if (countdownSeconds <= 0) {
                     countdownTimer.stop();
